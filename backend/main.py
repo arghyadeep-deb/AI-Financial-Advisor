@@ -72,3 +72,7 @@ app.include_router(profile_router)
 app.include_router(analysis_router)
 app.include_router(chat_router)
 app.include_router(thread_router)
+
+@app.get("/")
+def root():
+    return {"message": "AI Financial Advisor API is running 🚀"}
