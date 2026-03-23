@@ -1,0 +1,1126 @@
+[
+  {
+    "name": "Cash & Cash Equivalents",
+    "category": "Cash",
+    "sub_category": "Liquid Assets",
+    "instruments": [
+      "Savings Account",
+      "Money Market Funds",
+      "Treasury Bills",
+      "Commercial Paper",
+      "Current Account"
+    ],
+    "risk_level": "Very Low",
+    "risk_score": 1,
+    "expected_return_percent": "1-4",
+    "inflation_beating": false,
+    "time_horizon": "Short term (less than 3 years)",
+    "liquidity": "Very High",
+    "liquidity_score": 10,
+    "min_investment": 0,
+    "tax_treatment": {
+      "returns_taxed_as": "Income (added to salary slab)",
+      "tax_benefit_section": null,
+      "tds_applicable": false
+    },
+    "indian_context": {
+      "best_instruments": ["SBI Savings Account", "Liquid Mutual Funds", "91-day T-Bills"],
+      "typical_rate_2026": "3.5-7% for savings accounts",
+      "where_to_invest": ["Any bank savings account", "Zerodha Coin liquid funds", "Paytm Money"]
+    },
+    "suitable_for": ["Emergency funds", "Short term cash storage", "Parking money between investments"],
+    "not_suitable_for": ["Long term wealth building", "Beating inflation", "Retirement corpus"],
+    "pros": [
+      "Same day or instant access to money",
+      "Zero risk of capital loss",
+      "Good for emergency fund parking",
+      "Simple and easy to understand",
+      "No lock-in period"
+    ],
+    "cons": [
+      "Returns 1-4% — well below 6% inflation",
+      "Money loses real value over time",
+      "No tax benefits",
+      "Not suitable for wealth creation",
+      "Opportunity cost is very high"
+    ],
+    "when_to_use": "Always keep 6 months of expenses here as emergency fund. Do not invest more than this.",
+    "ideal_allocation_percent": "5-10% of total portfolio (emergency fund only)",
+    "rebalancing_note": "Maintain fixed amount equal to 6 months expenses. Do not grow this beyond that."
+  },
+
+  {
+    "name": "Fixed Deposits",
+    "category": "Fixed Income",
+    "sub_category": "Bank Deposits",
+    "instruments": [
+      "Bank Fixed Deposits",
+      "Corporate FDs",
+      "Certificates of Deposit",
+      "Recurring Deposits"
+    ],
+    "risk_level": "Low",
+    "risk_score": 2,
+    "expected_return_percent": "6-8",
+    "inflation_beating": false,
+    "time_horizon": "Short to Medium term (1-5 years)",
+    "liquidity": "Medium",
+    "liquidity_score": 6,
+    "min_investment": 1000,
+    "tax_treatment": {
+      "returns_taxed_as": "Income (added to salary slab)",
+      "tds_applicable": true,
+      "tds_rate": "10% if PAN provided, 20% without PAN",
+      "tds_threshold": "40000 per year per bank",
+      "tax_benefit_section": "80C for 5-year tax saver FD only"
+    },
+    "indian_context": {
+      "best_instruments": ["SBI FD", "HDFC FD", "ICICI FD", "Small Finance Bank FDs (higher rates)"],
+      "typical_rate_2026": "6.5-9% depending on bank and tenure",
+      "small_finance_banks": "Unity SFB, Suryoday SFB offering 8.5-9%",
+      "senior_citizen_benefit": "Additional 0.25-0.5% for senior citizens",
+      "where_to_invest": ["Net banking of any major bank", "Groww", "Paytm Money FDs"]
+    },
+    "suitable_for": ["Conservative investors", "Short term goals", "Senior citizens", "Capital preservation"],
+    "not_suitable_for": ["Long term wealth building", "High return seekers", "Tax efficiency seekers"],
+    "pros": [
+      "Guaranteed fixed return — no market risk",
+      "Insured up to 5 lakh per bank by DICGC",
+      "Easy to open via net banking",
+      "Good for short term goals like vacation, down payment",
+      "Senior citizens get extra 0.5% return"
+    ],
+    "cons": [
+      "Returns fully taxable as per income slab",
+      "Post-tax returns often below inflation for 30% bracket",
+      "Premature withdrawal penalty of 0.5-1%",
+      "TDS deducted if annual interest exceeds 40,000",
+      "Lock-in reduces flexibility"
+    ],
+    "when_to_use": "For goals 1-3 years away where capital safety is priority. Avoid for long term — debt mutual funds are more tax efficient.",
+    "ideal_allocation_percent": "5-15% of portfolio for short term goals",
+    "tax_saving_tip": "5-year tax saver FD gives 80C deduction up to 1.5 lakh but has 5 year lock-in"
+  },
+
+  {
+    "name": "Government Small Savings Schemes",
+    "category": "Fixed Income",
+    "sub_category": "Government Schemes",
+    "instruments": [
+      "Public Provident Fund (PPF)",
+      "National Savings Certificate (NSC)",
+      "Senior Citizens Savings Scheme (SCSS)",
+      "Sukanya Samriddhi Yojana (SSY)",
+      "Post Office Time Deposits",
+      "Kisan Vikas Patra (KVP)",
+      "Post Office Monthly Income Scheme (POMIS)"
+    ],
+    "risk_level": "Low",
+    "risk_score": 2,
+    "expected_return_percent": "7-8.2",
+    "inflation_beating": true,
+    "time_horizon": "Medium to Long term (5-15 years)",
+    "liquidity": "Low",
+    "liquidity_score": 3,
+    "min_investment": 500,
+    "tax_treatment": {
+      "PPF": {
+        "contribution_deduction": "80C up to 1.5 lakh",
+        "interest": "Tax free",
+        "maturity": "Tax free",
+        "status": "EEE — Exempt Exempt Exempt — best tax treatment in India"
+      },
+      "NSC": {
+        "contribution_deduction": "80C up to 1.5 lakh",
+        "interest": "Taxable but reinvestment counts for 80C",
+        "maturity": "Taxable"
+      },
+      "SCSS": {
+        "contribution_deduction": "80C up to 1.5 lakh",
+        "interest": "Taxable",
+        "tds": "Applicable above 50,000 per year"
+      },
+      "SSY": {
+        "status": "EEE — fully tax free",
+        "contribution_deduction": "80C up to 1.5 lakh"
+      }
+    },
+    "indian_context": {
+      "PPF_rate_2026": "7.1% per annum",
+      "NSC_rate_2026": "7.7% per annum",
+      "SCSS_rate_2026": "8.2% per annum",
+      "SSY_rate_2026": "8.2% per annum",
+      "rates_revised": "Quarterly by government — subject to change",
+      "where_to_invest": ["Post Office", "SBI", "Any nationalized bank", "HDFC Bank for PPF"]
+    },
+    "suitable_for": [
+      "Risk averse investors",
+      "Tax saving investors",
+      "Retirement planning",
+      "Daughters education and marriage (SSY)",
+      "Senior citizens (SCSS)"
+    ],
+    "not_suitable_for": ["High liquidity needs", "Short term goals", "Aggressive wealth builders"],
+    "pros": [
+      "PPF and SSY are completely tax free — EEE status",
+      "Government guarantee — zero default risk",
+      "SCSS gives 8.2% — best safe return for seniors",
+      "PPF has partial withdrawal and loan facility after 3 years",
+      "SSY gives 8.2% tax free for girl child education"
+    ],
+    "cons": [
+      "PPF has 15 year lock-in — very illiquid",
+      "Annual contribution limits — PPF max 1.5 lakh per year",
+      "Returns may be revised downward by government",
+      "Not suitable if you need flexibility",
+      "KVP and NSC returns are taxable — reduces net return"
+    ],
+    "when_to_use": "PPF is a must-have for every Indian investor for tax saving and safe long term returns. Max it out every year.",
+    "ideal_allocation_percent": "10-20% of portfolio",
+    "pro_tip": "Always max out PPF at 1.5 lakh per year before investing elsewhere. The EEE tax treatment makes it unbeatable for safe investments."
+  },
+
+  {
+    "name": "Government Bonds",
+    "category": "Fixed Income",
+    "sub_category": "Sovereign Bonds",
+    "instruments": [
+      "RBI Floating Rate Savings Bonds",
+      "Sovereign Gold Bonds (SGB)",
+      "State Government Bonds",
+      "RBI Direct Bonds",
+      "Inflation-linked Bonds"
+    ],
+    "risk_level": "Low",
+    "risk_score": 2,
+    "expected_return_percent": "7-8.5",
+    "inflation_beating": true,
+    "time_horizon": "Medium to Long term (3-10 years)",
+    "liquidity": "Medium to High",
+    "liquidity_score": 6,
+    "min_investment": 1000,
+    "tax_treatment": {
+      "SGB": {
+        "capital_gains_on_maturity": "Tax free if held to 8 year maturity",
+        "interest": "Taxable at slab rate",
+        "note": "Best gold investment option due to tax free maturity gains"
+      },
+      "RBI_floating_bonds": {
+        "interest": "Taxable at slab rate",
+        "rate_2026": "8.05% (0.35% above NSC rate)"
+      }
+    },
+    "indian_context": {
+      "SGB_features": "Government bonds linked to gold price + 2.5% interest per year",
+      "SGB_maturity": "8 years with exit option from 5th year",
+      "RBI_direct": "Buy government bonds directly via RBI Retail Direct platform",
+      "where_to_invest": ["RBI Retail Direct portal", "HDFC Securities", "Zerodha for SGBs", "Stock exchanges for listed bonds"]
+    },
+    "suitable_for": ["Safe income seekers", "Gold exposure without storage risk (SGB)", "Conservative retirees"],
+    "not_suitable_for": ["Short term investors", "High return seekers", "Frequent traders"],
+    "pros": [
+      "Sovereign guarantee — safest investment in India",
+      "SGB gives gold returns + 2.5% annual interest",
+      "SGB maturity gains are completely tax free",
+      "RBI Floating Rate Bonds give 8.05% — above FD rates",
+      "No storage or making charges unlike physical gold"
+    ],
+    "cons": [
+      "Interest income is taxable",
+      "SGB has 8 year lock-in for tax free exit",
+      "Lower liquidity compared to mutual funds",
+      "Interest rate risk if sold before maturity"
+    ],
+    "when_to_use": "SGBs are the best way to invest in gold for Indian investors. Buy during government issue windows for best price.",
+    "ideal_allocation_percent": "5-10% of portfolio",
+    "pro_tip": "Sovereign Gold Bonds are strictly better than Gold ETFs for most investors — you get 2.5% interest PLUS gold appreciation PLUS tax free maturity."
+  },
+
+  {
+    "name": "Corporate Bonds",
+    "category": "Fixed Income",
+    "sub_category": "Corporate Debt",
+    "instruments": [
+      "AAA rated Corporate Bonds",
+      "AA rated Bonds",
+      "Non-Convertible Debentures (NCDs)",
+      "High Yield Bonds",
+      "PSU Bonds"
+    ],
+    "risk_level": "Medium",
+    "risk_score": 4,
+    "expected_return_percent": "8-12",
+    "inflation_beating": true,
+    "time_horizon": "Medium term (2-7 years)",
+    "liquidity": "Medium",
+    "liquidity_score": 5,
+    "min_investment": 1000,
+    "tax_treatment": {
+      "interest": "Taxable at slab rate",
+      "capital_gains_short_term": "Taxable at slab rate (held less than 3 years)",
+      "capital_gains_long_term": "10% without indexation (held more than 3 years)",
+      "tds": "Applicable on interest above 5000 per year"
+    },
+    "indian_context": {
+      "best_platforms": ["Wint Wealth", "Grip Invest", "GoldenPi", "HDFC Securities", "Zerodha"],
+      "typical_yield_2026": "8.5-12% depending on credit rating",
+      "AAA_yield": "8-9%",
+      "AA_yield": "9-10.5%",
+      "high_yield": "11-14% but higher risk",
+      "PSU_bonds": "8-9.5% — quasi-government safety"
+    },
+    "suitable_for": ["Income investors", "Conservative to moderate investors", "Regular income seekers"],
+    "not_suitable_for": ["Very short term goals", "Risk averse investors who cannot tolerate any default risk"],
+    "pros": [
+      "Higher yields than FDs and government bonds",
+      "Regular interest income (quarterly or annual)",
+      "PSU bonds have near-government safety",
+      "Good for regular income needs",
+      "Diversification from equity"
+    ],
+    "cons": [
+      "Credit risk — company can default",
+      "Lower liquidity than mutual funds",
+      "Interest fully taxable",
+      "Complex to research individual bonds",
+      "High yield bonds carry significant default risk"
+    ],
+    "when_to_use": "Stick to AAA or AA rated bonds only. Use for 2-5 year goals where you want higher than FD returns without full equity risk.",
+    "ideal_allocation_percent": "5-15% of portfolio",
+    "risk_warning": "Never invest in bonds below AA rating without expert advice. High yield means high risk of default."
+  },
+
+  {
+    "name": "Debt Mutual Funds",
+    "category": "Fixed Income",
+    "sub_category": "Pooled Debt Products",
+    "instruments": [
+      "Liquid Funds",
+      "Ultra Short Duration Funds",
+      "Short Duration Funds",
+      "Corporate Bond Funds",
+      "Gilt Funds",
+      "Banking and PSU Funds",
+      "Money Market Funds"
+    ],
+    "risk_level": "Low to Medium",
+    "risk_score": 3,
+    "expected_return_percent": "6-8",
+    "inflation_beating": false,
+    "time_horizon": "Short to Medium term (3 months to 5 years)",
+    "liquidity": "High",
+    "liquidity_score": 9,
+    "min_investment": 500,
+    "tax_treatment": {
+      "post_april_2023": "All debt fund gains taxed as per income slab — no indexation benefit anymore",
+      "note": "Tax rule changed in April 2023 — debt funds lost LTCG advantage",
+      "implication": "Now FDs and debt funds taxed similarly — FDs may be simpler for some investors"
+    },
+    "indian_context": {
+      "best_for_emergency": "Liquid funds — better returns than savings account, next day redemption",
+      "best_platforms": ["Zerodha Coin", "Groww", "Paytm Money", "MF Central"],
+      "recommended_funds_2026": ["Parag Parikh Liquid Fund", "HDFC Liquid Fund", "SBI Short Duration Fund"],
+      "where_to_invest": ["Any direct mutual fund platform", "Zerodha Coin for zero commission"]
+    },
+    "suitable_for": ["Conservative investors", "Parking short term money", "Emergency fund alternative"],
+    "not_suitable_for": ["Long term wealth building", "Investors in 0-20% tax slab (FD may be better)"],
+    "pros": [
+      "Higher returns than savings account — 6-8%",
+      "Next day redemption for liquid funds",
+      "No TDS deduction — invest in direct plans",
+      "Professional management across many bonds",
+      "Good for parking 3-12 month money"
+    ],
+    "cons": [
+      "Tax benefit removed in April 2023 — now taxed at slab rate",
+      "NAV can fall temporarily if interest rates rise",
+      "Not capital guaranteed",
+      "Expense ratios reduce net returns",
+      "Lost advantage over FDs post 2023 rule change"
+    ],
+    "when_to_use": "Use liquid funds instead of savings account for emergency fund. Use short duration funds for 1-3 year goals. Avoid long duration debt funds unless you understand interest rate risk.",
+    "ideal_allocation_percent": "10-20% of portfolio depending on age",
+    "pro_tip": "Always invest in DIRECT plans — not regular plans. Direct plans give 0.5-1% higher return annually by eliminating distributor commission."
+  },
+
+  {
+    "name": "Individual Stocks",
+    "category": "Equity",
+    "sub_category": "Direct Equity",
+    "instruments": [
+      "Large Cap Shares (Nifty 50 companies)",
+      "Mid Cap Shares",
+      "Small Cap Shares",
+      "Dividend Stocks",
+      "Growth Stocks"
+    ],
+    "risk_level": "High",
+    "risk_score": 8,
+    "expected_return_percent": "10-20+ (highly variable)",
+    "inflation_beating": true,
+    "time_horizon": "Long term (7-10+ years)",
+    "liquidity": "Very High",
+    "liquidity_score": 9,
+    "min_investment": 100,
+    "tax_treatment": {
+      "short_term_capital_gains": "20% if sold within 1 year",
+      "long_term_capital_gains": "12.5% above 1.25 lakh per year if held over 1 year",
+      "dividends": "Taxable at slab rate",
+      "stt": "Securities Transaction Tax applicable on buy and sell"
+    },
+    "indian_context": {
+      "nifty_50_cagr_10yr": "Approximately 12-14% CAGR historically",
+      "sensex_cagr_20yr": "Approximately 15% CAGR",
+      "best_platforms": ["Zerodha", "Groww", "Upstox", "Angel One", "HDFC Sky"],
+      "research_tools": ["Screener.in", "Tickertape", "Trendlyne", "Moneycontrol"],
+      "beginner_tip": "Start with Nifty 50 companies only. Avoid penny stocks and tips-based investing."
+    },
+    "suitable_for": [
+      "Experienced investors",
+      "High risk tolerance individuals",
+      "Long term investors (7+ years)",
+      "Investors who can research companies"
+    ],
+    "not_suitable_for": [
+      "Beginners without research knowledge",
+      "Short term traders",
+      "Investors who panic during market falls",
+      "People investing based on tips or news"
+    ],
+    "pros": [
+      "Highest long term wealth creation potential in India",
+      "Liquid — can sell on same day",
+      "LTCG only 12.5% — tax efficient for long term",
+      "Dividend income",
+      "Ownership in great businesses",
+      "Inflation hedge over long term"
+    ],
+    "cons": [
+      "Very high volatility — can fall 50-70% in bear markets",
+      "Requires significant time for research",
+      "Single stock can go to zero",
+      "Emotional decision making leads to losses",
+      "Short term gains taxed at 20%",
+      "Not suitable without diversification"
+    ],
+    "when_to_use": "Only if you can dedicate time to research. Stick to Nifty 50 quality companies. Never put more than 10% in one stock.",
+    "ideal_allocation_percent": "10-30% of equity allocation (rest should be mutual funds or ETFs)",
+    "risk_rules": [
+      "Never invest more than 10% of portfolio in single stock",
+      "Never invest in sector you do not understand",
+      "Always have 20+ stocks for proper diversification",
+      "Never invest short term money in stocks"
+    ]
+  },
+
+  {
+    "name": "Equity Mutual Funds",
+    "category": "Equity",
+    "sub_category": "Active Equity Funds",
+    "instruments": [
+      "Large Cap Funds",
+      "Mid Cap Funds",
+      "Small Cap Funds",
+      "Flexi Cap Funds",
+      "Multi Cap Funds",
+      "Sector and Thematic Funds",
+      "ELSS Tax Saving Funds"
+    ],
+    "risk_level": "High",
+    "risk_score": 7,
+    "expected_return_percent": "10-15",
+    "inflation_beating": true,
+    "time_horizon": "Long term (5-10+ years)",
+    "liquidity": "High",
+    "liquidity_score": 8,
+    "min_investment": 500,
+    "tax_treatment": {
+      "short_term_capital_gains": "20% if sold within 1 year",
+      "long_term_capital_gains": "12.5% above 1.25 lakh per year gain if held over 1 year",
+      "ELSS_tax_benefit": "80C deduction up to 1.5 lakh with 3 year lock-in",
+      "SIP_taxation": "Each SIP installment treated separately for LTCG calculation"
+    },
+    "indian_context": {
+      "categories_explained": {
+        "Large_Cap": "Top 100 companies by market cap — lower risk, steady returns",
+        "Mid_Cap": "101-250 companies — higher growth potential, higher risk",
+        "Small_Cap": "251+ companies — highest growth, highest risk",
+        "Flexi_Cap": "Fund manager decides allocation — most flexible",
+        "ELSS": "Tax saving equity fund — 3 year lock-in, 80C benefit"
+      },
+      "best_platforms": ["Zerodha Coin (direct)", "Groww (direct)", "Paytm Money (direct)", "MF Central"],
+      "top_funds_2026": {
+        "large_cap": ["Mirae Asset Large Cap", "Axis Bluechip"],
+        "mid_cap": ["Nippon India Mid Cap", "HDFC Mid Cap Opportunities"],
+        "flexi_cap": ["Parag Parikh Flexi Cap", "Canara Robeco Flexi Cap"],
+        "elss": ["Mirae Asset ELSS", "Axis Long Term Equity"]
+      },
+      "sip_power": "1000 per month in Nifty 50 fund for 20 years at 12% = 99 lakh approximately"
+    },
+    "suitable_for": [
+      "Long term investors (5+ years)",
+      "SIP investors",
+      "Tax savers via ELSS",
+      "Investors who want equity returns without stock picking"
+    ],
+    "not_suitable_for": ["Short term goals", "Very conservative investors", "Investors needing guaranteed returns"],
+    "pros": [
+      "Professional fund management",
+      "Diversification across 50-100 stocks",
+      "SIP allows investing as low as 500 per month",
+      "ELSS gives 80C tax benefit with lowest 3 year lock-in",
+      "No need to research individual stocks",
+      "Compounding works powerfully over 10+ years"
+    ],
+    "cons": [
+      "Expense ratio reduces returns (Direct plans reduce this)",
+      "Active funds may underperform index over long term",
+      "No capital guarantee — NAV can fall significantly",
+      "Sector and thematic funds very risky",
+      "Cannot control what stocks are in the fund"
+    ],
+    "when_to_use": "Core of every long term investor's portfolio. Use SIP mode. Always choose DIRECT plans over regular. ELSS is best for 80C tax saving.",
+    "ideal_allocation_percent": "30-50% of total portfolio for aggressive investors",
+    "pro_tip": "ELSS is the best 80C investment — only 3 year lock-in vs 5 for FD, 15 for PPF. Gives equity returns with tax saving."
+  },
+
+  {
+    "name": "Index Funds and ETFs",
+    "category": "Equity",
+    "sub_category": "Passive Equity",
+    "instruments": [
+      "Nifty 50 Index Fund",
+      "Nifty Next 50 Index Fund",
+      "Sensex Index Fund",
+      "Nifty Midcap 150 Index Fund",
+      "Nifty 500 Index Fund",
+      "S&P 500 ETF (US exposure)",
+      "Nasdaq 100 ETF",
+      "Gold ETF",
+      "International ETFs"
+    ],
+    "risk_level": "High",
+    "risk_score": 6,
+    "expected_return_percent": "10-13",
+    "inflation_beating": true,
+    "time_horizon": "Long term (7-10+ years)",
+    "liquidity": "Very High",
+    "liquidity_score": 10,
+    "min_investment": 100,
+    "tax_treatment": {
+      "short_term_capital_gains": "20% if sold within 1 year",
+      "long_term_capital_gains": "12.5% above 1.25 lakh per year if held over 1 year",
+      "note": "ETFs bought on exchange attract STT on sell"
+    },
+    "indian_context": {
+      "nifty_50_performance": "Historical 10 year CAGR approximately 12-14%",
+      "expense_ratio": "0.05-0.20% — far cheaper than active funds at 1-2%",
+      "best_index_funds": ["UTI Nifty 50 Index Fund", "HDFC Index Fund Nifty 50", "Nippon India Index Fund"],
+      "best_etfs": ["Nippon Nifty BeES", "SBI Nifty ETF", "Motilal Nifty Next 50 ETF"],
+      "us_exposure": ["Mirae Asset NYSE FANG ETF", "Motilal S&P 500 ETF", "ICICI Nasdaq 100 ETF"],
+      "where_to_invest": ["Zerodha for ETFs", "Groww for Index Funds", "Any direct MF platform"]
+    },
+    "suitable_for": [
+      "Passive investors",
+      "Beginners starting equity journey",
+      "Investors who believe in market returns",
+      "Cost-conscious investors",
+      "Long term SIP investors"
+    ],
+    "not_suitable_for": ["Short term traders", "Investors seeking to beat the market", "Very conservative investors"],
+    "pros": [
+      "Very low cost — expense ratio 0.05-0.20% vs 1-2% for active funds",
+      "Transparent — you know exactly what you own",
+      "Consistently match market returns",
+      "Studies show most active funds underperform index over 10 years",
+      "Simple — no need to research fund managers",
+      "US index funds give international diversification"
+    ],
+    "cons": [
+      "Will never beat the index — just matches it",
+      "No downside protection during market crashes",
+      "Mid and small cap index funds can be very volatile",
+      "ETFs need demat account",
+      "US ETFs have currency risk"
+    ],
+    "when_to_use": "Best default investment for most Indian investors. Start with Nifty 50 index fund. Add Nifty Next 50 for growth. Add US index fund for global diversification.",
+    "ideal_allocation_percent": "30-50% of equity portfolio",
+    "recommended_portfolio": "50% Nifty 50 + 30% Nifty Next 50 + 20% US S&P 500 ETF gives excellent diversified equity exposure"
+  },
+
+  {
+    "name": "Hybrid Funds",
+    "category": "Mixed Assets",
+    "sub_category": "Balanced Products",
+    "instruments": [
+      "Aggressive Hybrid Funds (65-80% equity)",
+      "Conservative Hybrid Funds (25-35% equity)",
+      "Balanced Advantage Funds (Dynamic Asset Allocation)",
+      "Multi Asset Allocation Funds",
+      "Arbitrage Funds"
+    ],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "expected_return_percent": "8-12",
+    "inflation_beating": true,
+    "time_horizon": "Medium to Long term (3-7 years)",
+    "liquidity": "High",
+    "liquidity_score": 8,
+    "min_investment": 500,
+    "tax_treatment": {
+      "aggressive_hybrid_65_plus_equity": "Treated as equity fund — STCG 20%, LTCG 12.5%",
+      "conservative_hybrid": "Treated as debt fund — taxed at slab rate",
+      "balanced_advantage": "Treated as equity fund if equity portion above 65%"
+    },
+    "indian_context": {
+      "BAF_explained": "Balanced Advantage Funds (BAFs) automatically reduce equity when market is expensive and increase when cheap — good for hands-off investors",
+      "best_funds": {
+        "aggressive_hybrid": ["HDFC Hybrid Equity Fund", "Canara Robeco Equity Hybrid"],
+        "balanced_advantage": ["HDFC Balanced Advantage Fund", "ICICI Pru Balanced Advantage"],
+        "multi_asset": ["Quant Multi Asset Fund", "ICICI Pru Multi Asset Fund"]
+      },
+      "where_to_invest": ["Zerodha Coin", "Groww", "Paytm Money"]
+    },
+    "suitable_for": [
+      "Moderate risk investors",
+      "First time equity investors",
+      "Investors who want automatic rebalancing",
+      "Investors 3-5 years from goal"
+    ],
+    "not_suitable_for": ["Very aggressive investors", "Very conservative investors", "Short term goals"],
+    "pros": [
+      "Built-in diversification across equity and debt",
+      "Automatic rebalancing — no manual intervention needed",
+      "Balanced Advantage Funds reduce equity in expensive markets automatically",
+      "Less volatile than pure equity funds",
+      "Good for moderate risk investors",
+      "Single fund solution"
+    ],
+    "cons": [
+      "Returns lower than pure equity in bull markets",
+      "Expense ratio higher than index funds",
+      "Conservative hybrid loses tax efficiency of pure equity",
+      "May not match aggressive investor's return expectations"
+    ],
+    "when_to_use": "Good for investors who want equity returns with lower volatility. Balanced Advantage Funds are excellent for investors who cannot handle seeing 40-50% drawdowns.",
+    "ideal_allocation_percent": "20-30% of portfolio for moderate risk investors"
+  },
+
+  {
+    "name": "Real Estate",
+    "category": "Real Asset",
+    "sub_category": "Physical Property",
+    "instruments": [
+      "Residential Property",
+      "Commercial Property",
+      "Land",
+      "Rental Property",
+      "Holiday Homes"
+    ],
+    "risk_level": "Medium to High",
+    "risk_score": 6,
+    "expected_return_percent": "8-14 (rental yield 2-4% + appreciation 6-10%)",
+    "inflation_beating": true,
+    "time_horizon": "Long term (10-20+ years)",
+    "liquidity": "Very Low",
+    "liquidity_score": 1,
+    "min_investment": 2000000,
+    "tax_treatment": {
+      "rental_income": "Taxable as income after 30% standard deduction",
+      "short_term_capital_gains": "Taxable at slab rate if sold within 2 years",
+      "long_term_capital_gains": "12.5% without indexation if held over 2 years (post July 2024 budget change)",
+      "home_loan_benefit": "Section 24 — 2 lakh interest deduction for self-occupied property",
+      "principal_repayment": "Section 80C — included in 1.5 lakh limit",
+      "stamp_duty": "Not deductible"
+    },
+    "indian_context": {
+      "city_appreciation_2026": {
+        "tier_1": "Mumbai, Delhi, Bengaluru — 8-12% appreciation",
+        "tier_2": "Pune, Hyderabad, Chennai — 10-15% appreciation",
+        "tier_3": "Smaller cities — highly variable"
+      },
+      "rental_yield": "2-3.5% in most Indian cities — very low vs global standards",
+      "home_loan_rate_2026": "8.5-9.5% depending on bank and profile",
+      "key_considerations": "Location is everything in Indian real estate"
+    },
+    "suitable_for": [
+      "Long term investors with high capital",
+      "Investors wanting tangible asset",
+      "Investors in high income tax bracket (rental income benefits)",
+      "People planning self-occupation"
+    ],
+    "not_suitable_for": [
+      "Investors needing liquidity",
+      "Investors with capital under 20 lakh",
+      "Short term investors",
+      "Investors in Tier 3 cities without research"
+    ],
+    "pros": [
+      "Tangible asset — psychological comfort",
+      "Leverage through home loan multiplies returns",
+      "Rental income provides regular cash flow",
+      "Strong inflation hedge historically in India",
+      "Tax benefits on home loan interest and principal",
+      "Tier 2 cities showing strong appreciation in 2024-2026"
+    ],
+    "cons": [
+      "Very high minimum investment — 20 lakh+",
+      "Very illiquid — cannot sell quickly",
+      "LTCG indexation benefit removed in July 2024 budget",
+      "Rental yield of 2-3% is very low",
+      "High transaction costs — stamp duty 5-7%, registration 1%",
+      "Tenant issues, maintenance, property tax add to costs",
+      "Concentrated risk in single asset"
+    ],
+    "when_to_use": "Buy a home to live in if financially ready. For pure investment, REITs are more efficient. Direct real estate only if you have very high capital and long horizon.",
+    "ideal_allocation_percent": "20-30% of net worth (including your own home)"
+  },
+
+  {
+    "name": "REITs",
+    "category": "Real Asset",
+    "sub_category": "Listed Real Estate",
+    "instruments": [
+      "Embassy Office Parks REIT",
+      "Mindspace Business Parks REIT",
+      "Brookfield India Real Estate Trust",
+      "Nexus Select Trust (Retail REIT)"
+    ],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "expected_return_percent": "7-10 (yield 6-8% + appreciation 2-3%)",
+    "inflation_beating": true,
+    "time_horizon": "Medium to Long term (3-7 years)",
+    "liquidity": "High",
+    "liquidity_score": 8,
+    "min_investment": 10000,
+    "tax_treatment": {
+      "dividend": "Partially taxable depending on source (interest vs dividend component)",
+      "capital_gains_short_term": "Taxable at slab rate if sold within 3 years",
+      "capital_gains_long_term": "10% if held over 3 years",
+      "distribution": "Around 90% of distributable cash flow must be paid out"
+    },
+    "indian_context": {
+      "available_reits": [
+        "Embassy Office Parks — India's largest REIT, Bengaluru focused",
+        "Mindspace Business Parks — Mumbai and Hyderabad offices",
+        "Brookfield India REIT — Pan-India commercial offices",
+        "Nexus Select Trust — retail malls REIT"
+      ],
+      "typical_yield_2026": "6-8% annual distribution yield",
+      "where_to_invest": ["NSE/BSE via Zerodha", "Groww", "Any demat account"],
+      "min_lot_size": "1 unit — accessible to retail investors"
+    },
+    "suitable_for": [
+      "Real estate exposure without large capital",
+      "Regular income seekers",
+      "Moderate risk investors",
+      "Portfolio diversification"
+    ],
+    "not_suitable_for": ["Very short term investors", "Very conservative investors", "Investors who need very high liquidity"],
+    "pros": [
+      "Real estate exposure with as little as 10,000",
+      "Regular quarterly distributions — 6-8% yield",
+      "Professional management of commercial properties",
+      "Listed on exchange — can sell anytime",
+      "Regulated by SEBI — transparent",
+      "Good diversification from pure equity"
+    ],
+    "cons": [
+      "Interest rate sensitive — prices fall when rates rise",
+      "Commercial real estate dependent on office occupancy trends",
+      "Work-from-home trend may affect office REITs long term",
+      "Lower appreciation potential vs direct real estate",
+      "Relatively new asset class in India — limited track record"
+    ],
+    "when_to_use": "Excellent for income-seeking investors who want real estate exposure without buying property. Add 5-10% of portfolio for diversification and regular income.",
+    "ideal_allocation_percent": "5-10% of portfolio"
+  },
+
+  {
+    "name": "Gold and Silver",
+    "category": "Real Asset",
+    "sub_category": "Precious Metals",
+    "instruments": [
+      "Sovereign Gold Bonds (SGB)",
+      "Gold ETFs",
+      "Physical Gold (Coins and Bars)",
+      "Gold Jewellery",
+      "Digital Gold (Paytm, PhonePe)",
+      "Silver ETFs",
+      "Multi Commodity ETFs"
+    ],
+    "risk_level": "Medium to High",
+    "risk_score": 5,
+    "expected_return_percent": "8-12 historically in India (last 20 years)",
+    "inflation_beating": true,
+    "time_horizon": "Medium to Long term (5-10+ years)",
+    "liquidity": "High for ETFs and SGBs",
+    "liquidity_score": 7,
+    "min_investment": 100,
+    "tax_treatment": {
+      "SGB": {
+        "maturity_gains": "Tax free if held to 8 year maturity",
+        "interest": "Taxable at slab rate — 2.5% per year",
+        "best_option": true
+      },
+      "gold_etf": {
+        "short_term": "Taxable at slab rate if sold within 1 year",
+        "long_term": "12.5% if sold after 1 year"
+      },
+      "physical_gold": {
+        "short_term": "Taxable at slab rate if sold within 3 years",
+        "long_term": "12.5% without indexation after 3 years"
+      },
+      "digital_gold": "Same as physical gold taxation"
+    },
+    "indian_context": {
+      "gold_cagr_20yr_india": "Approximately 11-13% in INR terms",
+      "cultural_importance": "India is world's second largest gold consumer",
+      "SGB_advantage": "Best way to invest — get 2.5% interest + gold appreciation + tax free maturity",
+      "avoid": "Gold jewellery — 20-25% making charges destroy returns",
+      "digital_gold_caution": "Not regulated by SEBI — avoid for large amounts",
+      "where_to_invest": ["SGB via NSE/BSE or bank during issue", "Gold ETF via Zerodha", "Avoid digital gold for large amounts"]
+    },
+    "suitable_for": [
+      "Portfolio diversification",
+      "Inflation hedge",
+      "Crisis protection",
+      "Indian cultural preference",
+      "Long term preservation of wealth"
+    ],
+    "not_suitable_for": ["Short term investors", "Income seekers (no cash flow except SGB interest)", "Very aggressive wealth builders"],
+    "pros": [
+      "Excellent portfolio diversifier — moves opposite to equity in crises",
+      "Strong inflation hedge historically",
+      "SGBs give 2.5% annual interest on top of gold appreciation",
+      "SGB maturity completely tax free",
+      "Safe haven during geopolitical and economic turmoil",
+      "Has beaten inflation in India over 20+ years"
+    ],
+    "cons": [
+      "No cash flow from physical gold or ETFs",
+      "Can go 5-10 years without significant gains",
+      "Storage and insurance cost for physical gold",
+      "Making charges on jewellery are pure loss",
+      "Digital gold not SEBI regulated — counterparty risk"
+    ],
+    "when_to_use": "Keep 5-10% of portfolio in gold always. Buy via SGBs whenever government opens new issue. Never buy jewellery as investment.",
+    "ideal_allocation_percent": "5-10% of total portfolio",
+    "pro_tip": "Sovereign Gold Bonds are the best gold investment for Indians. You get gold price gains + 2.5% annual interest + zero capital gains tax at maturity. Far better than Gold ETF or physical gold."
+  },
+
+  {
+    "name": "NPS and Retirement Accounts",
+    "category": "Retirement",
+    "sub_category": "Tax Advantaged Retirement",
+    "instruments": [
+      "National Pension System (NPS) Tier 1",
+      "National Pension System (NPS) Tier 2",
+      "Employee Provident Fund (EPF)",
+      "Public Provident Fund (PPF)",
+      "Voluntary Provident Fund (VPF)"
+    ],
+    "risk_level": "Low to Medium",
+    "risk_score": 3,
+    "expected_return_percent": "8-12 depending on equity allocation in NPS",
+    "inflation_beating": true,
+    "time_horizon": "Long term until retirement (10-35 years)",
+    "liquidity": "Very Low",
+    "liquidity_score": 2,
+    "min_investment": 500,
+    "tax_treatment": {
+      "NPS_tier1": {
+        "contribution_deduction_80C": "Included in 1.5 lakh limit",
+        "additional_deduction_80CCD_1B": "Extra 50,000 deduction — OVER AND ABOVE 80C limit",
+        "employer_contribution_80CCD_2": "Additional 10% of salary as employer NPS — tax free",
+        "maturity": "60% lump sum tax free, 40% must buy annuity (annuity taxable)",
+        "total_max_saving": "Up to 2 lakh in deductions combining 80C and 80CCD(1B)"
+      },
+      "EPF": {
+        "employee_contribution": "12% of basic salary",
+        "employer_contribution": "12% of basic salary",
+        "interest_rate_2026": "8.25% per annum",
+        "tax_treatment": "EEE — fully tax free on contribution, interest, and withdrawal after 5 years"
+      },
+      "VPF": {
+        "benefit": "Additional contribution to EPF beyond mandatory 12%",
+        "tax_treatment": "Same EEE treatment as EPF"
+      }
+    },
+    "indian_context": {
+      "NPS_fund_options": {
+        "LC75_aggressive": "75% equity — good for investors under 40",
+        "LC50_moderate": "50% equity — good for investors 40-50",
+        "LC25_conservative": "25% equity — good for investors above 50"
+      },
+      "NPS_fund_managers": ["SBI Pension", "LIC Pension", "HDFC Pension", "UTI Retirement"],
+      "EPF_for_salaried": "Mandatory for salaried employees — employer adds matching contribution",
+      "best_strategy": "Max NPS 50,000 via 80CCD(1B) for additional tax saving beyond 80C"
+    },
+    "suitable_for": [
+      "All salaried employees for EPF",
+      "Tax savers looking to save beyond 1.5 lakh 80C limit",
+      "Long term retirement planners",
+      "Self-employed individuals for NPS"
+    ],
+    "not_suitable_for": ["Short term goals", "Investors needing flexibility and liquidity"],
+    "pros": [
+      "NPS gives extra 50,000 tax deduction beyond normal 80C — saves 15,000+ in taxes",
+      "EPF gives guaranteed 8.25% with full tax exemption",
+      "Employer matches EPF — instant 100% return on employer portion",
+      "Disciplined long term saving for retirement",
+      "NPS equity portion gives market-linked returns"
+    ],
+    "cons": [
+      "Very low liquidity — locked till retirement at 60",
+      "NPS partial withdrawal only for specific reasons",
+      "40% of NPS corpus must buy annuity at retirement — cannot take lump sum",
+      "Annuity returns are often low (4-6%)",
+      "NPS has some charges on contributions"
+    ],
+    "when_to_use": "Every salaried person must max EPF contribution. Self-employed should open NPS account. Anyone wanting extra 80CCD(1B) deduction should invest 50,000 in NPS Tier 1 annually.",
+    "ideal_allocation_percent": "10-20% of income",
+    "tax_saving_strategy": "First max 80C at 1.5 lakh via ELSS or PPF. Then invest additional 50,000 in NPS Tier 1 for 80CCD(1B). This alone saves 15,000-31,000 in annual taxes depending on slab."
+  },
+
+  {
+    "name": "ULIPs and Endowment Plans",
+    "category": "Insurance Investment",
+    "sub_category": "Insurance Linked Investment",
+    "instruments": [
+      "Unit Linked Insurance Plans (ULIPs)",
+      "Traditional Endowment Plans",
+      "Money Back Policies",
+      "Guaranteed Return Plans"
+    ],
+    "risk_level": "Medium",
+    "risk_score": 4,
+    "expected_return_percent": "4-8 (after all charges)",
+    "inflation_beating": false,
+    "time_horizon": "Long term (10-20 years)",
+    "liquidity": "Very Low",
+    "liquidity_score": 2,
+    "min_investment": 12000,
+    "tax_treatment": {
+      "premium": "80C deduction up to 1.5 lakh",
+      "maturity": "Tax free under 10(10D) if annual premium less than 2.5 lakh for ULIPs purchased after Feb 2021",
+      "caution": "High premium ULIPs (above 2.5 lakh annual) are now taxable at maturity"
+    },
+    "indian_context": {
+      "why_popular": "Sold aggressively by agents due to high commissions — not because they are good products",
+      "hidden_charges": "Premium allocation charges, fund management charges, mortality charges, policy admin charges add up to 2-5% per year",
+      "agent_commission": "Agents earn 30-40% of first year premium — conflict of interest",
+      "verdict": "Separate insurance and investment — term insurance + mutual funds is ALWAYS better than ULIP",
+      "how_to_compare": "Ask for internal rate of return (IRR) before buying — most ULIPs give 5-7% IRR vs 10-12% from mutual funds"
+    },
+    "suitable_for": ["Only if you need insurance + investment bundled and cannot manage separately"],
+    "not_suitable_for": [
+      "Anyone who can manage term insurance + mutual funds separately",
+      "Cost-conscious investors",
+      "Investors who understand opportunity cost"
+    ],
+    "pros": [
+      "80C tax benefit on premium",
+      "Insurance + investment in single product",
+      "Tax free maturity for smaller premiums",
+      "Lock-in creates forced savings discipline"
+    ],
+    "cons": [
+      "Very high charges reduce returns significantly",
+      "Surrendering early leads to heavy losses",
+      "Insurance cover is inadequate — purely symbolic",
+      "Returns of 5-7% after charges vs 10-12% from mutual funds",
+      "Term insurance + mutual fund always gives better outcome",
+      "Agents sell these for commission — not in your interest",
+      "Complex — most buyers do not understand what they bought"
+    ],
+    "when_to_use": "Avoid unless already purchased. If already holding, evaluate surrender value vs continuing. Never buy new ULIP — buy term insurance separately and invest in mutual funds.",
+    "ideal_allocation_percent": "0% recommended",
+    "strong_advice": "Buy a plain term insurance for life cover and invest the rest in mutual funds. You will always be better off financially."
+  },
+
+  {
+    "name": "Annuities",
+    "category": "Retirement Income",
+    "sub_category": "Guaranteed Income Products",
+    "instruments": [
+      "Immediate Annuity",
+      "Deferred Annuity",
+      "Life Annuity",
+      "Annuity with Return of Purchase Price"
+    ],
+    "risk_level": "Low",
+    "risk_score": 2,
+    "expected_return_percent": "5-7",
+    "inflation_beating": false,
+    "time_horizon": "Lifetime",
+    "liquidity": "Very Low",
+    "liquidity_score": 1,
+    "min_investment": 100000,
+    "tax_treatment": {
+      "annuity_income": "Fully taxable as income at applicable slab rate",
+      "note": "No tax benefit — unlike NPS or EPF"
+    },
+    "indian_context": {
+      "providers": ["LIC", "SBI Life", "HDFC Life", "ICICI Prudential Life"],
+      "typical_rate_2026": "6-7% per annum for immediate annuity",
+      "inflation_problem": "6% annuity sounds good today but after 10 years at 6% inflation, purchasing power halves",
+      "return_of_purchase_price": "Option to get back original investment to nominee — reduces effective yield",
+      "NPS_compulsion": "40% of NPS corpus must buy annuity at retirement — plan accordingly"
+    },
+    "suitable_for": [
+      "Retirees who want guaranteed lifelong income",
+      "People with no other pension",
+      "Very risk-averse retirees",
+      "People who worry about outliving their money"
+    ],
+    "not_suitable_for": [
+      "Younger investors",
+      "Investors who want growth",
+      "People with other pension income like EPF or government pension"
+    ],
+    "pros": [
+      "Guaranteed income for life — cannot outlive your money",
+      "Psychological comfort and certainty",
+      "No market risk",
+      "Simple — no management required after purchase"
+    ],
+    "cons": [
+      "Irreversible — cannot get capital back except with return of purchase price option",
+      "Fully taxable — reduces net income significantly",
+      "Fixed income loses value to inflation over years",
+      "6% today buys less every year",
+      "Company insolvency risk — though LIC is government backed"
+    ],
+    "when_to_use": "Only for the portion of retirement corpus needed for guaranteed monthly expenses. Keep rest in balanced mutual funds for growth. Never annuitise entire corpus.",
+    "ideal_allocation_percent": "Only for basic monthly expense coverage in retirement"
+  },
+
+  {
+    "name": "Alternative Investments",
+    "category": "Alternative",
+    "sub_category": "Non-Traditional Assets",
+    "instruments": [
+      "Private Equity Funds",
+      "Venture Capital Funds",
+      "Hedge Funds",
+      "Infrastructure Investment Trusts (InvITs)",
+      "Peer to Peer Lending (P2P)",
+      "Invoice Discounting",
+      "Startup Investments",
+      "Art and Collectibles"
+    ],
+    "risk_level": "Very High",
+    "risk_score": 9,
+    "expected_return_percent": "15-30 for PE and VC (highly variable)",
+    "inflation_beating": true,
+    "time_horizon": "Long term (7-12+ years for PE and VC)",
+    "liquidity": "Very Low",
+    "liquidity_score": 2,
+    "min_investment": 1000000,
+    "tax_treatment": {
+      "varies": "Depends on instrument type",
+      "P2P_lending": "Interest income taxable at slab rate",
+      "InvITs": "Similar to REITs — distribution partially taxable"
+    },
+    "indian_context": {
+      "InvITs_available": ["IRB InvIT", "IndInfravit Trust", "Powergrid InvIT"],
+      "P2P_platforms": ["Faircent", "Lendbox", "Liquiloans"],
+      "P2P_caution": "RBI has tightened P2P regulations — check current rules before investing",
+      "AIF_minimum": "1 crore minimum for AIFs (Alternative Investment Funds)",
+      "startup_investing": "Very high risk — 90% of startups fail"
+    },
+    "suitable_for": [
+      "High net worth investors (above 1 crore investable surplus)",
+      "Sophisticated investors who understand the risks",
+      "Investors with very long time horizon",
+      "Investors who can afford complete loss of capital"
+    ],
+    "not_suitable_for": [
+      "Regular retail investors",
+      "Investors needing liquidity",
+      "Investors with investable corpus below 50 lakh",
+      "First time investors"
+    ],
+    "pros": [
+      "Potential for very high returns — 20-30%+ for successful PE and VC",
+      "Diversification beyond public markets",
+      "InvITs give stable income from infrastructure assets",
+      "Access to growth stage companies before IPO"
+    ],
+    "cons": [
+      "Very high minimum investment — 1 lakh to 1 crore+",
+      "Very illiquid — money locked for 7-12 years",
+      "High failure rate — many PE and VC investments go to zero",
+      "Complex structures — hard to evaluate",
+      "Limited regulatory protection for investors",
+      "P2P lending defaults are rising in India"
+    ],
+    "when_to_use": "Only after fully funding equity mutual funds, NPS, PPF, and having 6 months emergency fund. Only allocate money you can afford to lose completely.",
+    "ideal_allocation_percent": "0-10% of portfolio for HNI investors only"
+  },
+
+  {
+    "name": "Cryptocurrencies",
+    "category": "Digital Assets",
+    "sub_category": "Speculative Digital Assets",
+    "instruments": [
+      "Bitcoin (BTC)",
+      "Ethereum (ETH)",
+      "Ripple (XRP)",
+      "Other Altcoins",
+      "DeFi Tokens",
+      "Stablecoins"
+    ],
+    "risk_level": "Extremely High",
+    "risk_score": 10,
+    "expected_return_percent": "Highly variable — can be +500% or -80% in same year",
+    "inflation_beating": "Unknown — highly speculative",
+    "time_horizon": "Speculative — no defined horizon",
+    "liquidity": "High for major coins on exchanges",
+    "liquidity_score": 7,
+    "min_investment": 100,
+    "tax_treatment": {
+      "india_tax_2026": {
+        "gains": "30% flat tax on all crypto gains — no deduction allowed except cost",
+        "losses": "Cannot be set off against any other income or crypto losses",
+        "tds": "1% TDS on crypto transactions above 10,000",
+        "note": "30% flat rate regardless of holding period — most punitive tax in India"
+      }
+    },
+    "indian_context": {
+      "legal_status": "Legal to buy and sell in India — but gains taxed at 30%",
+      "rbi_stance": "RBI has expressed concerns about crypto repeatedly",
+      "platforms": ["CoinDCX", "WazirX", "Coinswitch", "Mudrex"],
+      "regulation_risk": "Government could further restrict or ban crypto — regulatory risk is very real in India",
+      "tax_impact": "30% tax makes crypto unattractive for most investors vs mutual funds at 12.5% LTCG"
+    },
+    "suitable_for": ["Very high risk tolerance investors only", "Investors treating it as speculation not investment", "Investors who fully understand and accept 80-90% loss possibility"],
+    "not_suitable_for": [
+      "Conservative or moderate investors",
+      "Investors with goals in less than 5 years",
+      "Anyone investing money they cannot afford to lose",
+      "Retirement or education fund money"
+    ],
+    "pros": [
+      "Potential for very high short term gains",
+      "Bitcoin increasingly seen as digital gold store of value",
+      "24x7 global market — high liquidity for major coins",
+      "Small allocation can add diversification"
+    ],
+    "cons": [
+      "30% flat tax on gains — most punitive in India",
+      "1% TDS on transactions further reduces returns",
+      "Cannot offset crypto losses against any other income",
+      "Extreme volatility — Bitcoin fell 80% in 2022",
+      "Regulatory risk — India could restrict further",
+      "No fundamental value backing — pure speculation",
+      "Exchange hacks and fraud risk",
+      "Most altcoins have gone to zero historically"
+    ],
+    "when_to_use": "Treat as speculation, not investment. Maximum 2-5% of portfolio. Only use money you are 100% comfortable losing entirely. Never invest borrowed money or emergency fund in crypto.",
+    "ideal_allocation_percent": "0-5% maximum — speculative only",
+    "strong_warning": "The 30% flat tax in India makes crypto extremely unattractive compared to equity mutual funds taxed at 12.5%. For most Indian investors, crypto should be avoided or kept under 2% of portfolio."
+  }
+]

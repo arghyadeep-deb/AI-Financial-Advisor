@@ -1,0 +1,629 @@
+{
+  "credit_card_rules": {
+
+    "fees_and_charges": {
+      "redemption_fee": {
+        "amount": 99,
+        "gst_extra": true,
+        "note": "Most banks charge 99 + GST per reward redemption event — factor this in before redeeming small amounts"
+      },
+      "dcc_fee_percent": {
+        "rate": 1,
+        "full_name": "Dynamic Currency Conversion",
+        "note": "Extra 1% when you pay in INR abroad instead of local currency. Always pay in local currency when travelling."
+      },
+      "rent_payment_fee_percent": {
+        "rate": 1,
+        "cap": 3000,
+        "note": "Most banks charge 1% processing fee on rent payments via credit card. No reward points earned on rent."
+      },
+      "education_payment_fee_percent": {
+        "rate": 1,
+        "cap": 3000,
+        "note": "1% fee on school and college fee payments. Check if rewards are earned before using card."
+      },
+      "fuel_surcharge": {
+        "rate": 1,
+        "waiver_available": true,
+        "waiver_condition": "Most cards waive fuel surcharge between 400 to 5000 per transaction",
+        "note": "Always use a card with fuel surcharge waiver at petrol pumps"
+      },
+      "cash_advance_fee": {
+        "rate_percent": 2.5,
+        "minimum": 500,
+        "interest_from_day_one": true,
+        "note": "Never use credit card for cash withdrawal — 2.5% fee plus interest from day one with no grace period"
+      },
+      "emi_processing_fee": {
+        "rate_percent": "1-2",
+        "note": "Banks charge 1-2% processing fee to convert purchases to EMI. No-cost EMI is paid by merchant, not you."
+      },
+      "over_limit_fee": {
+        "amount": 600,
+        "note": "Charged if spending exceeds credit limit. Avoid by setting spend alerts."
+      }
+    },
+
+    "late_payment_penalties": {
+      "penalty_structure": [
+        {"outstanding_balance": "Up to 100", "penalty": 0},
+        {"outstanding_balance": "101 to 500", "penalty": 100},
+        {"outstanding_balance": "501 to 5000", "penalty": 500},
+        {"outstanding_balance": "5001 to 10000", "penalty": 750},
+        {"outstanding_balance": "10001 to 25000", "penalty": 900},
+        {"outstanding_balance": "25001 to 50000", "penalty": 1100},
+        {"outstanding_balance": "Above 50000", "penalty": 1300}
+      ],
+      "minimum_penalty": 100,
+      "maximum_penalty": 1300,
+      "credit_score_impact": "Late payment reported to CIBIL after 30 days overdue. Severely damages credit score.",
+      "advice": "Always set auto-pay for at least minimum due. Never miss a payment."
+    },
+
+    "interest_rates": {
+      "apr_range_percent": {
+        "minimum": 42,
+        "maximum": 49.36,
+        "monthly_equivalent_min": 3.5,
+        "monthly_equivalent_max": 4.11
+      },
+      "bank_wise_apr": {
+        "HDFC": "43.20% per annum (3.60% monthly)",
+        "SBI": "45.00% per annum (3.75% monthly)",
+        "ICICI": "44.88% per annum (3.74% monthly)",
+        "Axis": "49.36% per annum (highest)",
+        "Kotak": "42.00% per annum (lowest among major banks)",
+        "IDFC_FIRST": "9-43.8% per annum (lowest starting rate)",
+        "Standard_Chartered": "45.00% per annum"
+      },
+      "critical_warning": "Credit card interest is the most expensive debt in India at 42-49% per year. Never carry a balance. Always pay full outstanding every month.",
+      "minimum_due_trap": "Paying only minimum due means you pay 42-49% interest on remaining balance. On 10,000 balance you pay 350-400 per month just in interest."
+    },
+
+    "reward_rules": {
+      "reward_expiry_months": 24,
+      "expiry_warning": "Set calendar reminder 3 months before expiry to redeem points",
+      "excluded_categories": [
+        "Fuel (most cards — check specific card)",
+        "Rent payments",
+        "Utility bill payments (some cards)",
+        "Government payments",
+        "Insurance premiums (many cards from 2025)",
+        "Gaming transactions (HDFC Infinia from 2025)",
+        "Wallet loads (Paytm, PhonePe top-ups)"
+      ],
+      "reward_caps_2026": {
+        "insurance_hdfc_infinia_monthly": 10000,
+        "insurance_hdfc_diners_black_monthly": 5000,
+        "axis_magnus_utility_monthly": 500,
+        "axis_magnus_insurance_monthly": 2000,
+        "axis_ace_5percent_category_monthly": 500,
+        "hdfc_millennia_cashback_monthly": 1000,
+        "sbi_cashback_online_monthly": 5000,
+        "swiggy_hdfc_cashback_monthly": 1500,
+        "indusind_eazydiner_discount_monthly": 2000
+      },
+      "devaluations_2025_2026": [
+        "HDFC Infinia — redemption capped 5 times per month from February 2026",
+        "HDFC Infinia — insurance points capped at 10,000 per month",
+        "HDFC Diners Black — insurance points capped at 5,000 per month",
+        "Axis Magnus — utility rewards capped at 500 per month from 2025",
+        "Axis Magnus — insurance rewards capped at 2,000 per month",
+        "Axis ACE — 5% category capped at 500 per month from 2025",
+        "ICICI Sapphiro — movie benefits discontinued February 2026",
+        "SBI Elite and Prime — air accident insurance discontinued July 2025",
+        "IndusInd EazyDiner — dining multiplier cut from 5X to 1.5X June 2025",
+        "IDFC FIRST Wealth — lounge now requires 20,000 monthly spend",
+        "Tata Neu — lounge now requires 50,000 quarterly spend",
+        "ICICI Sapphiro — lounge now requires 75,000 quarterly spend"
+      ]
+    },
+
+    "lounge_access_rules": {
+      "unused_percent_statistic": 45,
+      "insight": "45% of cardholders with lounge access never use it — check your card and plan visits before benefit expires",
+      "spend_unlock_range": {
+        "minimum": 5000,
+        "maximum": 75000,
+        "note": "Most cards now require previous month or quarter spend to unlock lounge access"
+      },
+      "card_specific_requirements": {
+        "HDFC_Regalia_Gold": "1 lakh quarterly spend to unlock lounge",
+        "HDFC_Diners_Privilege": "20,000 monthly spend",
+        "Tata_Neu_Infinity": "50,000 quarterly spend",
+        "ICICI_Sapphiro": "75,000 previous quarter spend",
+        "IDFC_FIRST_Wealth": "20,000 monthly spend",
+        "ICICI_Coral": "20,000 monthly spend"
+      },
+      "guest_charges": "Most lounges charge 500-1000 per guest entry if not covered by card",
+      "priority_pass_tip": "Priority Pass covers 1400+ lounges globally. Cards like Infinia, Magnus, Emeralde include it."
+    },
+
+    "forex_rules": {
+      "average_markup_percent": 3.5,
+      "best_cards_for_forex": [
+        {"card": "RBL World Safari", "markup": "0%"},
+        {"card": "ICICI Emeralde Private", "markup": "1.5%"},
+        {"card": "IDFC FIRST Wealth", "markup": "1.5%"},
+        {"card": "YES Marquee", "markup": "1.75%"},
+        {"card": "HDFC Infinia", "markup": "2%"},
+        {"card": "HDFC Diners Black Metal", "markup": "2%"},
+        {"card": "Axis Magnus", "markup": "2%"}
+      ],
+      "worst_cards_for_forex": "SBI, Kotak, Axis ACE — 3.5% standard markup",
+      "saving_calculation": "On 1 lakh international spend, zero forex card saves 3,500 vs standard card",
+      "tip": "Always carry a zero or low forex markup card for international travel"
+    },
+
+    "credit_score_rules": {
+      "credit_utilization_ideal_percent": 30,
+      "credit_utilization_maximum_percent": 50,
+      "hard_inquiry_impact": "Each new card application creates hard inquiry — reduces score by 5-10 points temporarily",
+      "payment_history_weight": "35% of credit score — most important factor",
+      "utilization_weight": "30% of credit score",
+      "age_of_credit_weight": "15% of credit score",
+      "new_credit_weight": "10% of credit score",
+      "score_ranges": {
+        "300_549": "Poor — very hard to get loans",
+        "550_649": "Fair — high interest rates",
+        "650_749": "Good — standard rates",
+        "750_799": "Very Good — best rates available",
+        "800_900": "Excellent — premium treatment"
+      },
+      "tips": [
+        "Pay full outstanding every month — not just minimum",
+        "Keep credit utilization below 30%",
+        "Do not apply for multiple cards in same month",
+        "Keep old cards active — account age matters",
+        "Check CIBIL score free once a year at cibil.com"
+      ]
+    },
+
+    "nry_formula": {
+      "name": "Net Reward Yield",
+      "formula": "NRY = (Sum of CategorySpend x RewardRate) - AnnualFee / TotalAnnualSpend",
+      "description": "Use this to compare which card gives best actual return on your specific spending pattern",
+      "example": {
+        "monthly_spend": 30000,
+        "annual_spend": 360000,
+        "card": "SBI Cashback Card",
+        "annual_fee": 999,
+        "online_spend_monthly": 25000,
+        "cashback_earned": "25000 x 12 x 5% = 15000",
+        "nry_percent": "(15000 - 999) / 360000 = 3.89%"
+      }
+    }
+
+  },
+
+  "investment_rules": {
+
+    "emergency_fund": {
+      "recommended_months": 6,
+      "minimum_months": 3,
+      "where_to_keep": "Liquid mutual fund or high interest savings account — NOT in FD (premature penalty) or equity (volatile)",
+      "how_to_build": "Save 1 month expenses every 3 months until you reach 6 months",
+      "best_options": ["Parag Parikh Liquid Fund", "HDFC Liquid Fund", "High interest savings account (IndusInd, YES Bank)"]
+    },
+
+    "allocation_limits": {
+      "max_single_stock_percent": 10,
+      "max_sector_percent": 25,
+      "max_crypto_percent": 5,
+      "max_alternative_investment_percent": 10,
+      "max_single_mutual_fund_percent": 20,
+      "min_number_of_stocks": 15,
+      "note": "These are hard limits — breaching these increases concentration risk significantly"
+    },
+
+    "tax_saving_rules": {
+      "section_80C": {
+        "limit": 150000,
+        "best_instruments": [
+          "ELSS Mutual Fund (3 year lock-in, equity returns)",
+          "PPF (15 year, tax free, 7.1%)",
+          "EPF contribution (automatic for salaried)",
+          "5-year tax saver FD (5 year lock-in, FD returns)"
+        ],
+        "recommendation": "Use ELSS for 80C if you are below 50 years. Use PPF if you want guaranteed returns."
+      },
+      "section_80CCD_1B": {
+        "additional_limit": 50000,
+        "instrument": "NPS Tier 1 only",
+        "note": "This is OVER AND ABOVE 80C limit — additional 50,000 deduction. Saves 15,000 for 30% tax bracket."
+      },
+      "section_80D": {
+        "self_family_limit": 25000,
+        "senior_citizen_limit": 50000,
+        "instrument": "Health insurance premium only",
+        "recommendation": "Always buy health insurance — serves dual purpose of protection and tax saving"
+      },
+      "ltcg_rules": {
+        "equity_ltcg": "12.5% on gains above 1.25 lakh per year — after 1 year holding",
+        "equity_stcg": "20% — within 1 year",
+        "debt_ltcg": "As per income slab — after April 2023 change",
+        "gold_ltcg": "12.5% without indexation — after 3 years",
+        "real_estate_ltcg": "12.5% without indexation — after 2 years (post July 2024 budget)",
+        "tip": "Harvest LTCG of 1.25 lakh every year tax-free by selling and rebuying — saves significant tax over long term"
+      }
+    },
+
+    "sip_rules": {
+      "minimum_sip_percent_income": 10,
+      "recommended_sip_percent_income": 20,
+      "aggressive_sip_percent_income": 30,
+      "sip_power_examples": {
+        "5000_per_month_20yr_at_12_percent": "49.95 lakh",
+        "10000_per_month_20yr_at_12_percent": "99.91 lakh",
+        "20000_per_month_20yr_at_12_percent": "1.99 crore",
+        "50000_per_month_20yr_at_12_percent": "4.99 crore"
+      },
+      "sip_tips": [
+        "Start as early as possible — time is the biggest factor",
+        "Increase SIP by 10% every year (step-up SIP)",
+        "Never stop SIP during market crash — this is when you buy cheap",
+        "Use direct plans — saves 0.5-1% annually vs regular plans",
+        "SIP date does not matter much — pick any date you remember"
+      ],
+      "step_up_sip_power": "10,000 per month SIP with 10% annual step-up for 20 years at 12% = 1.86 crore vs 99.91 lakh without step-up"
+    }
+
+  },
+
+  "portfolio_allocation_by_age": {
+
+    "20_30": {
+      "equity": 80,
+      "debt": 15,
+      "gold": 5,
+      "crypto_optional": 0,
+      "rationale": "Maximum time horizon allows maximum equity. Volatility is your friend — you have 30+ years to recover from any crash.",
+      "equity_split": {
+        "large_cap_index_funds": 50,
+        "mid_cap_funds": 20,
+        "small_cap_funds": 10,
+        "international_index": 20
+      },
+      "debt_split": {
+        "ppf": 60,
+        "liquid_fund_emergency": 40
+      },
+      "priority_actions": [
+        "Build 6 month emergency fund first",
+        "Max 80C via ELSS",
+        "Start Nifty 50 SIP",
+        "Open NPS account for additional 50,000 deduction"
+      ]
+    },
+
+    "30_40": {
+      "equity": 70,
+      "debt": 20,
+      "gold": 10,
+      "rationale": "Still high equity allocation. Beginning to add stability. Home loan EMI counts as forced debt investment.",
+      "equity_split": {
+        "large_cap_index_funds": 50,
+        "mid_cap_funds": 20,
+        "small_cap_funds": 10,
+        "international_index": 20
+      },
+      "debt_split": {
+        "ppf": 40,
+        "nps": 30,
+        "liquid_fund": 30
+      },
+      "gold_split": {
+        "sgb": 70,
+        "gold_etf": 30
+      },
+      "priority_actions": [
+        "Max PPF and NPS contributions",
+        "Increase SIP with each salary hike",
+        "Buy term insurance if not done",
+        "Buy health insurance for family"
+      ]
+    },
+
+    "40_50": {
+      "equity": 60,
+      "debt": 30,
+      "gold": 10,
+      "rationale": "Approaching peak earning years. Shift toward stability without abandoning growth. Retirement 15-20 years away.",
+      "equity_split": {
+        "large_cap_index_funds": 60,
+        "mid_cap_funds": 25,
+        "small_cap_funds": 5,
+        "international_index": 10
+      },
+      "debt_split": {
+        "ppf": 30,
+        "nps": 30,
+        "corporate_bonds": 20,
+        "liquid_fund": 20
+      },
+      "priority_actions": [
+        "Retirement corpus should be growing aggressively",
+        "Reduce or eliminate home loan by 45",
+        "Increase NPS allocation for tax saving",
+        "Start planning for children education goals"
+      ]
+    },
+
+    "50_60": {
+      "equity": 40,
+      "debt": 50,
+      "gold": 10,
+      "rationale": "Approaching retirement. Capital preservation becomes important. Shift toward income generating assets.",
+      "equity_split": {
+        "large_cap_index_funds": 70,
+        "mid_cap_funds": 20,
+        "small_cap_funds": 0,
+        "international_index": 10
+      },
+      "debt_split": {
+        "scss": 30,
+        "ppf": 20,
+        "rbi_bonds": 20,
+        "liquid_fund": 30
+      },
+      "priority_actions": [
+        "Move to large cap only equity — reduce volatility",
+        "Invest in SCSS for guaranteed 8.2% post retirement",
+        "Ensure health insurance is adequate — higher cover",
+        "Start systematic withdrawal planning for retirement"
+      ]
+    },
+
+    "above_60": {
+      "equity": 20,
+      "debt": 70,
+      "gold": 10,
+      "rationale": "Capital preservation and regular income is priority. Equity only for inflation protection on a small portion.",
+      "equity_split": {
+        "large_cap_index_funds": 100,
+        "mid_cap_funds": 0,
+        "small_cap_funds": 0
+      },
+      "debt_split": {
+        "scss": 40,
+        "rbi_floating_bonds": 20,
+        "post_office_mis": 20,
+        "liquid_fund": 20
+      },
+      "priority_actions": [
+        "Invest 15 lakh max in SCSS at 8.2% per account",
+        "Open SCSS in spouse name also for additional 15 lakh",
+        "Post Office MIS for monthly income",
+        "Keep 2-3 year expenses in liquid fund as buffer"
+      ]
+    }
+
+  },
+
+  "risk_profiles": {
+
+    "low": {
+      "equity": 20,
+      "debt": 70,
+      "gold": 10,
+      "crypto": 0,
+      "description": "Capital safety over returns. Cannot tolerate seeing portfolio value fall even temporarily.",
+      "suitable_instruments": [
+        "PPF",
+        "SCSS",
+        "Bank FD",
+        "RBI Bonds",
+        "Nifty 50 Index Fund (small allocation only)",
+        "Sovereign Gold Bonds"
+      ],
+      "not_suitable": ["Mid Cap Funds", "Small Cap Funds", "Individual Stocks", "Crypto"],
+      "expected_return_range": "7-9% per annum",
+      "typical_investor": "Retired individuals, very conservative savers, people with low income stability"
+    },
+
+    "moderate": {
+      "equity": 50,
+      "debt": 40,
+      "gold": 10,
+      "crypto": 0,
+      "description": "Balanced approach. Willing to accept short term volatility for long term gains. 5+ year horizon.",
+      "suitable_instruments": [
+        "Nifty 50 Index Fund",
+        "Nifty Next 50 Fund",
+        "Large Cap Mutual Funds",
+        "Balanced Advantage Funds",
+        "PPF",
+        "NPS",
+        "Sovereign Gold Bonds"
+      ],
+      "not_suitable": ["Heavy Small Cap allocation", "Individual Stock trading", "Crypto above 2%"],
+      "expected_return_range": "9-11% per annum",
+      "typical_investor": "Salaried professionals, first-time equity investors, investors with 5-10 year goals"
+    },
+
+    "high": {
+      "equity": 70,
+      "debt": 20,
+      "gold": 10,
+      "crypto": 0,
+      "description": "Growth focused. Comfortable with 30-40% portfolio drawdowns. Investing for 7+ years.",
+      "suitable_instruments": [
+        "Nifty 50 + Nifty Next 50 Index Funds",
+        "Mid Cap Funds",
+        "International Index Funds",
+        "Direct Stocks (large cap quality)",
+        "REITs",
+        "Sovereign Gold Bonds"
+      ],
+      "not_suitable": ["Very high small cap allocation", "Leveraged products", "Crypto above 3%"],
+      "expected_return_range": "11-13% per annum",
+      "typical_investor": "Young professionals, business owners, investors with 10+ year horizon"
+    },
+
+    "very_high": {
+      "equity": 80,
+      "debt": 10,
+      "gold": 5,
+      "crypto": 5,
+      "description": "Maximum growth orientation. Can handle 50%+ drawdowns. Long 10+ year horizon. Sophisticated investor.",
+      "suitable_instruments": [
+        "All equity categories including small cap",
+        "Direct stock picking",
+        "International ETFs",
+        "REITs and InvITs",
+        "Bitcoin and Ethereum (small allocation only)",
+        "Alternative investments (HNI only)"
+      ],
+      "not_suitable": ["Capital guaranteed products", "Annuities", "Conservative FDs as core"],
+      "expected_return_range": "13-15%+ per annum (with higher volatility)",
+      "typical_investor": "High income earners, HNI investors, investors with multiple income sources, entrepreneurs"
+    }
+
+  },
+
+  "portfolio_rebalancing": {
+    "rebalance_frequency_months": 12,
+    "rebalance_threshold_percent": 5,
+    "when_to_rebalance": "When any asset class drifts more than 5% from target allocation",
+    "how_to_rebalance": [
+      "Option 1 — Redirect new SIPs to underweight asset class (simplest, no tax)",
+      "Option 2 — Sell overweight asset and buy underweight (may trigger capital gains)",
+      "Option 3 — Combination of both — partial sell plus redirect SIPs"
+    ],
+    "rebalancing_example": {
+      "target": {"equity": 70, "debt": 20, "gold": 10},
+      "current_after_bull_run": {"equity": 80, "debt": 15, "gold": 5},
+      "action": "Reduce equity SIP temporarily, increase debt and gold SIP until back to target"
+    },
+    "tax_efficient_rebalancing": "Prefer redirecting SIPs over selling to avoid capital gains tax. Only sell if drift is very large (above 10%)."
+  },
+
+  "financial_health_benchmarks": {
+
+    "savings_rate": {
+      "poor": "Below 10%",
+      "average": "10-19%",
+      "good": "20-29%",
+      "excellent": "30% and above",
+      "formula": "(Monthly Income - Monthly Expenses) / Monthly Income x 100"
+    },
+
+    "emergency_fund": {
+      "poor": "Less than 1 month",
+      "average": "1-3 months",
+      "good": "3-6 months",
+      "excellent": "6 months and above",
+      "note": "Count months of EXPENSES not income"
+    },
+
+    "debt_to_income_ratio": {
+      "excellent": "Below 20%",
+      "good": "20-35%",
+      "average": "36-49%",
+      "poor": "50% and above",
+      "formula": "Total Monthly Debt Payments / Gross Monthly Income x 100",
+      "note": "Include home loan EMI, car loan EMI, personal loan EMI, credit card minimum due"
+    },
+
+    "investment_rate": {
+      "poor": "Below 10%",
+      "average": "10-14%",
+      "good": "15-19%",
+      "excellent": "20% and above",
+      "note": "EPF contribution counts as investment"
+    },
+
+    "credit_score": {
+      "poor": "Below 650",
+      "average": "650-699",
+      "good": "700-749",
+      "very_good": "750-799",
+      "excellent": "800 and above"
+    },
+
+    "health_score_weights": {
+      "savings_rate": 25,
+      "emergency_fund": 25,
+      "debt_to_income": 25,
+      "investment_rate": 15,
+      "credit_score": 10,
+      "total": 100
+    }
+
+  },
+
+  "budget_rules": {
+
+    "50_30_20_rule": {
+      "needs_percent": 50,
+      "wants_percent": 30,
+      "savings_investments_percent": 20,
+      "needs_examples": ["Rent or home loan EMI", "Groceries", "Utilities", "Transportation to work", "School fees", "Health insurance"],
+      "wants_examples": ["Dining out", "OTT subscriptions", "Shopping", "Vacations", "Entertainment"],
+      "savings_examples": ["SIP investments", "PPF", "NPS", "Emergency fund top-up", "Loan prepayment"]
+    },
+
+    "india_adapted_rule": {
+      "needs_percent": 50,
+      "wants_percent": 20,
+      "savings_investments_percent": 30,
+      "note": "In India where cost of living is lower relative to income for middle class, target 30% savings over 20%"
+    },
+
+    "monthly_budget_priorities": [
+      {"priority": 1, "action": "Emergency fund contribution until 6 months reached"},
+      {"priority": 2, "action": "Term insurance and health insurance premiums"},
+      {"priority": 3, "action": "EPF contribution (automatic for salaried)"},
+      {"priority": 4, "action": "PPF contribution — max 1.5 lakh per year"},
+      {"priority": 5, "action": "ELSS SIP for remaining 80C benefit"},
+      {"priority": 6, "action": "NPS contribution for extra 50,000 80CCD(1B) benefit"},
+      {"priority": 7, "action": "Index fund SIP for long term wealth"},
+      {"priority": 8, "action": "Everything else — mid cap, international, gold ETF etc"}
+    ]
+
+  },
+
+  "common_financial_mistakes": [
+    {
+      "mistake": "Buying ULIP or endowment plan thinking it is investment",
+      "impact": "Returns 5-7% vs 11-12% from mutual funds — costs lakhs over 20 years",
+      "fix": "Buy term insurance separately. Invest in mutual funds."
+    },
+    {
+      "mistake": "Keeping emergency fund in savings account",
+      "impact": "Earns only 3.5% vs 6.5-7% in liquid fund",
+      "fix": "Move emergency fund to liquid mutual fund"
+    },
+    {
+      "mistake": "Investing in regular mutual fund plans via distributor",
+      "impact": "Pays 1-1.5% extra expense ratio annually — loses 30-40% of wealth over 20 years",
+      "fix": "Switch to direct plans via Zerodha Coin, Groww or MF Central"
+    },
+    {
+      "mistake": "Paying only minimum due on credit card",
+      "impact": "Pays 42-49% annual interest on remaining balance",
+      "fix": "Always pay full outstanding every month"
+    },
+    {
+      "mistake": "Not buying term insurance when young",
+      "impact": "Premium doubles every 5-7 years of delay",
+      "fix": "Buy term insurance by age 30 — 1 crore cover costs 8,000-12,000 per year at 28"
+    },
+    {
+      "mistake": "Stopping SIP during market crash",
+      "impact": "Misses buying at cheapest prices — loses compounding benefit",
+      "fix": "Continue SIP regardless of market level. Crash is a sale on stocks."
+    },
+    {
+      "mistake": "Not making a nomination in investments",
+      "impact": "Family faces legal hurdles to claim money after death",
+      "fix": "Add nominee in every bank account, mutual fund, insurance policy"
+    },
+    {
+      "mistake": "Investing without emergency fund",
+      "impact": "Forces selling investments at loss during emergencies",
+      "fix": "Build 6 month emergency fund before investing"
+    }
+  ]
+
+}

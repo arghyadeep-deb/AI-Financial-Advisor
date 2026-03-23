@@ -1,0 +1,1673 @@
+[
+  {
+    "card_name": "HDFC Infinia Metal Edition",
+    "bank": "HDFC",
+    "tier": "Ultra Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Infinite",
+    "annual_fee": 12500,
+    "joining_fee": 12500,
+    "fee_waiver": "Spend 10L in a year",
+    "income_requirement_monthly": 375000,
+    "invite_only": true,
+    "base_reward_rate": 3.33,
+    "reward_type": "Reward Points",
+    "reward_value_per_point": 1,
+    "multipliers": {
+      "smartbuy_hotels": 33,
+      "smartbuy_flights": 16.5,
+      "dining": 2,
+      "travel": 2
+    },
+    "caps": {
+      "insurance_points_monthly": 10000,
+      "gaming_rewards": "none",
+      "redemption_per_month": 5
+    },
+    "lounge_access": {
+      "type": "Unlimited",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "addon_cards": true,
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 2,
+      "travel_insurance": true,
+      "meet_and_greet": true
+    },
+    "lifestyle_benefits": {
+      "concierge": true,
+      "hotel_memberships": ["Club Marriott"],
+      "dining_benefits": true
+    },
+    "best_for": ["travel", "luxury", "smartbuy", "high spenders"],
+    "not_good_for": ["low spenders", "cashback seekers"],
+    "pros": [
+      "Best reward rate in India at 3.33%",
+      "33% value back on SmartBuy hotel bookings",
+      "Unlimited global lounge for primary and addon members",
+      "Forex markup only 2%",
+      "Meet and greet airport service"
+    ],
+    "cons": [
+      "Invite only — very hard to get",
+      "Redemption capped 5 times per month from Feb 2026",
+      "Insurance points capped at 10,000 per month",
+      "No rewards on gaming spends",
+      "Very high income requirement"
+    ],
+    "ideal_monthly_spend": 100000,
+    "ideal_spend_categories": ["travel", "hotels", "flights", "smartbuy", "dining"]
+  },
+
+  {
+    "card_name": "HDFC Diners Club Black Metal",
+    "bank": "HDFC",
+    "tier": "Ultra Premium",
+    "card_type": "Credit Card",
+    "network": "Diners Club",
+    "annual_fee": 10000,
+    "joining_fee": 10000,
+    "fee_waiver": "Spend 5L in a year",
+    "income_requirement_monthly": 175000,
+    "invite_only": false,
+    "base_reward_rate": 3.33,
+    "reward_type": "Reward Points",
+    "reward_value_per_point": 1,
+    "multipliers": {
+      "dining": 2,
+      "travel": 2
+    },
+    "milestone_bonus": {
+      "bonus_points": 10000,
+      "quarterly_spend_required": 400000
+    },
+    "caps": {
+      "insurance_points_monthly": 5000
+    },
+    "lounge_access": {
+      "type": "Unlimited",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": null
+    },
+    "lifestyle_benefits": {
+      "memberships": ["Club Marriott", "Amazon Prime", "Swiggy One"],
+      "concierge": true,
+      "golf_rounds_monthly": 6
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 2,
+      "travel_insurance": true
+    },
+    "best_for": ["dining", "lifestyle", "travel", "golf"],
+    "not_good_for": ["tier 2 city users", "offline shopping"],
+    "pros": [
+      "Free Amazon Prime + Swiggy One worth 3000/year",
+      "10,000 bonus points on 4L quarterly spend",
+      "6 complimentary golf rounds monthly",
+      "Unlimited lounge access"
+    ],
+    "cons": [
+      "Diners Club has lower offline acceptance in Tier 2 cities",
+      "Insurance points capped at 5,000 per month",
+      "High annual fee of 10,000"
+    ],
+    "ideal_monthly_spend": 75000,
+    "ideal_spend_categories": ["dining", "travel", "lifestyle"]
+  },
+
+  {
+    "card_name": "HDFC Biz Black Metal",
+    "bank": "HDFC",
+    "tier": "Business",
+    "card_type": "Business Credit Card",
+    "network": "Mastercard",
+    "annual_fee": 10000,
+    "joining_fee": 10000,
+    "fee_waiver": "Spend 15L in a year",
+    "income_requirement_monthly": null,
+    "invite_only": false,
+    "base_reward_rate": 3.33,
+    "reward_type": "Reward Points",
+    "multipliers": {
+      "income_tax_payments": 5,
+      "gst_payments": 5,
+      "smartpay": 5,
+      "business_spends": 3
+    },
+    "lounge_access": {
+      "type": "Unlimited",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 2,
+      "travel_insurance": true,
+      "meet_and_greet": true
+    },
+    "best_for": ["business owners", "tax payments", "GST payments", "self employed"],
+    "not_good_for": ["salaried employees", "personal use"],
+    "pros": [
+      "5X rewards on income tax and GST payments",
+      "Unlimited global lounge access",
+      "High 3.33% base reward rate",
+      "Great for business expense management",
+      "Meet and greet airport service"
+    ],
+    "cons": [
+      "Only for business owners or self-employed",
+      "High annual fee of 10,000",
+      "Not useful for salaried individuals",
+      "Limited to HDFC Smartpay ecosystem for 5X"
+    ],
+    "ideal_monthly_spend": 150000,
+    "ideal_spend_categories": ["income tax", "gst", "business expenses", "travel"]
+  },
+
+  {
+    "card_name": "HDFC Regalia Gold",
+    "bank": "HDFC",
+    "tier": "Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 2500,
+    "joining_fee": 2500,
+    "fee_waiver": "Spend 3L in a year",
+    "income_requirement_monthly": 100000,
+    "invite_only": false,
+    "base_reward_rate": 2,
+    "reward_type": "Reward Points",
+    "reward_value_per_point": 0.5,
+    "multipliers": {
+      "nykaa": 5,
+      "myntra": 5,
+      "reliance_digital": 5,
+      "marks_and_spencer": 5
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 12,
+      "international": 6,
+      "spend_requirement": 100000,
+      "spend_period": "quarterly"
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 2,
+      "travel_insurance": true
+    },
+    "lifestyle_benefits": {
+      "concierge": true,
+      "dining_benefits": true
+    },
+    "best_for": ["travel", "shopping", "fashion", "lifestyle"],
+    "not_good_for": ["very high spenders", "ultra premium seekers"],
+    "pros": [
+      "5X rewards on Nykaa, Myntra, Reliance Digital",
+      "12 domestic + 6 international lounge visits",
+      "Reasonable fee of 2,500 per year",
+      "Good for fashion and lifestyle spends"
+    ],
+    "cons": [
+      "Lounge access requires 1L quarterly spend",
+      "Base reward rate of 2% is average",
+      "Point value is only 0.5 per point"
+    ],
+    "ideal_monthly_spend": 40000,
+    "ideal_spend_categories": ["shopping", "fashion", "travel", "nykaa", "myntra"]
+  },
+
+  {
+    "card_name": "HDFC Diners Club Privilege",
+    "bank": "HDFC",
+    "tier": "Premium",
+    "card_type": "Credit Card",
+    "network": "Diners Club",
+    "annual_fee": 1000,
+    "joining_fee": 2500,
+    "fee_waiver": "Spend 75000 in a year",
+    "income_requirement_monthly": 30000,
+    "invite_only": false,
+    "base_reward_rate": 1.5,
+    "reward_type": "Reward Points",
+    "multipliers": {
+      "swiggy": 5,
+      "zomato": 5,
+      "dining": 3
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "global_per_quarter": 2,
+      "spend_requirement": 20000,
+      "spend_period": "monthly"
+    },
+    "best_for": ["dining", "lifestyle", "budget premium"],
+    "not_good_for": ["high spenders", "travel", "tier 2 cities"],
+    "pros": [
+      "5X rewards on Swiggy and Zomato",
+      "Low renewal fee of 1,000 per year",
+      "2 global lounge visits per quarter",
+      "Good dining rewards"
+    ],
+    "cons": [
+      "Diners Club — lower merchant acceptance",
+      "Lounge requires 20,000 monthly spend",
+      "Low base reward rate of 1.5%"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["dining", "food delivery", "swiggy", "zomato"]
+  },
+
+  {
+    "card_name": "Tata Neu Infinity HDFC",
+    "bank": "HDFC",
+    "tier": "Co-Branded",
+    "card_type": "Credit Card",
+    "network": "RuPay",
+    "annual_fee": 1499,
+    "joining_fee": 1499,
+    "fee_waiver": "Spend 3L in a year",
+    "income_requirement_monthly": 35000,
+    "invite_only": false,
+    "reward_type": "NeuCoins",
+    "multipliers": {
+      "tata_brands": 5,
+      "bigbasket": 5,
+      "croma": 5,
+      "air_india_express": 5,
+      "1mg": 5,
+      "tatacliq": 5
+    },
+    "upi_reward": 1.5,
+    "cashback_cap_monthly": 5000,
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 8,
+      "international": 4,
+      "spend_requirement": 50000,
+      "spend_period": "quarterly"
+    },
+    "best_for": ["upi", "tata ecosystem", "bigbasket", "croma users"],
+    "not_good_for": ["non-tata shoppers", "luxury seekers"],
+    "pros": [
+      "5% NeuCoins on all Tata brands",
+      "1.5% on UPI payments — rare feature",
+      "8 domestic + 4 international lounge visits",
+      "Works on RuPay UPI"
+    ],
+    "cons": [
+      "NeuCoins only useful within Tata ecosystem",
+      "Lounge requires 50,000 quarterly spend",
+      "Limited value outside Tata brands"
+    ],
+    "ideal_monthly_spend": 25000,
+    "ideal_spend_categories": ["bigbasket", "croma", "tata brands", "upi", "1mg"]
+  },
+
+  {
+    "card_name": "HDFC Millennia",
+    "bank": "HDFC",
+    "tier": "Cashback",
+    "card_type": "Credit Card",
+    "network": "Visa Platinum",
+    "annual_fee": 1000,
+    "joining_fee": 1000,
+    "fee_waiver": "Spend 1L in a year",
+    "income_requirement_monthly": 35000,
+    "invite_only": false,
+    "base_cashback": 1,
+    "reward_type": "Cashback",
+    "cashback": {
+      "amazon": 5,
+      "flipkart": 5,
+      "swiggy": 5,
+      "zomato": 5,
+      "myntra": 5,
+      "other_online": 1,
+      "offline": 0.5
+    },
+    "cashback_cap_monthly": 1000,
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["online shopping", "food delivery", "young professionals"],
+    "not_good_for": ["travel", "offline heavy spenders"],
+    "pros": [
+      "5% cashback on Amazon, Flipkart, Swiggy, Zomato",
+      "Low fee of 1,000 per year",
+      "Easy to get with 35,000 monthly income",
+      "Good for digital-first lifestyle"
+    ],
+    "cons": [
+      "Monthly cashback capped at 1,000",
+      "Only 1% on other online spends",
+      "0.5% on offline — very low",
+      "No lounge access"
+    ],
+    "ideal_monthly_spend": 20000,
+    "ideal_spend_categories": ["amazon", "flipkart", "swiggy", "zomato"]
+  },
+
+  {
+    "card_name": "Swiggy HDFC",
+    "bank": "HDFC",
+    "tier": "Co-Branded",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 500,
+    "joining_fee": 500,
+    "fee_waiver": "Spend 1L in a year",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "cashback": {
+      "swiggy": 10,
+      "swiggy_instamart": 10,
+      "online": 5,
+      "other": 1
+    },
+    "cashback_cap_monthly": 1500,
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["food delivery", "swiggy users", "students"],
+    "not_good_for": ["travel", "offline spending"],
+    "pros": [
+      "10% cashback on Swiggy — highest in category",
+      "Very low fee of 500 per year",
+      "Easy eligibility",
+      "Good for frequent Swiggy users"
+    ],
+    "cons": [
+      "Monthly cashback capped at 1,500",
+      "Only useful for Swiggy spends",
+      "No lounge access"
+    ],
+    "ideal_monthly_spend": 5000,
+    "ideal_spend_categories": ["swiggy", "food delivery", "swiggy instamart"]
+  },
+
+  {
+    "card_name": "HDFC MoneyBack+",
+    "bank": "HDFC",
+    "tier": "Entry",
+    "card_type": "Credit Card",
+    "network": "Mastercard",
+    "annual_fee": 500,
+    "joining_fee": 500,
+    "fee_waiver": "Spend 50000 in a year",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "cashback": {
+      "amazon": 10,
+      "flipkart": 10,
+      "other_online": 2,
+      "offline": 1
+    },
+    "cashback_cap_monthly": 500,
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["first time users", "students", "low income earners"],
+    "not_good_for": ["high spenders", "travel seekers"],
+    "pros": [
+      "Very easy to get — low income requirement",
+      "10X cashback on Amazon and Flipkart",
+      "Low fee of 500 per year",
+      "Good starter card"
+    ],
+    "cons": [
+      "Monthly cashback capped at only 500",
+      "No lounge access",
+      "Very basic card overall"
+    ],
+    "ideal_monthly_spend": 8000,
+    "ideal_spend_categories": ["amazon", "flipkart"]
+  },
+
+  {
+    "card_name": "SBI Cashback Card",
+    "bank": "SBI",
+    "tier": "Value",
+    "card_type": "Credit Card",
+    "network": "Visa Platinum",
+    "annual_fee": 999,
+    "joining_fee": 999,
+    "fee_waiver": "Spend 2L in a year",
+    "income_requirement_monthly": 20000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "cashback": {
+      "all_online": 5,
+      "offline": 1
+    },
+    "cashback_cap_monthly": 5000,
+    "lounge_access": {
+      "type": "None",
+      "note": "Lounge access discontinued"
+    },
+    "best_for": ["online shopping", "no-restriction cashback"],
+    "not_good_for": ["travel", "lounge seekers"],
+    "pros": [
+      "5% on ALL online spends — no merchant restriction",
+      "Auto cashback credited to bill",
+      "Works on any online merchant",
+      "Low fee of 999 per year"
+    ],
+    "cons": [
+      "Monthly cashback capped at 5,000",
+      "Lounge access discontinued",
+      "Only 1% offline",
+      "Visa Platinum — lower credit limits"
+    ],
+    "ideal_monthly_spend": 30000,
+    "ideal_spend_categories": ["all online shopping", "utility bills", "any online merchant"]
+  },
+
+  {
+    "card_name": "SBI Elite",
+    "bank": "SBI",
+    "tier": "Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 4999,
+    "joining_fee": 4999,
+    "fee_waiver": null,
+    "income_requirement_monthly": 60000,
+    "invite_only": false,
+    "base_reward_rate": 0.5,
+    "reward_type": "Reward Points",
+    "multipliers": {
+      "dining": 5,
+      "movies": 5,
+      "grocery": 5,
+      "departmental_stores": 5
+    },
+    "milestone_bonus": {
+      "annual_spend_for_max_bonus": 700000,
+      "max_bonus_points": 50000
+    },
+    "movie_benefit": {
+      "free_tickets_monthly": 2,
+      "max_value_per_ticket": 250,
+      "annual_value": 6000
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 6,
+      "international": 6,
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "air_accident_insurance": "Discontinued from July 2025",
+      "forex_markup_percent": 3.5
+    },
+    "best_for": ["entertainment", "dining", "movies", "lifestyle"],
+    "not_good_for": ["travel", "online shopping heavy"],
+    "pros": [
+      "Free movie tickets worth 6,000 per year",
+      "5X rewards on dining, movies, grocery",
+      "6 domestic + 6 international lounge visits",
+      "Up to 50,000 milestone bonus points"
+    ],
+    "cons": [
+      "Air accident insurance discontinued July 2025",
+      "Base rate only 0.5% — very low",
+      "High fee of 4,999 with no waiver",
+      "High forex markup of 3.5%"
+    ],
+    "ideal_monthly_spend": 50000,
+    "ideal_spend_categories": ["dining", "movies", "entertainment", "grocery"]
+  },
+
+  {
+    "card_name": "SBI Prime",
+    "bank": "SBI",
+    "tier": "Rewards",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 2999,
+    "joining_fee": 2999,
+    "fee_waiver": null,
+    "income_requirement_monthly": 40000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "dining_per_100": 10,
+      "grocery_per_100": 10,
+      "other_per_100": 2
+    },
+    "welcome_benefit": {
+      "vouchers_worth": 3000
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 8,
+      "international": 4
+    },
+    "travel_benefits": {
+      "air_accident_insurance": "Discontinued from July 2025",
+      "forex_markup_percent": 3.5
+    },
+    "best_for": ["dining", "grocery", "everyday spending"],
+    "not_good_for": ["online shopping", "travel"],
+    "pros": [
+      "10X rewards on dining and grocery",
+      "3,000 welcome vouchers",
+      "8 domestic + 4 international lounges",
+      "Good for everyday family spending"
+    ],
+    "cons": [
+      "Air accident insurance discontinued July 2025",
+      "Only 2 points per 100 on other spends",
+      "No fee waiver option",
+      "High forex markup"
+    ],
+    "ideal_monthly_spend": 30000,
+    "ideal_spend_categories": ["dining", "grocery", "departmental stores"]
+  },
+
+  {
+    "card_name": "BPCL SBI Octane",
+    "bank": "SBI",
+    "tier": "Fuel",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 1499,
+    "joining_fee": 1499,
+    "fee_waiver": "Spend 2L in a year",
+    "income_requirement_monthly": 25000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "fuel_benefit": {
+      "value_back_percent": 7.25,
+      "valid_at": "BPCL stations only",
+      "surcharge_waiver": true
+    },
+    "multipliers": {
+      "dining": 10,
+      "movies": 10,
+      "grocery": 10
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4
+    },
+    "travel_benefits": {
+      "air_accident_insurance": "Discontinued from July 2025"
+    },
+    "best_for": ["fuel", "daily commuters", "BPCL users", "dining"],
+    "not_good_for": ["non-BPCL fuel users", "travel"],
+    "pros": [
+      "7.25% value back on BPCL fuel — best fuel card in India",
+      "10X on dining, movies, grocery",
+      "Fuel surcharge waiver",
+      "Good for high fuel spenders"
+    ],
+    "cons": [
+      "Fuel benefit only at BPCL stations — not HP or IOC",
+      "Air accident insurance discontinued July 2025",
+      "Limited lounge access"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["fuel", "dining", "grocery"]
+  },
+
+  {
+    "card_name": "SBI SimplyCLICK",
+    "bank": "SBI",
+    "tier": "Entry",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 499,
+    "joining_fee": 499,
+    "fee_waiver": "Spend 1L in a year",
+    "income_requirement_monthly": 20000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "multipliers": {
+      "all_online": 10,
+      "amazon": 10,
+      "cleartrip": 10,
+      "lenskart": 10,
+      "netmeds": 10,
+      "offline": 1
+    },
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["online shopping", "beginners", "budget users"],
+    "not_good_for": ["offline spending", "travel"],
+    "pros": [
+      "10X rewards on all online spends",
+      "Very low fee of 499 per year",
+      "Easy eligibility",
+      "Good starter online shopping card"
+    ],
+    "cons": [
+      "No lounge access",
+      "Only 1X on offline spends",
+      "Low redemption value"
+    ],
+    "ideal_monthly_spend": 10000,
+    "ideal_spend_categories": ["online shopping", "amazon", "cleartrip"]
+  },
+
+  {
+    "card_name": "SBI SimplySAVE",
+    "bank": "SBI",
+    "tier": "Entry",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 499,
+    "joining_fee": 499,
+    "fee_waiver": "Spend 1L in a year",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "dining_per_150": 10,
+      "movies_per_150": 10,
+      "grocery_per_150": 10,
+      "departmental_per_150": 10,
+      "other_per_150": 1
+    },
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["offline spending", "dining", "grocery", "first time users"],
+    "not_good_for": ["online shopping", "travel"],
+    "pros": [
+      "10X rewards on dining, movies, grocery offline",
+      "Very low fee of 499 per year",
+      "Very easy eligibility",
+      "Good for offline-first users"
+    ],
+    "cons": [
+      "No lounge access",
+      "Only 1X on other categories",
+      "No online shopping bonus",
+      "Low point redemption value"
+    ],
+    "ideal_monthly_spend": 10000,
+    "ideal_spend_categories": ["dining", "grocery", "movies", "offline spending"]
+  },
+
+  {
+    "card_name": "IRCTC SBI Platinum",
+    "bank": "SBI",
+    "tier": "Travel",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 300,
+    "joining_fee": 500,
+    "fee_waiver": null,
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "travel_benefit": {
+      "railway_booking_reward_percent": 10,
+      "transaction_fee_waiver": true,
+      "valid_on": "IRCTC website and app only"
+    },
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["railway travel", "frequent train travelers"],
+    "not_good_for": ["air travel", "general spending"],
+    "pros": [
+      "10% reward on IRCTC bookings",
+      "Transaction fee waiver on IRCTC",
+      "Lowest annual fee — only 300 per year",
+      "Very easy to get"
+    ],
+    "cons": [
+      "Only useful for IRCTC bookings",
+      "No rewards on other spends",
+      "No lounge access"
+    ],
+    "ideal_monthly_spend": 5000,
+    "ideal_spend_categories": ["railway tickets", "irctc"]
+  },
+
+  {
+    "card_name": "Reliance SBI Prime",
+    "bank": "SBI",
+    "tier": "Co-Branded",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 2999,
+    "joining_fee": 2999,
+    "fee_waiver": null,
+    "income_requirement_monthly": 40000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "reliance_brands_per_100": 10,
+      "other_per_100": 2
+    },
+    "reliance_brands": ["Reliance Fresh", "Smart Bazaar", "Trends", "Digital", "Jio"],
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 8,
+      "international": 4
+    },
+    "best_for": ["reliance shopping", "smart bazaar", "reliance fresh users"],
+    "not_good_for": ["non-reliance shoppers", "travel"],
+    "pros": [
+      "10X rewards on all Reliance brand stores",
+      "8 domestic + 4 international lounge visits",
+      "Good for Reliance Fresh and Smart Bazaar regulars",
+      "Covers full Reliance ecosystem"
+    ],
+    "cons": [
+      "Only useful for Reliance brand shoppers",
+      "No fee waiver option",
+      "Only 2X on other spends",
+      "High forex markup"
+    ],
+    "ideal_monthly_spend": 25000,
+    "ideal_spend_categories": ["reliance fresh", "smart bazaar", "reliance trends", "reliance digital"]
+  },
+
+  {
+    "card_name": "Amazon Pay ICICI",
+    "bank": "ICICI",
+    "tier": "Co-Branded",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 0,
+    "joining_fee": 0,
+    "fee_waiver": "Lifetime Free",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Amazon Pay Cashback",
+    "cashback": {
+      "amazon_prime_members": 5,
+      "amazon_non_prime": 3,
+      "amazon_pay_merchants": 2,
+      "utility_bills": 2,
+      "other": 1
+    },
+    "cashback_expiry": "Never",
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["amazon shopping", "amazon prime users", "lifetime free card"],
+    "not_good_for": ["non-amazon users", "travel", "lounge seekers"],
+    "pros": [
+      "Lifetime free — zero annual fee forever",
+      "5% on Amazon for Prime members",
+      "Cashback never expires",
+      "No merchant restriction on 1% base"
+    ],
+    "cons": [
+      "No lounge access",
+      "Only 1% outside Amazon ecosystem",
+      "Cashback only as Amazon Pay balance",
+      "Not useful if you rarely use Amazon"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["amazon", "bill payments", "online shopping"]
+  },
+
+  {
+    "card_name": "ICICI Sapphiro",
+    "bank": "ICICI",
+    "tier": "Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Signature + Mastercard World (Dual Card)",
+    "annual_fee": 3500,
+    "joining_fee": 6500,
+    "fee_waiver": null,
+    "income_requirement_monthly": 70000,
+    "invite_only": false,
+    "reward_type": "Reward Points + Entertainment",
+    "entertainment_benefits": {
+      "movie_offer": "BOGO on BookMyShow",
+      "max_discount_per_ticket": 500,
+      "monthly_limit": 2,
+      "golf_rounds_monthly": 2,
+      "movie_benefit_discontinued_from": "February 2026"
+    },
+    "lounge_access": {
+      "type": "Spend-based",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": 75000,
+      "spend_period": "previous quarter"
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 3.5,
+      "travel_insurance": true
+    },
+    "best_for": ["entertainment", "lifestyle", "golf", "dual card users"],
+    "not_good_for": ["low spenders", "cashback seekers"],
+    "pros": [
+      "BOGO movie tickets on BookMyShow",
+      "2 golf rounds per month",
+      "Dual card — Visa + Mastercard",
+      "Unlimited lounge with 75k quarterly spend"
+    ],
+    "cons": [
+      "Movie benefits discontinued Feb 2026",
+      "Lounge requires 75,000 quarterly spend",
+      "High joining fee of 6,500",
+      "High forex markup 3.5%"
+    ],
+    "ideal_monthly_spend": 50000,
+    "ideal_spend_categories": ["entertainment", "dining", "lifestyle"]
+  },
+
+  {
+    "card_name": "ICICI Rubyx",
+    "bank": "ICICI",
+    "tier": "Mid Tier",
+    "card_type": "Credit Card",
+    "network": "Visa + Mastercard (Dual Card)",
+    "annual_fee": 2000,
+    "joining_fee": 3000,
+    "fee_waiver": null,
+    "income_requirement_monthly": 40000,
+    "invite_only": false,
+    "reward_type": "Reward Points + Entertainment",
+    "entertainment_benefits": {
+      "movie_offer": "BOGO on BookMyShow",
+      "max_discount_per_ticket": 250,
+      "monthly_limit": 2,
+      "golf_rounds_monthly": 1
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4,
+      "international": 2
+    },
+    "best_for": ["lifestyle", "movies", "mid-tier users"],
+    "not_good_for": ["high spenders", "travel"],
+    "pros": [
+      "BOGO movie tickets",
+      "1 golf round per month",
+      "Dual Visa + Mastercard",
+      "More affordable than Sapphiro"
+    ],
+    "cons": [
+      "Lower benefits than Sapphiro",
+      "Limited lounge access",
+      "High joining fee vs annual fee"
+    ],
+    "ideal_monthly_spend": 25000,
+    "ideal_spend_categories": ["entertainment", "movies", "dining"]
+  },
+
+  {
+    "card_name": "ICICI Coral",
+    "bank": "ICICI",
+    "tier": "Entry",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 500,
+    "joining_fee": 500,
+    "fee_waiver": "Spend 1.5L in a year",
+    "income_requirement_monthly": 20000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "per_100_spend": 2,
+      "movie_discount_percent": 25
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 2,
+      "spend_requirement": 20000,
+      "spend_period": "monthly"
+    },
+    "best_for": ["general spending", "beginners", "movies"],
+    "not_good_for": ["high rewards seekers", "travel"],
+    "pros": [
+      "25% discount on movie tickets",
+      "Easy to get",
+      "Low fee of 500 per year",
+      "Good starter card"
+    ],
+    "cons": [
+      "Very low reward rate — 2 points per 100",
+      "Lounge access requires 20,000 monthly spend",
+      "Limited lounge access"
+    ],
+    "ideal_monthly_spend": 10000,
+    "ideal_spend_categories": ["general", "movies", "everyday spending"]
+  },
+
+  {
+    "card_name": "ICICI Emeralde Private",
+    "bank": "ICICI",
+    "tier": "Ultra Premium",
+    "card_type": "Credit Card",
+    "network": "Mastercard World Elite",
+    "annual_fee": 12000,
+    "joining_fee": 12000,
+    "fee_waiver": "Spend 15L in a year",
+    "income_requirement_monthly": 300000,
+    "invite_only": true,
+    "base_reward_rate": 3,
+    "reward_type": "Reward Points",
+    "lounge_access": {
+      "type": "Unlimited",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 1.5,
+      "travel_insurance": true,
+      "concierge": true
+    },
+    "lifestyle_benefits": {
+      "golf_rounds": "unlimited",
+      "spa_access": true,
+      "luxury_hotel_benefits": true
+    },
+    "best_for": ["luxury", "travel", "ultra premium lifestyle"],
+    "not_good_for": ["average spenders", "cashback seekers"],
+    "pros": [
+      "3% base reward rate",
+      "Unlimited global lounge access",
+      "Low forex markup of 1.5%",
+      "Unlimited golf rounds and spa access"
+    ],
+    "cons": [
+      "Invite only — very hard to get",
+      "High annual fee of 12,000",
+      "Need 15L annual spend for fee waiver"
+    ],
+    "ideal_monthly_spend": 150000,
+    "ideal_spend_categories": ["travel", "luxury", "dining"]
+  },
+
+  {
+    "card_name": "Axis Magnus Burgundy",
+    "bank": "Axis",
+    "tier": "Ultra Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Infinite",
+    "annual_fee": 30000,
+    "joining_fee": 30000,
+    "fee_waiver": "Waived for Axis Burgundy banking customers",
+    "income_requirement_monthly": 200000,
+    "invite_only": false,
+    "base_reward_rate": 5,
+    "high_spend_reward_rate": 17.5,
+    "high_spend_threshold_monthly": 150000,
+    "reward_type": "EDGE Miles",
+    "caps": {
+      "utility_rewards_monthly": 500,
+      "insurance_rewards_monthly": 2000
+    },
+    "lounge_access": {
+      "type": "Unlimited + Guests",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "guest_visits": 4,
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 2,
+      "meet_and_greet": true,
+      "travel_insurance": true,
+      "concierge": true
+    },
+    "best_for": ["high spenders", "travel", "luxury", "business"],
+    "not_good_for": ["average spenders", "utility bill heavy users"],
+    "pros": [
+      "17.5% reward rate for 1.5L+ monthly spend",
+      "Unlimited lounge with 4 guest visits",
+      "Meet and greet airport service",
+      "Fee waived for Burgundy account holders"
+    ],
+    "cons": [
+      "Utility and insurance rewards capped severely from 2025",
+      "Very high fee of 30,000 per year",
+      "High income and spend requirements",
+      "Issuance restricted as of late 2025"
+    ],
+    "ideal_monthly_spend": 150000,
+    "ideal_spend_categories": ["travel", "hotels", "flights", "dining"]
+  },
+
+  {
+    "card_name": "Axis Atlas",
+    "bank": "Axis",
+    "tier": "Travel",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 5000,
+    "joining_fee": 5000,
+    "fee_waiver": "Spend 7.5L in a year",
+    "income_requirement_monthly": 100000,
+    "invite_only": false,
+    "reward_type": "EDGE Miles",
+    "miles": {
+      "airlines_per_100": 5,
+      "hotels_per_100": 5,
+      "other_per_100": 2
+    },
+    "mile_transfer_ratio": "1 EDGE Mile = 2 Partner Miles",
+    "transfer_partners": ["Air India", "Vistara", "Singapore Airlines", "British Airways"],
+    "lounge_access": {
+      "type": "Tiered",
+      "domestic": 18,
+      "international": 12,
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 3.5,
+      "travel_insurance": true
+    },
+    "best_for": ["travel", "miles", "flight bookings", "frequent flyers"],
+    "not_good_for": ["non-travelers", "cashback seekers"],
+    "pros": [
+      "10% value back on airlines and hotels",
+      "18 domestic + 12 international lounge visits",
+      "1:2 mile transfer to major airline partners",
+      "Good transfer partners including Singapore Airlines"
+    ],
+    "cons": [
+      "New issuances restricted since September 2025",
+      "Low rewards on non-travel spends",
+      "High forex markup of 3.5%"
+    ],
+    "ideal_monthly_spend": 60000,
+    "ideal_spend_categories": ["flights", "hotels", "travel"]
+  },
+
+  {
+    "card_name": "Axis ACE",
+    "bank": "Axis",
+    "tier": "Cashback",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 499,
+    "joining_fee": 499,
+    "fee_waiver": "Spend 2L in a year",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "cashback": {
+      "google_pay_bill_payments": 5,
+      "swiggy": 4,
+      "zomato": 4,
+      "ola": 4,
+      "other_spends": 1.5
+    },
+    "cashback_cap": {
+      "5_percent_category_monthly": 500,
+      "note": "5% category capped at 500 per month from 2025"
+    },
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["utility bills", "bill payments", "food delivery"],
+    "not_good_for": ["high spenders", "travel"],
+    "pros": [
+      "5% on Google Pay bill payments",
+      "4% on Swiggy, Zomato, Ola",
+      "Best base rate of 1.5% on all other spends",
+      "Low fee of 499 per year"
+    ],
+    "cons": [
+      "5% cashback category capped at 500 per month from 2025",
+      "No lounge access",
+      "Overall monthly earning is limited"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["utility bills", "swiggy", "zomato", "ola", "google pay"]
+  },
+
+  {
+    "card_name": "Flipkart Axis",
+    "bank": "Axis",
+    "tier": "Co-Branded",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 500,
+    "joining_fee": 500,
+    "fee_waiver": "Spend 2L in a year",
+    "income_requirement_monthly": 15000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "cashback": {
+      "flipkart": 5,
+      "myntra": 5,
+      "swiggy": 4,
+      "uber": 4,
+      "other": 1.5
+    },
+    "cashback_cap_monthly": 2000,
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4
+    },
+    "best_for": ["flipkart shopping", "food delivery", "cab rides"],
+    "not_good_for": ["amazon shoppers", "travel"],
+    "pros": [
+      "5% on Flipkart and Myntra",
+      "4% on Swiggy and Uber",
+      "1.5% base rate on everything else",
+      "4 domestic lounge visits"
+    ],
+    "cons": [
+      "Monthly cap of 2,000 cashback",
+      "Less useful for Amazon shoppers",
+      "Limited lounge access"
+    ],
+    "ideal_monthly_spend": 20000,
+    "ideal_spend_categories": ["flipkart", "myntra", "swiggy", "uber"]
+  },
+
+  {
+    "card_name": "Axis SuperMoney",
+    "bank": "Axis",
+    "tier": "Fintech",
+    "card_type": "Credit Card",
+    "network": "RuPay",
+    "annual_fee": 0,
+    "joining_fee": 0,
+    "fee_waiver": "Lifetime Free",
+    "income_requirement_monthly": 10000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "upi_cashback": 3,
+    "cashback_cap_monthly": 500,
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["upi", "digital payments", "students", "low income"],
+    "not_good_for": ["high spenders", "travel"],
+    "pros": [
+      "Lifetime free card",
+      "3% cashback on UPI payments",
+      "Works on RuPay UPI",
+      "Very easy to get"
+    ],
+    "cons": [
+      "Monthly cashback capped at only 500",
+      "No rewards outside UPI",
+      "No lounge access"
+    ],
+    "ideal_monthly_spend": 5000,
+    "ideal_spend_categories": ["upi", "digital payments"]
+  },
+
+  {
+    "card_name": "IDFC FIRST Wealth",
+    "bank": "IDFC FIRST",
+    "tier": "Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Infinite",
+    "annual_fee": 0,
+    "joining_fee": 0,
+    "fee_waiver": "Lifetime Free",
+    "income_requirement_monthly": 100000,
+    "invite_only": false,
+    "base_reward_rate": 1.5,
+    "high_spend_reward_rate": 10,
+    "high_spend_threshold_monthly": 20000,
+    "reward_type": "Reward Points",
+    "travel_benefits": {
+      "forex_markup_percent": 1.5,
+      "spa_access": true,
+      "travel_insurance": true
+    },
+    "lounge_access": {
+      "type": "Spend-based",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": 20000,
+      "spend_period": "monthly"
+    },
+    "best_for": ["lifetime free premium", "international travel", "forex savings"],
+    "not_good_for": ["low spenders", "cashback seekers"],
+    "pros": [
+      "Lifetime free — no annual fee ever",
+      "Best forex markup at only 1.5%",
+      "10X rewards on spends above 20,000 per month",
+      "Spa access at airports"
+    ],
+    "cons": [
+      "Lounge access requires 20,000 monthly spend",
+      "Base reward rate of 1.5% is low",
+      "Rewards devalued in 2025-2026"
+    ],
+    "ideal_monthly_spend": 40000,
+    "ideal_spend_categories": ["international travel", "forex", "general spending"]
+  },
+
+  {
+    "card_name": "IDFC FIRST Select",
+    "bank": "IDFC FIRST",
+    "tier": "Mid Tier",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 0,
+    "joining_fee": 0,
+    "fee_waiver": "Lifetime Free",
+    "income_requirement_monthly": 30000,
+    "invite_only": false,
+    "base_reward_rate": 1,
+    "high_spend_reward_rate": 10,
+    "high_spend_threshold_monthly": 20000,
+    "reward_type": "Reward Points",
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4,
+      "spend_requirement": 20000
+    },
+    "best_for": ["lifetime free", "general spending", "mid income earners"],
+    "not_good_for": ["high rewards seekers", "travel"],
+    "pros": [
+      "Lifetime free card",
+      "10X rewards on incremental spends above 20k",
+      "Low interest rate starting from 9% per annum",
+      "Easy eligibility"
+    ],
+    "cons": [
+      "Low base reward rate of 1%",
+      "Limited lounge access",
+      "Rewards require high monthly spend to unlock"
+    ],
+    "ideal_monthly_spend": 25000,
+    "ideal_spend_categories": ["general spending", "online", "offline"]
+  },
+
+  {
+    "card_name": "IndusInd Legend",
+    "bank": "IndusInd",
+    "tier": "Lifestyle",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 10000,
+    "joining_fee": 10000,
+    "fee_waiver": null,
+    "income_requirement_monthly": 100000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "weekday_per_100": 1,
+      "weekend_per_100": 2
+    },
+    "entertainment_benefits": {
+      "movie_tickets_monthly": 4,
+      "max_value_per_ticket": 200
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 6,
+      "international": 4
+    },
+    "best_for": ["movies", "lifestyle", "weekend spends"],
+    "not_good_for": ["weekday heavy spenders", "cashback seekers"],
+    "pros": [
+      "2X rewards on weekends",
+      "4 free movie tickets per month",
+      "6 domestic + 4 international lounge visits",
+      "Good for lifestyle and entertainment"
+    ],
+    "cons": [
+      "High annual fee of 10,000 with no waiver",
+      "Only 1X on weekdays",
+      "IndusInd — smaller bank network",
+      "Low overall reward rate for the fee"
+    ],
+    "ideal_monthly_spend": 50000,
+    "ideal_spend_categories": ["movies", "weekend dining", "lifestyle", "entertainment"]
+  },
+
+  {
+    "card_name": "IndusInd EazyDiner",
+    "bank": "IndusInd",
+    "tier": "Dining",
+    "card_type": "Credit Card",
+    "network": "Mastercard",
+    "annual_fee": 1999,
+    "joining_fee": 1999,
+    "fee_waiver": null,
+    "income_requirement_monthly": 30000,
+    "invite_only": false,
+    "reward_type": "Dining Discounts + Points",
+    "dining_benefits": {
+      "instant_discount_percent": 25,
+      "discount_cap_monthly": 2000,
+      "eazydiner_prime_membership": true,
+      "multiplier_current": "1.5X from June 2025",
+      "multiplier_old": "5X before June 2025"
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 2
+    },
+    "best_for": ["restaurants", "dining out", "food lovers"],
+    "not_good_for": ["travel", "online shopping"],
+    "pros": [
+      "25% instant discount at 10,000+ restaurants",
+      "EazyDiner Prime membership included",
+      "Good for frequent restaurant goers",
+      "Works at premium restaurants"
+    ],
+    "cons": [
+      "Dining discount capped at 2,000 per month",
+      "Multiplier reduced from 5X to 1.5X in June 2025 — major devaluation",
+      "Limited to dining use case only",
+      "No fee waiver option"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["restaurants", "fine dining"]
+  },
+
+  {
+    "card_name": "Kotak White",
+    "bank": "Kotak",
+    "tier": "Milestone",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 3000,
+    "joining_fee": 3000,
+    "fee_waiver": null,
+    "income_requirement_monthly": 75000,
+    "invite_only": false,
+    "reward_type": "Milestone Vouchers",
+    "milestone_rewards": {
+      "vouchers_on_12L_spend": 27000,
+      "milestone_tiers": [
+        {"spend": 400000, "vouchers": 6000},
+        {"spend": 700000, "vouchers": 12000},
+        {"spend": 1200000, "vouchers": 27000}
+      ]
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 8,
+      "international": 4
+    },
+    "best_for": ["milestone rewards", "high annual spenders", "voucher seekers"],
+    "not_good_for": ["low spenders", "cashback seekers", "monthly reward seekers"],
+    "pros": [
+      "27,000 in vouchers on 12L annual spend",
+      "Good milestone reward structure",
+      "8 domestic + 4 international lounge visits",
+      "Visa Signature benefits"
+    ],
+    "cons": [
+      "Rewards only valuable at high spend levels",
+      "No fee waiver",
+      "Vouchers — not direct cashback or points",
+      "Annual spend requirement is high"
+    ],
+    "ideal_monthly_spend": 100000,
+    "ideal_spend_categories": ["general spending", "all categories"]
+  },
+
+  {
+    "card_name": "Kotak League",
+    "bank": "Kotak",
+    "tier": "Rewards",
+    "card_type": "Credit Card",
+    "network": "Visa",
+    "annual_fee": 499,
+    "joining_fee": 499,
+    "fee_waiver": "Spend 1.5L in a year",
+    "income_requirement_monthly": 25000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_points": {
+      "per_150_spend": 8
+    },
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["general rewards", "everyday spending"],
+    "not_good_for": ["travel", "category specific spends"],
+    "pros": [
+      "Simple flat rewards on all spends",
+      "Very low fee of 499 per year",
+      "Easy eligibility",
+      "Good for beginners"
+    ],
+    "cons": [
+      "No lounge access",
+      "No category-specific accelerators",
+      "Basic card overall"
+    ],
+    "ideal_monthly_spend": 15000,
+    "ideal_spend_categories": ["general spending", "everyday use"]
+  },
+
+  {
+    "card_name": "RBL World Safari",
+    "bank": "RBL",
+    "tier": "Travel",
+    "card_type": "Credit Card",
+    "network": "Visa Signature",
+    "annual_fee": 3000,
+    "joining_fee": 3000,
+    "fee_waiver": null,
+    "income_requirement_monthly": 40000,
+    "invite_only": false,
+    "forex_markup_percent": 0,
+    "reward_type": "Travel Points",
+    "travel_benefits": {
+      "forex_markup_percent": 0,
+      "zero_forex_note": "Best card for international travel spending — saves 3.5% vs standard cards"
+    },
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4,
+      "international": 2
+    },
+    "best_for": ["international travel", "zero forex", "foreign currency spends"],
+    "not_good_for": ["domestic only users", "cashback seekers"],
+    "pros": [
+      "Zero forex markup — best for international use",
+      "Save 3.5% on every international transaction vs standard cards",
+      "Good for frequent international travelers",
+      "Visa Signature benefits"
+    ],
+    "cons": [
+      "Annual fee of 3,000 with no waiver",
+      "Average rewards on domestic spends",
+      "Not useful if you don't travel internationally",
+      "RBL — smaller bank network"
+    ],
+    "ideal_monthly_spend": 30000,
+    "ideal_spend_categories": ["international travel", "foreign currency", "abroad spending"]
+  },
+
+  {
+    "card_name": "YES Marquee",
+    "bank": "YES Bank",
+    "tier": "Super Premium",
+    "card_type": "Credit Card",
+    "network": "Visa Infinite",
+    "joining_fee": 9999,
+    "annual_fee": 4999,
+    "fee_waiver": "Spend 5L in a year for renewal fee waiver",
+    "income_requirement_monthly": 150000,
+    "invite_only": false,
+    "reward_type": "Reward Points",
+    "reward_rate_online": 4.5,
+    "lounge_access": {
+      "type": "Unlimited",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "spend_requirement": null
+    },
+    "travel_benefits": {
+      "forex_markup_percent": 1.75,
+      "travel_insurance": true
+    },
+    "best_for": ["luxury travel", "high online spenders", "lounge access seekers"],
+    "not_good_for": ["average spenders", "low income"],
+    "pros": [
+      "4.5% reward rate on online spends",
+      "Unlimited international lounge access",
+      "Low renewal fee of 4,999 with waiver option",
+      "Low forex markup of 1.75%"
+    ],
+    "cons": [
+      "High joining fee of 9,999",
+      "YES Bank — smaller bank with limited offline acceptance",
+      "Need 5L annual spend for renewal waiver"
+    ],
+    "ideal_monthly_spend": 80000,
+    "ideal_spend_categories": ["online shopping", "travel", "luxury"]
+  },
+
+  {
+    "card_name": "Kiwi RuPay",
+    "bank": "Kiwi / YES Bank",
+    "tier": "UPI",
+    "card_type": "Credit Card",
+    "network": "RuPay",
+    "annual_fee": 0,
+    "joining_fee": 0,
+    "fee_waiver": "Lifetime Free",
+    "income_requirement_monthly": 10000,
+    "invite_only": false,
+    "reward_type": "Cashback",
+    "upi_cashback_range": "1.5-5",
+    "cashback_note": "Only on transaction amounts in multiples of 100",
+    "no_p2p_rewards": true,
+    "lounge_access": {
+      "type": "None"
+    },
+    "best_for": ["upi spending", "QR payments", "digital payments"],
+    "not_good_for": ["P2P transfers", "high spenders"],
+    "pros": [
+      "Lifetime free card",
+      "Up to 5% cashback on UPI QR scans",
+      "Works as UPI credit card on RuPay",
+      "Very easy to get"
+    ],
+    "cons": [
+      "Cashback only on multiples of 100",
+      "No P2P transfer rewards",
+      "No lounge access",
+      "Backed by smaller YES Bank"
+    ],
+    "ideal_monthly_spend": 5000,
+    "ideal_spend_categories": ["upi", "qr payments", "digital payments"]
+  },
+
+  {
+    "card_name": "American Express Gold Charge",
+    "bank": "American Express",
+    "tier": "Premium",
+    "card_type": "Charge Card",
+    "network": "American Express",
+    "annual_fee": 4500,
+    "joining_fee": 1000,
+    "fee_waiver": null,
+    "income_requirement_monthly": 60000,
+    "invite_only": false,
+    "reward_type": "Membership Rewards Points",
+    "multipliers": {
+      "dining": 5,
+      "partner_brands": 5
+    },
+    "points_expiry": "Never expire",
+    "transfer_partners": [
+      "Singapore Airlines KrisFlyer",
+      "British Airways Avios",
+      "Marriott Bonvoy",
+      "Hilton Honors"
+    ],
+    "lounge_access": {
+      "type": "Limited",
+      "domestic": 4
+    },
+    "charge_card_note": "Full payment due every month — no revolving credit",
+    "best_for": ["dining", "reward transfers", "airline miles conversion"],
+    "not_good_for": ["tier 2 cities", "general offline merchants", "revolving credit users"],
+    "pros": [
+      "Membership Rewards points never expire",
+      "1:1 transfer to major airline and hotel partners",
+      "5X on dining and partner brands",
+      "Charge card — no preset spending limit"
+    ],
+    "cons": [
+      "Limited merchant acceptance in India — especially Tier 2 and small merchants",
+      "Charge card — full payment due each month",
+      "Utility rewards capped heavily",
+      "Not accepted at many small merchants and kirana stores"
+    ],
+    "ideal_monthly_spend": 40000,
+    "ideal_spend_categories": ["dining", "travel", "partner brands"]
+  },
+
+  {
+    "card_name": "American Express Platinum Charge",
+    "bank": "American Express",
+    "tier": "Ultra Premium",
+    "card_type": "Charge Card",
+    "network": "American Express",
+    "annual_fee": 60000,
+    "joining_fee": 3500,
+    "fee_waiver": null,
+    "income_requirement_monthly": 500000,
+    "invite_only": false,
+    "reward_type": "Membership Rewards Points",
+    "points_expiry": "Never expire",
+    "lounge_access": {
+      "type": "Unlimited Global",
+      "domestic": "unlimited",
+      "international": "unlimited",
+      "networks": ["Priority Pass", "Centurion Lounges", "Plaza Premium"],
+      "guest_visits": "unlimited",
+      "spend_requirement": null
+    },
+    "transfer_partners": [
+      "Singapore Airlines KrisFlyer",
+      "British Airways Avios",
+      "Air India",
+      "Marriott Bonvoy",
+      "Hilton Honors",
+      "Radisson"
+    ],
+    "travel_benefits": {
+      "forex_markup_percent": 0,
+      "travel_insurance": true,
+      "hotel_elite_status": ["Marriott Gold", "Hilton Gold"],
+      "concierge": "24/7 dedicated Platinum concierge",
+      "meet_and_greet": true,
+      "fine_hotels_resorts": true
+    },
+    "lifestyle_benefits": {
+      "luxury_hotel_program": true,
+      "centurion_lounge_access": true,
+      "spa_access": true,
+      "fine_dining_benefits": true
+    },
+    "charge_card_note": "Full payment due every month — no revolving credit",
+    "best_for": ["luxury travel", "ultra HNI", "frequent international travelers", "concierge"],
+    "not_good_for": ["average spenders", "domestic only users", "revolving credit users"],
+    "pros": [
+      "Unlimited global lounge access including Centurion lounges",
+      "Zero forex markup — save on every international transaction",
+      "Dedicated 24/7 Platinum concierge",
+      "Hotel elite status at Marriott and Hilton",
+      "Points never expire and transfer 1:1 to top airlines",
+      "Fine Hotels and Resorts program with room upgrades"
+    ],
+    "cons": [
+      "Very high annual fee of 60,000",
+      "Charge card — full payment due each month",
+      "Limited merchant acceptance at small merchants in India",
+      "Extremely high income requirement",
+      "Fee not justified unless you travel internationally frequently"
+    ],
+    "ideal_monthly_spend": 300000,
+    "ideal_spend_categories": ["international travel", "luxury hotels", "fine dining", "concierge services"]
+  }
+]

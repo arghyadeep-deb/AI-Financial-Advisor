@@ -1,0 +1,21 @@
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# Local caches and runtime artifacts
+.cache/
+advisor.db
+
+# Tooling
+.pytest_cache/
+.mypy_cache/

@@ -1,0 +1,992 @@
+[
+  {
+    "company": "Reliance Industries",
+    "ticker": "RELIANCE",
+    "sector": "Energy / Telecom / Retail / Petrochemicals",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "Jio Telecom (digital services)",
+      "Reliance Retail (largest retailer in India)",
+      "Oil to Chemicals (O2C)",
+      "New Energy (solar, green hydrogen)"
+    ],
+    "investment_style": ["Growth", "Value", "Core Portfolio"],
+    "suitable_for": [
+      "Long term wealth building",
+      "Core portfolio holding",
+      "Conglomerate exposure",
+      "New energy sector bet"
+    ],
+    "not_suitable_for": [
+      "Dividend income seekers",
+      "Short term traders"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 26,
+      "dividend_yield_percent": 0.4,
+      "revenue_growth_3yr_cagr": "12-15%",
+      "debt_status": "High debt but manageable given cash flows"
+    },
+    "why_invest": "Reliance is India's most diversified conglomerate. Jio disrupted telecom and is now expanding into digital services, cloud, and AI. Reliance Retail is expanding aggressively. New Energy investments position it for the next decade.",
+    "key_risks": [
+      "Regulatory risk in telecom and retail sectors",
+      "High promoter pledging and complex corporate structure",
+      "Oil business faces long term demand uncertainty",
+      "Execution risk across too many businesses simultaneously"
+    ],
+    "pros": [
+      "India's largest company by market cap — systemic importance",
+      "Jio has 450 million+ subscribers — pricing power growing",
+      "Reliance Retail — fastest growing retail business in India",
+      "Mukesh Ambani's track record of successful pivots",
+      "New energy investments — 75,000 crore committed",
+      "Strong cash generation from O2C business"
+    ],
+    "cons": [
+      "Very low dividend yield of 0.4% — not for income investors",
+      "Complex conglomerate — hard to value accurately",
+      "High debt levels across subsidiaries",
+      "Stock has underperformed from 2021 highs",
+      "Telecom tariff wars could return"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high", "very_high"],
+    "ideal_holding_period": "5-10+ years",
+    "ideal_portfolio_allocation_percent": "8-10% max",
+    "analyst_view": "Long term structural growth story. Core holding for most Indian equity portfolios."
+  },
+
+  {
+    "company": "Tata Consultancy Services",
+    "ticker": "TCS",
+    "sector": "IT Services",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 4,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "IT Services and Consulting",
+      "Banking Financial Services Insurance (BFSI)",
+      "Retail and Consumer Business",
+      "Cloud and AI Services"
+    ],
+    "investment_style": ["Quality", "Dividend", "Long Term Growth"],
+    "suitable_for": [
+      "Long term growth investors",
+      "Dividend income seekers",
+      "USD earnings exposure (natural hedge vs INR depreciation)",
+      "Quality compounders"
+    ],
+    "not_suitable_for": [
+      "Short term traders",
+      "Investors wanting very high growth rates"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 28,
+      "dividend_yield_percent": 1.8,
+      "revenue_growth_3yr_cagr": "8-12%",
+      "debt_status": "Zero debt — net cash company"
+    },
+    "why_invest": "TCS is one of the finest businesses in India — zero debt, consistent dividend payer, USD revenue provides natural INR depreciation hedge. AI and cloud transformation is creating a new growth cycle for IT companies.",
+    "key_risks": [
+      "US and European recession reducing IT spending",
+      "Visa restrictions affecting onsite delivery model",
+      "AI automation may reduce headcount needs long term",
+      "High valuation leaves limited margin of safety"
+    ],
+    "pros": [
+      "Zero debt — strongest balance sheet in Indian IT",
+      "Consistent dividend payer — 1.8% yield plus special dividends",
+      "Revenue in USD — benefits when INR depreciates",
+      "Tata Group backing — governance and stability",
+      "Market leader in IT services globally",
+      "AI and cloud demand driving new business cycle"
+    ],
+    "cons": [
+      "Revenue growth slower than mid-cap IT companies",
+      "PE of 28 is not cheap for a slow-growth business",
+      "Large size limits percentage upside compared to smaller peers",
+      "Salary inflation and attrition impact margins"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate", "high"],
+    "ideal_holding_period": "5-10+ years",
+    "ideal_portfolio_allocation_percent": "7-10% max",
+    "analyst_view": "A must-have in every long term Indian equity portfolio. Steady compounder with strong dividends."
+  },
+
+  {
+    "company": "HDFC Bank",
+    "ticker": "HDFCBANK",
+    "sector": "Banking",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex", "Nifty Bank"],
+    "risk_level": "Medium",
+    "risk_score": 4,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "Retail Banking",
+      "Corporate Banking",
+      "Treasury Operations",
+      "Credit Cards (India's largest issuer)"
+    ],
+    "investment_style": ["Quality", "Value", "Core Portfolio"],
+    "suitable_for": [
+      "Long term portfolio anchor",
+      "Conservative equity investors",
+      "Banking sector exposure",
+      "Quality compounder seekers"
+    ],
+    "not_suitable_for": [
+      "Short term momentum traders",
+      "Investors expecting very high growth"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 19,
+      "dividend_yield_percent": 1.2,
+      "revenue_growth_3yr_cagr": "15-18%",
+      "debt_status": "Banking business — leverage is structural",
+      "npa_gross_percent": "1.3 (industry low — best asset quality)",
+      "return_on_equity": "17-18%"
+    },
+    "why_invest": "HDFC Bank is India's most trusted and best managed private bank. Post HDFC-HDFC Bank merger integration is complete. Growth is re-accelerating. Trading at reasonable valuation after 2-year consolidation.",
+    "key_risks": [
+      "Integration challenges post HDFC merger still being absorbed",
+      "RBI regulatory actions on banking sector",
+      "Rising NPA risk if economic slowdown occurs",
+      "Competition from new age fintech and payment banks"
+    ],
+    "pros": [
+      "India's largest private bank by assets",
+      "Best asset quality in Indian banking — lowest NPA",
+      "India's largest credit card issuer",
+      "Consistent 18-20% ROE for 15+ years",
+      "Conservative management — no aggressive risk taking",
+      "Reasonable valuation at PE of 19"
+    ],
+    "cons": [
+      "Merger with HDFC Ltd created near-term NIM pressure",
+      "Growth slowdown in 2023-24 disappointed investors",
+      "Very large base makes doubling difficult",
+      "Interest rate sensitivity affects NIM"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate", "high"],
+    "ideal_holding_period": "5-10+ years",
+    "ideal_portfolio_allocation_percent": "8-10% max",
+    "analyst_view": "Core holding for Indian equity investors. Post-merger integration is complete and growth is accelerating. Good entry point in 2025-2026."
+  },
+
+  {
+    "company": "Infosys",
+    "ticker": "INFY",
+    "sector": "IT Services",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 4,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "Digital Transformation Services",
+      "Cloud Services",
+      "Data Analytics and AI",
+      "Engineering Services"
+    ],
+    "investment_style": ["Quality", "Dividend", "Long Term Growth"],
+    "suitable_for": [
+      "Long term growth investors",
+      "IT sector exposure",
+      "Dividend income seekers",
+      "USD earnings hedge"
+    ],
+    "not_suitable_for": ["Short term traders", "Investors wanting low PE valuation"],
+    "financials_2026": {
+      "approximate_pe_ratio": 24,
+      "dividend_yield_percent": 2.8,
+      "revenue_growth_3yr_cagr": "8-11%",
+      "debt_status": "Near zero debt",
+      "buyback_history": "Regular buybacks in addition to dividends"
+    },
+    "why_invest": "Infosys is India's second largest IT company with strong cloud and AI capabilities. Higher dividend yield than TCS. Narayana Murthy's return to board adds governance confidence.",
+    "key_risks": [
+      "Revenue concentration in North America — recession risk",
+      "Management instability history in 2017-2019",
+      "Slower growth than smaller IT peers",
+      "AI disruption to traditional IT services model"
+    ],
+    "pros": [
+      "Best dividend yield among large IT at 2.8%",
+      "Regular share buybacks return cash to shareholders",
+      "Strong AI and cloud capabilities — Cobalt platform",
+      "Near zero debt balance sheet",
+      "Lower valuation than TCS — better value play",
+      "USD revenue provides INR hedge"
+    ],
+    "cons": [
+      "Growth consistently lower than midcap IT peers",
+      "Past management controversies hurt reputation",
+      "Visa and immigration policy risk in US market",
+      "Client concentration risk"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate", "high"],
+    "ideal_holding_period": "5-7+ years",
+    "ideal_portfolio_allocation_percent": "5-8% max",
+    "analyst_view": "Solid long term holding. Better dividend yield than TCS. Good pair alongside TCS for IT sector exposure."
+  },
+
+  {
+    "company": "ICICI Bank",
+    "ticker": "ICICIBANK",
+    "sector": "Banking",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex", "Nifty Bank"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "Retail Banking",
+      "SME Banking",
+      "Corporate Banking",
+      "Insurance and Investment subsidiaries"
+    ],
+    "investment_style": ["Growth", "Value", "Core Portfolio"],
+    "suitable_for": [
+      "Core portfolio holding",
+      "Banking sector growth play",
+      "Higher growth vs HDFC Bank",
+      "Long term compounders"
+    ],
+    "not_suitable_for": ["Conservative investors only", "Short term traders"],
+    "financials_2026": {
+      "approximate_pe_ratio": 17,
+      "dividend_yield_percent": 0.9,
+      "revenue_growth_3yr_cagr": "18-22%",
+      "npa_gross_percent": "2.2",
+      "return_on_equity": "18-19%",
+      "debt_status": "Banking business — leverage is structural"
+    },
+    "why_invest": "ICICI Bank has transformed completely under CEO Sandeep Bakhshi from 2018. The turnaround from a bad loan ridden bank to India's most profitable bank per branch is remarkable. Still growing faster than HDFC Bank.",
+    "key_risks": [
+      "Higher NPA than HDFC Bank — credit quality risk",
+      "Corporate book exposure to stressed sectors",
+      "Sandeep Bakhshi leadership succession risk",
+      "Economic slowdown impact on retail loans"
+    ],
+    "pros": [
+      "Fastest growing large private bank in India",
+      "Complete transformation from 2018 NPA crisis",
+      "CEO Sandeep Bakhshi — outstanding execution",
+      "Cheaper valuation than HDFC Bank at PE 17",
+      "Subsidiary value — ICICI Prudential, ICICI Lombard, ICICI Securities",
+      "Strong digital banking — iMobile app market leader"
+    ],
+    "cons": [
+      "Higher NPA than HDFC Bank",
+      "Lower dividend yield than peers",
+      "Corporate loan book risk remains",
+      "Less conservative than HDFC Bank historically"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high", "very_high"],
+    "ideal_holding_period": "5-10+ years",
+    "ideal_portfolio_allocation_percent": "7-10% max",
+    "analyst_view": "Our top pick in Indian banking. Better growth rate than HDFC Bank, cheaper valuation, and outstanding management execution. Strong buy for long term."
+  },
+
+  {
+    "company": "Hindustan Unilever",
+    "ticker": "HINDUNILVR",
+    "sector": "FMCG",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Low",
+    "risk_score": 3,
+    "long_term_growth_score": 7,
+    "business_segments": [
+      "Home Care (Surf Excel, Rin, Vim)",
+      "Beauty and Personal Care (Dove, Ponds, Lakme)",
+      "Foods and Refreshments (Knorr, Kwality Walls, Horlicks)"
+    ],
+    "investment_style": ["Defensive", "Dividend", "Quality"],
+    "suitable_for": [
+      "Conservative equity investors",
+      "Defensive portfolio anchor",
+      "Low volatility exposure",
+      "Dividend income with stability"
+    ],
+    "not_suitable_for": [
+      "High growth seekers",
+      "Investors wanting aggressive returns",
+      "Very long term wealth builders (better options available)"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 52,
+      "dividend_yield_percent": 1.7,
+      "revenue_growth_3yr_cagr": "5-8%",
+      "debt_status": "Zero debt",
+      "return_on_equity": "22-25%"
+    },
+    "why_invest": "HUL sells products every Indian uses daily — soap, shampoo, toothpaste, detergent. Revenue is extremely predictable. Business barely affected by recessions. Unilever global parent provides technology and brand advantage.",
+    "key_risks": [
+      "Very expensive at PE of 52 — limited upside",
+      "Volume growth has been slow — urban consumption slowdown",
+      "Competition from regional FMCG brands eating market share",
+      "Raw material inflation — palm oil, crude derivatives squeeze margins"
+    ],
+    "pros": [
+      "Products used by 9 out of 10 Indian households",
+      "Zero debt — pristine balance sheet",
+      "Recession proof business — non-discretionary products",
+      "25% ROE consistently maintained",
+      "Strong distribution — 8 million+ retail outlets",
+      "Unilever global parent provides innovation pipeline"
+    ],
+    "cons": [
+      "Very expensive — PE of 52 for 5-8% growth is hard to justify",
+      "Volume growth stagnant in recent quarters",
+      "Limited upside at current valuations",
+      "Regional brands like Patanjali, Mamaearth taking share"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate"],
+    "ideal_holding_period": "5-7 years",
+    "ideal_portfolio_allocation_percent": "3-5% max",
+    "analyst_view": "Hold if already in portfolio. Avoid fresh purchase at PE of 52 — too expensive for the growth rate. Wait for better entry point."
+  },
+
+  {
+    "company": "ITC Limited",
+    "ticker": "ITC",
+    "sector": "FMCG / Tobacco / Hotels / Agribusiness",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Low",
+    "risk_score": 3,
+    "long_term_growth_score": 7,
+    "business_segments": [
+      "Cigarettes (dominant market share in India)",
+      "FMCG — Foods, Personal Care, Stationery",
+      "Hotels (ITC Hotels — luxury segment)",
+      "Paperboards and Packaging",
+      "Agribusiness"
+    ],
+    "investment_style": ["Dividend", "Value", "Defensive"],
+    "suitable_for": [
+      "Dividend income seekers",
+      "Value investors",
+      "Conservative long term investors",
+      "ESG-neutral investors"
+    ],
+    "not_suitable_for": [
+      "ESG investors who avoid tobacco",
+      "High growth seekers",
+      "Investors wanting capital appreciation over income"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 27,
+      "dividend_yield_percent": 3.5,
+      "revenue_growth_3yr_cagr": "8-10%",
+      "debt_status": "Zero debt",
+      "return_on_equity": "28-30%",
+      "payout_ratio_percent": 90
+    },
+    "why_invest": "ITC generates massive cash from its cigarette monopoly and pays it out as dividends. At 3.5% yield with near-zero debt and 28% ROE, it is one of the best dividend stocks in India. FMCG and Hotels businesses are growing fast.",
+    "key_risks": [
+      "Tobacco regulation risk — government could increase taxes heavily",
+      "ESG concerns — many institutional investors avoid tobacco stocks",
+      "Cigarette volumes declining due to health awareness",
+      "Hotels business capital-intensive with slow returns"
+    ],
+    "pros": [
+      "Highest dividend yield among large cap Indian stocks at 3.5%",
+      "Near zero debt — cash rich company",
+      "Cigarette business generates massive predictable cash flows",
+      "28-30% ROE — exceptional capital efficiency",
+      "FMCG segment growing 12-15% — future growth driver",
+      "ITC Hotels — strong brand in luxury segment"
+    ],
+    "cons": [
+      "Tobacco is a declining industry globally",
+      "ESG restrictions prevent many institutional buyers",
+      "Hotels business slow capital return",
+      "Conglomerate discount — complex structure"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate"],
+    "ideal_holding_period": "3-7 years",
+    "ideal_portfolio_allocation_percent": "4-6% max",
+    "analyst_view": "Best dividend stock in Indian large cap universe. Buy for income. FMCG growth is underappreciated. Good value at current price."
+  },
+
+  {
+    "company": "Larsen and Toubro",
+    "ticker": "LT",
+    "sector": "Infrastructure / Engineering / Defence / Technology",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "Infrastructure Projects (roads, metros, airports)",
+      "Energy Projects (oil and gas, green energy)",
+      "Defence and Aerospace",
+      "IT and Technology Services (LTIMindtree)",
+      "Financial Services",
+      "Hydrocarbon Engineering"
+    ],
+    "investment_style": ["Growth", "Infrastructure Play", "Defence"],
+    "suitable_for": [
+      "Infrastructure growth play",
+      "India capex cycle beneficiary",
+      "Defence sector exposure",
+      "Long term India story investors"
+    ],
+    "not_suitable_for": [
+      "Dividend income seekers",
+      "Conservative investors",
+      "Short term investors"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 35,
+      "dividend_yield_percent": 0.9,
+      "order_book_2026": "Over 5 lakh crore — record high",
+      "revenue_growth_3yr_cagr": "15-18%",
+      "debt_status": "Moderate debt in project subsidiaries"
+    },
+    "why_invest": "L&T is the ultimate India infrastructure play. Government spending on roads, railways, metros, defence, and green energy directly benefits L&T. Record order book of 5 lakh crore provides revenue visibility for 3+ years.",
+    "key_risks": [
+      "Government spending slowdown could hit order inflows",
+      "Working capital intensive — cash conversion cycle is long",
+      "Geopolitical risk for international projects",
+      "Complex conglomerate — some subsidiaries underperform"
+    ],
+    "pros": [
+      "Record order book of 5 lakh crore — 3+ years revenue visibility",
+      "Defence indigenisation — Made in India defence major beneficiary",
+      "PM Gati Shakti and NIP — 100 lakh crore infrastructure investment",
+      "L&T Technology Services — high margin engineering R&D",
+      "AM Naik's leadership and management depth",
+      "Diversified across sectors — reduces single sector risk"
+    ],
+    "cons": [
+      "Working capital heavy — cash flows lag profits",
+      "Government policy changes can delay projects",
+      "Complex structure with many subsidiaries",
+      "Low dividend yield of 0.9%"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high", "very_high"],
+    "ideal_holding_period": "5-10+ years",
+    "ideal_portfolio_allocation_percent": "5-8% max",
+    "analyst_view": "Top pick for India infrastructure and defence theme. Record order book and government capex cycle makes this a strong 5-7 year growth story."
+  },
+
+  {
+    "company": "Bharti Airtel",
+    "ticker": "BHARTIARTL",
+    "sector": "Telecom / Digital Services",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "India Mobile Services (4G and 5G)",
+      "Airtel Africa (14 countries)",
+      "Airtel Business (enterprise)",
+      "Airtel Payments Bank",
+      "DTH Services"
+    ],
+    "investment_style": ["Growth", "Telecom Play"],
+    "suitable_for": [
+      "Telecom sector exposure",
+      "5G and digital services growth play",
+      "Africa growth market exposure",
+      "Long term compounders"
+    ],
+    "not_suitable_for": [
+      "Dividend income seekers",
+      "Conservative investors",
+      "Short term traders"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 60,
+      "dividend_yield_percent": 0.4,
+      "arpu_trend": "Increasing — from 150 to 230+ per user",
+      "revenue_growth_3yr_cagr": "12-16%",
+      "debt_status": "High debt — 2 lakh crore but manageable with strong EBITDA"
+    },
+    "why_invest": "Airtel is a 5G infrastructure play on India's digital future. ARPU (average revenue per user) is growing rapidly from tariff hikes. Africa operations are profitable and growing. 5G rollout creates new enterprise and home broadband revenues.",
+    "key_risks": [
+      "High debt of 2 lakh crore",
+      "Jio competition — price war risk if Mukesh Ambani decides to disrupt again",
+      "5G monetisation slower than expected",
+      "Africa geopolitical and currency risk"
+    ],
+    "pros": [
+      "India's second largest telecom and fastest growing in ARPU",
+      "ARPU grew from 150 to 230+ — still room to grow to 300+",
+      "5G rollout ahead of Jio in many circles",
+      "Airtel Africa — undervalued profitable business in 14 countries",
+      "Enterprise business growing 20%+ annually",
+      "Sunil Mittal — exceptional capital allocator"
+    ],
+    "cons": [
+      "Very high PE of 60 — expensive stock",
+      "High debt requires continuous refinancing",
+      "Jio threat always present — cannot raise prices too aggressively",
+      "Minimal dividend — no income for investors"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high", "very_high"],
+    "ideal_holding_period": "5-10 years",
+    "ideal_portfolio_allocation_percent": "4-7% max",
+    "analyst_view": "Strong long term growth story. ARPU expansion and 5G monetisation drive earnings growth. Hold for 5+ years. Expensive but justified by growth."
+  },
+
+  {
+    "company": "Asian Paints",
+    "ticker": "ASIANPAINT",
+    "sector": "Consumer Goods / Paints",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Low to Medium",
+    "risk_score": 4,
+    "long_term_growth_score": 7,
+    "business_segments": [
+      "Decorative Paints India (dominant 55% market share)",
+      "International Operations (15+ countries)",
+      "Industrial Coatings",
+      "Home Improvement (Bath, Kitchen)"
+    ],
+    "investment_style": ["Quality", "Defensive", "Consumer"],
+    "suitable_for": [
+      "Defensive portfolio",
+      "Quality compounder seekers",
+      "Consumer sector exposure",
+      "Low volatility equity holding"
+    ],
+    "not_suitable_for": [
+      "High growth seekers",
+      "Value investors (expensive stock)",
+      "Short term traders"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 48,
+      "dividend_yield_percent": 1.1,
+      "revenue_growth_3yr_cagr": "5-8%",
+      "debt_status": "Zero debt",
+      "return_on_equity": "28-30%",
+      "market_share_india": "55% — near monopoly in decorative paints"
+    },
+    "why_invest": "Asian Paints has 55% market share in Indian decorative paints — near monopoly. Every home renovation uses Asian Paints. Strong brand, zero debt, consistent 28% ROE. Long term beneficiary of housing boom in India.",
+    "key_risks": [
+      "Grasim Industries (Birla) entering paints — first major competition threat in decades",
+      "Crude oil and titanium dioxide raw material inflation",
+      "Very expensive PE of 48 for 5-8% growth",
+      "Margins under pressure from new competition"
+    ],
+    "pros": [
+      "55% market share in Indian decorative paints — pricing power",
+      "Zero debt and 28-30% ROE consistently",
+      "India housing boom — 10+ million homes painted annually",
+      "Premium product portfolio — expanding to home decor",
+      "Strong dealer network of 1.5 lakh+ dealers"
+    ],
+    "cons": [
+      "Very expensive at PE of 48",
+      "Growth slowing to 5-8% from earlier 12-15%",
+      "Grasim Paints entering market — first serious competition",
+      "Raw material costs volatile"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate"],
+    "ideal_holding_period": "5-7 years",
+    "ideal_portfolio_allocation_percent": "3-5% max",
+    "analyst_view": "Quality compounder but expensive. Competition from Grasim is a real threat for the first time. Wait for better valuation. Hold if already invested."
+  },
+
+  {
+    "company": "Bajaj Finance",
+    "ticker": "BAJFINANCE",
+    "sector": "NBFC / Consumer Finance",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Nifty Financial Services"],
+    "risk_level": "Medium to High",
+    "risk_score": 6,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "Consumer Durable Loans",
+      "Personal Loans",
+      "Home Loans (Bajaj Housing Finance)",
+      "SME Lending",
+      "Digital Financial Services (Bajaj Pay)"
+    ],
+    "investment_style": ["High Growth", "Fintech Play"],
+    "suitable_for": [
+      "High growth investors",
+      "Fintech and lending sector exposure",
+      "Long term wealth builders",
+      "Investors comfortable with NBFC risk"
+    ],
+    "not_suitable_for": [
+      "Conservative investors",
+      "Dividend income seekers",
+      "Short term traders"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 30,
+      "dividend_yield_percent": 0.3,
+      "aum_growth_3yr_cagr": "25-30%",
+      "revenue_growth_3yr_cagr": "22-28%",
+      "debt_status": "NBFC — leveraged business model",
+      "return_on_equity": "22-24%",
+      "npa_gross_percent": "1.2 — excellent for NBFC"
+    },
+    "why_invest": "Bajaj Finance is India's greatest NBFC success story — growing AUM at 25%+ annually for a decade. India's largest consumer lending franchise. EMI financing of everything from phones to furniture. Digital lending platform expanding rapidly.",
+    "key_risks": [
+      "RBI regulations on NBFC sector can restrict growth",
+      "Interest rate hike increases borrowing costs",
+      "Credit quality deterioration in unsecured lending",
+      "Fintech competition from Jio Financial, Paytm, HDFC Bank"
+    ],
+    "pros": [
+      "25-30% AUM growth consistently for 10+ years",
+      "India's largest consumer lending company",
+      "Superior technology and underwriting vs peers",
+      "Bajaj Housing Finance — new growth engine",
+      "Low NPA of 1.2% despite high growth",
+      "Sanjiv Bajaj and management — exceptional execution"
+    ],
+    "cons": [
+      "High PE of 30 — premium valuation",
+      "NBFC business inherently leveraged",
+      "Jio Financial Services entry is a serious threat",
+      "Unsecured loans — vulnerable to economic downturn",
+      "Very low dividend yield"
+    ],
+    "ideal_for_risk_profile": ["high", "very_high"],
+    "ideal_holding_period": "5-10 years",
+    "ideal_portfolio_allocation_percent": "5-8% max",
+    "analyst_view": "India's finest NBFC and a wealth creation machine for patient investors. Best held for 5+ years. High risk high reward."
+  },
+
+  {
+    "company": "Sun Pharmaceutical Industries",
+    "ticker": "SUNPHARMA",
+    "sector": "Pharmaceuticals",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "India Branded Generics (largest market share)",
+      "US Generics Market",
+      "Specialty Medicines (dermatology, ophthalmology)",
+      "Emerging Markets (35+ countries)",
+      "Global Specialty Business"
+    ],
+    "investment_style": ["Growth", "Defensive", "Global Exposure"],
+    "suitable_for": [
+      "Healthcare sector exposure",
+      "Global business exposure via India stock",
+      "Long term growth investors",
+      "Defensive portfolio component"
+    ],
+    "not_suitable_for": [
+      "Short term traders",
+      "Investors who cannot handle regulatory risk"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 38,
+      "dividend_yield_percent": 0.8,
+      "revenue_growth_3yr_cagr": "10-14%",
+      "debt_status": "Low debt",
+      "return_on_equity": "18-20%",
+      "us_revenue_percent": 30
+    },
+    "why_invest": "Sun Pharma is India's largest pharma company and world's 4th largest specialty generics company. Specialty business in dermatology and ophthalmology generates premium margins. India branded generic market is a strong moat.",
+    "key_risks": [
+      "USFDA inspection and warning letter risk",
+      "US generics pricing pressure ongoing",
+      "Dilip Shanghvi promoter concentration risk",
+      "Currency fluctuation affects USD revenues"
+    ],
+    "pros": [
+      "India's largest pharma company — diversified across segments",
+      "Specialty business growing 20%+ — higher margin premium products",
+      "Strong India branded generics — pricing power and doctor relationships",
+      "Global presence in 100+ countries",
+      "USFDA compliance record improving from 2019 lows"
+    ],
+    "cons": [
+      "USFDA warning letter risk always present for US plants",
+      "US generics is a commoditised and competitive market",
+      "Expensive at PE of 38",
+      "Promoter owns 54% — corporate governance questions"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high"],
+    "ideal_holding_period": "5-7 years",
+    "ideal_portfolio_allocation_percent": "4-6% max",
+    "analyst_view": "Good healthcare sector bet. Specialty pivot is the key growth driver. Buy on dips. Always hold some pharma for portfolio defensiveness."
+  },
+
+  {
+    "company": "Maruti Suzuki India",
+    "ticker": "MARUTI",
+    "sector": "Automobile",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "Passenger Vehicles India (45% market share)",
+      "Export Markets",
+      "True Value Used Cars",
+      "Accessories and After-market"
+    ],
+    "investment_style": ["Value", "Consumer Discretionary"],
+    "suitable_for": [
+      "Auto sector exposure",
+      "India consumption growth play",
+      "Value investors",
+      "Long term patient investors"
+    ],
+    "not_suitable_for": [
+      "Investors wanting EV pure play",
+      "Short term momentum traders",
+      "Dividend income seekers"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 25,
+      "dividend_yield_percent": 1.0,
+      "volume_growth_3yr_cagr": "8-12%",
+      "revenue_growth_3yr_cagr": "12-15%",
+      "debt_status": "Zero debt",
+      "market_share_india": "45% of passenger vehicles",
+      "return_on_equity": "18-20%"
+    },
+    "why_invest": "Maruti has unassailable 45% market share in India's passenger vehicle market. India car penetration at 30 per 1000 people vs 800 in USA — massive runway. Zero debt company. Suzuki Japan parent provides technology and global platform.",
+    "key_risks": [
+      "EV transition — Maruti was slow but now catching up",
+      "Competition from Hyundai, Tata Motors in premium segments",
+      "Japanese Yen fluctuation affects component costs",
+      "Entry level segment under pressure from 2-wheeler upgrades"
+    ],
+    "pros": [
+      "45% market share — dominant across all price segments",
+      "Zero debt with strong cash generation",
+      "India car penetration is 1/30th of USA — huge growth runway",
+      "Suzuki partnership — global platform and technology",
+      "Strong CNG portfolio — critical in India market",
+      "Service network — 4000+ service centers"
+    ],
+    "cons": [
+      "Late to EV — competitors have head start",
+      "Premium segment losing share to Hyundai and Kia",
+      "Yen strengthening raises input costs",
+      "Rural market slowdown affects entry-level volumes"
+    ],
+    "ideal_for_risk_profile": ["moderate", "high"],
+    "ideal_holding_period": "5-10 years",
+    "ideal_portfolio_allocation_percent": "4-6% max",
+    "analyst_view": "India's most dominant auto franchise. EV launch in 2025-2026 is key catalyst. Long term hold. Buy on cyclical auto sector dips."
+  },
+
+  {
+    "company": "Titan Company",
+    "ticker": "TITAN",
+    "sector": "Consumer Retail / Jewellery / Watches",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50", "Sensex"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 9,
+    "business_segments": [
+      "Tanishq Jewellery (India's largest branded jewellery)",
+      "Watches and Wearables (Titan, Fastrack, Sonata)",
+      "Eye Care (Titan Eye Plus)",
+      "Fragrances (Skinn)",
+      "Indian Dress Wear"
+    ],
+    "investment_style": ["Growth", "Consumer", "Premium Consumption"],
+    "suitable_for": [
+      "India consumption growth investors",
+      "Premium consumer brand play",
+      "Long term wealth builders",
+      "Tata Group quality seekers"
+    ],
+    "not_suitable_for": [
+      "Value investors — expensive stock",
+      "Dividend income seekers",
+      "Conservative investors"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 80,
+      "dividend_yield_percent": 0.3,
+      "revenue_growth_3yr_cagr": "18-22%",
+      "debt_status": "Low debt",
+      "return_on_equity": "30-35%",
+      "tanishq_revenue_contribution": "85% of total revenue"
+    },
+    "why_invest": "Titan owns Tanishq — India's most trusted jewellery brand in a 6 lakh crore market that is still 70% unorganised. GST and PAN card regulations are driving customers from local jewellers to trusted brands. Tanishq market share is growing every year.",
+    "key_risks": [
+      "Very expensive at PE of 80 — limited margin of safety",
+      "Gold price volatility affects jewellery demand",
+      "70% revenue dependent on jewellery — concentration risk",
+      "Discretionary spending — affected by economic slowdowns"
+    ],
+    "pros": [
+      "Tanishq — India's most trusted jewellery brand",
+      "GST compliance forcing customers from unorganised to organised",
+      "6 lakh crore jewellery market — 70% still unorganised",
+      "Tata Group governance — highest corporate trust",
+      "30-35% ROE consistently — exceptional capital efficiency",
+      "Watch and eyewear segments growing independently"
+    ],
+    "cons": [
+      "Very expensive at PE of 80 — priced to perfection",
+      "85% revenue from jewellery — too concentrated",
+      "Gold price increases hurt margins",
+      "Cyclical demand — weddings and festive season dependent"
+    ],
+    "ideal_for_risk_profile": ["high", "very_high"],
+    "ideal_holding_period": "7-10+ years",
+    "ideal_portfolio_allocation_percent": "3-5% max",
+    "analyst_view": "Excellent business but extremely expensive. Tanishq market share story is genuinely compelling for 10 year horizon. Only buy if comfortable paying premium for quality."
+  },
+
+  {
+    "company": "Adani Ports and SEZ",
+    "ticker": "ADANIPORTS",
+    "sector": "Logistics / Infrastructure / Ports",
+    "market_cap_category": "Large Cap",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50"],
+    "risk_level": "Medium to High",
+    "risk_score": 6,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "Port Operations (25+ ports in India)",
+      "Logistics and Warehousing",
+      "Special Economic Zones (SEZ)",
+      "Rail and Road Connectivity"
+    ],
+    "investment_style": ["Growth", "Infrastructure"],
+    "suitable_for": [
+      "Infrastructure growth play",
+      "India trade volume growth bet",
+      "Long term infrastructure investors",
+      "High risk high reward investors"
+    ],
+    "not_suitable_for": [
+      "Conservative investors",
+      "ESG-sensitive investors",
+      "Investors uncomfortable with Adani group risk"
+    ],
+    "financials_2026": {
+      "approximate_pe_ratio": 28,
+      "dividend_yield_percent": 0.7,
+      "cargo_volume_growth_3yr_cagr": "12-15%",
+      "revenue_growth_3yr_cagr": "18-22%",
+      "debt_status": "Moderate to high debt — infrastructure projects require debt",
+      "market_share_india_ports": "25% of all India port cargo"
+    },
+    "why_invest": "Adani Ports handles 25% of India's total port cargo — monopoly-like position in Indian maritime logistics. India's import-export trade growing 10-12% annually. Port business has very high barriers to entry — natural asset moat.",
+    "key_risks": [
+      "Hindenburg Research report allegations — regulatory and reputational risk remains",
+      "Promoter group corporate governance concerns",
+      "High debt across Adani group — contagion risk",
+      "Geopolitical risk — international port operations"
+    ],
+    "pros": [
+      "25% market share in Indian ports — near monopoly",
+      "India trade growth directly benefits port volumes",
+      "Infrastructure moat — ports cannot be replicated easily",
+      "Logistics and SEZ businesses add diversification",
+      "Reasonable valuation at PE of 28 for growth rate"
+    ],
+    "cons": [
+      "Adani Group governance controversy — Hindenburg report",
+      "High debt levels across group raise systemic risk concerns",
+      "Promoter pledge and complex group structure",
+      "ESG concerns — coal handling and environmental issues"
+    ],
+    "ideal_for_risk_profile": ["high", "very_high"],
+    "ideal_holding_period": "5-10 years",
+    "ideal_portfolio_allocation_percent": "3-5% max",
+    "analyst_view": "Business fundamentals are strong — India port volumes are a structural growth story. However Adani Group governance risk requires a lower allocation. High conviction only for risk-tolerant investors."
+  },
+
+  {
+    "company": "Nifty 50 Index Fund",
+    "ticker": "NIFTY50_INDEX",
+    "sector": "Diversified Index",
+    "market_cap_category": "Index",
+    "exchange": "NSE",
+    "index_member": ["Nifty 50 itself"],
+    "risk_level": "Medium",
+    "risk_score": 5,
+    "long_term_growth_score": 8,
+    "business_segments": [
+      "Top 50 Indian companies by market cap",
+      "Covers Financial Services, IT, Energy, Consumer, Healthcare, Infra"
+    ],
+    "investment_style": ["Passive", "Core Portfolio", "Index"],
+    "suitable_for": [
+      "All investors — especially beginners",
+      "Passive long term SIP investors",
+      "Investors who do not want to pick stocks",
+      "Core portfolio holding for everyone"
+    ],
+    "not_suitable_for": ["Short term traders", "Investors wanting to beat the index"],
+    "financials_2026": {
+      "approximate_pe_ratio": 22,
+      "dividend_yield_percent": 1.3,
+      "historical_cagr_10yr": "13-14%",
+      "expense_ratio": "0.05-0.20% for index funds",
+      "debt_status": "Equity only — no debt"
+    },
+    "why_invest": "Simply buy India's economic growth. The Nifty 50 has given 13-14% CAGR for 20+ years. No need to pick stocks. Very low cost. Most actively managed funds fail to beat this over 10 years.",
+    "key_risks": [
+      "Full market risk — falls 40-50% in bear markets",
+      "No protection against crashes",
+      "Concentration in top 10 stocks is high"
+    ],
+    "pros": [
+      "Automatic diversification across top 50 Indian companies",
+      "Very low expense ratio of 0.05-0.20%",
+      "13-14% CAGR historical returns",
+      "No fund manager risk — pure index return",
+      "Best option for SIP investing",
+      "80% of active funds underperform this over 10 years"
+    ],
+    "cons": [
+      "Will never beat the market — only matches it",
+      "Full drawdown in market crashes",
+      "Top 10 stocks are 55% of the index — concentration"
+    ],
+    "recommended_funds": [
+      "UTI Nifty 50 Index Fund Direct",
+      "HDFC Index Fund Nifty 50 Plan Direct",
+      "Nippon India Index Fund Direct"
+    ],
+    "ideal_for_risk_profile": ["low", "moderate", "high", "very_high"],
+    "ideal_holding_period": "10+ years via SIP",
+    "ideal_portfolio_allocation_percent": "25-40% of equity portfolio",
+    "analyst_view": "Must have for every investor. Start here. Build everything else around this foundation."
+  }
+]
