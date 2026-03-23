@@ -6,7 +6,7 @@ import json
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-API_URL = "http://localhost:8000"
+API_URL = "https://ai-financial-advisor-1-fac2.onrender.com"
 
 st.set_page_config(
     page_title            = "FinAdvisor AI",
