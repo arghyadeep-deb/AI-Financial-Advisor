@@ -1,5 +1,10 @@
 # AI Financial Advisor
 
+[![Frontend](https://img.shields.io/badge/Frontend-Streamlit-success?logo=streamlit)](https://ai-financial-advisor-summarizer.streamlit.app)
+[![Backend](https://img.shields.io/badge/Backend-Render-blue?logo=render)](https://ai-financial-advisor-1-fac2.onrender.com)
+[![API Docs](https://img.shields.io/badge/API-Docs-orange?logo=fastapi)](https://ai-financial-advisor-1-fac2.onrender.com/docs)
+[![Health](https://img.shields.io/badge/Health-Check-brightgreen)](https://ai-financial-advisor-1-fac2.onrender.com/health)
+
 An agent-driven, modular AI financial advisory platform built with a FastAPI backend, persistent storage, and extensible intelligence layers for personalized analysis, recommendations, simulation, and conversational guidance.
 
 ---
@@ -36,6 +41,69 @@ The codebase follows a layered architecture with clear separation of concerns:
 
 ---
 
+## Live Deployment Links
+
+### Frontend (Streamlit App)
+- **URL:** https://ai-financial-advisor-summarizer.streamlit.app  
+- Use this for end-user interaction with the advisor UI.
+
+### Backend (Render Deployment)
+- **Base API URL:** https://ai-financial-advisor-1-fac2.onrender.com  
+- This is the production backend host used by frontend/API clients.
+
+### API Documentation (Swagger)
+- **URL:** https://ai-financial-advisor-1-fac2.onrender.com/docs  
+- Use this to explore and test all available API endpoints interactively.
+
+### Health Check Endpoint
+- **URL:** https://ai-financial-advisor-1-fac2.onrender.com/health  
+- Use this to verify backend service status and availability.
+
+---
+
+## Quick Start for Users (Hosted Version)
+
+If you only want to use the deployed app (no local setup):
+
+1. Open frontend:  
+   https://ai-financial-advisor-summarizer.streamlit.app
+
+2. If frontend appears slow on first load, wait a few seconds (Render/Streamlit free-tier cold starts may occur).
+
+3. Verify backend status (optional):  
+   https://ai-financial-advisor-1-fac2.onrender.com/health
+
+4. Explore APIs directly (for developers):  
+   https://ai-financial-advisor-1-fac2.onrender.com/docs
+
+---
+
+## Architecture Flow
+
+```text
+Client/UI
+   │
+   ▼
+FastAPI App (backend/main.py)
+   │
+   ▼
+Controllers (auth/analysis/chat/profile/thread)
+   │
+   ▼
+Services (business logic orchestration)
+   │
+   ├── Agents (credit, health, investment, rebalance, simulation, summary)
+   ├── Intelligence/Engines
+   ├── RAG + Knowledge Base
+   ├── Memory
+   └── Database Repository
+          │
+          ▼
+       advisor.db
+```
+
+---
+
 ## Tech Stack
 
 - **Language:** Python  
@@ -44,7 +112,8 @@ The codebase follows a layered architecture with clear separation of concerns:
 - **Validation:** Pydantic schemas  
 - **Database:** SQLite  
 - **Architecture:** Layered API + Agentic Intelligence  
-- **Dependency Management:** `requirements.txt`
+- **Dependency Management:** `requirements.txt`  
+- **Deployment:** Render (Backend), Streamlit Cloud (Frontend)
 
 ---
 
@@ -119,32 +188,6 @@ AI-Financial-Advisor/
 
 ---
 
-## Architecture Flow
-
-```text
-Client/UI
-   │
-   ▼
-FastAPI App (backend/main.py)
-   │
-   ▼
-Controllers (auth/analysis/chat/profile/thread)
-   │
-   ▼
-Services (business logic orchestration)
-   │
-   ├── Agents (credit, health, investment, rebalance, simulation, summary)
-   ├── Intelligence/Engines
-   ├── RAG + Knowledge Base
-   ├── Memory
-   └── Database Repository
-          │
-          ▼
-       advisor.db
-```
-
----
-
 ## Module Responsibilities
 
 ### `backend/controllers/`
@@ -185,7 +228,7 @@ Database access abstraction (repository pattern).
 
 ---
 
-## Setup & Installation
+## Setup & Installation (Local Development)
 
 ### 1) Clone the repository
 ```bash
@@ -217,7 +260,7 @@ Create/update `.env` with required keys and runtime settings.
 
 ---
 
-## Running the Application
+## Running the Application Locally
 
 ### Start backend
 ```bash
@@ -260,6 +303,24 @@ For exact paths and payloads, check route decorators and schemas in:
 
 ---
 
+## Deployment Notes for Users & Developers
+
+- Use the **hosted frontend** for normal usage:
+  - https://ai-financial-advisor-summarizer.streamlit.app
+
+- Use the **hosted backend** for programmatic/API access:
+  - https://ai-financial-advisor-1-fac2.onrender.com
+
+- Use **Swagger docs** to test endpoints:
+  - https://ai-financial-advisor-1-fac2.onrender.com/docs
+
+- Use **health endpoint** for uptime checks/monitoring:
+  - https://ai-financial-advisor-1-fac2.onrender.com/health
+
+- If requests are initially slow, retry after a short wait due to cold starts on free hosting tiers.
+
+---
+
 ## Security & Privacy Notes
 
 - Never commit secrets from `.env`  
@@ -280,18 +341,12 @@ For exact paths and payloads, check route decorators and schemas in:
 
 ---
 
-## Roadmap
+## 🗺️ Roadmap
 
-- [ ] Endpoint-level API documentation expansion  
-- [ ] Frontend flow documentation and run scripts  
-- [ ] Enhanced explainability per recommendation  
-- [ ] Evaluation dashboards and benchmark tests  
-- [ ] CI/CD and containerization setup  
-- [ ] Production-grade auth hardening + observability  
+- [x] Core platform live (FastAPI backend, Streamlit frontend, multi-agent architecture)
+- [ ] Better API docs with clear request/response examples
+- [ ] Enhanced explainability for every recommendation
+- [ ] Smarter personalization using memory + thread context
+- [ ] Testing + CI/CD for production reliability
+- [ ] Portfolio analytics, simulations, and exportable reports
 
----
-
-
-
-This project is for educational and informational purposes only and does not constitute financial, investment, legal, or tax advice.  
-Always consult qualified professionals before making financial decisions.
