@@ -17,7 +17,8 @@ An agent-driven, modular AI financial advisory platform built with a FastAPI bac
 - Credit-oriented guidance  
 - Investment and portfolio rebalancing support  
 - Optimization and what-if simulation workflows  
-- Chat-based advisor interactions with thread continuity  
+- Chat-based advisor interactions with thread continuity
+  
 
 The codebase follows a layered architecture with clear separation of concerns:
 - **Controllers** for API routing
