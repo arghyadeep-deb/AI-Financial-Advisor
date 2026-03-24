@@ -339,7 +339,6 @@ For exact paths and payloads, check route decorators and schemas in:
 3. Implement changes with clear modular boundaries  
 4. Add/update tests and docs  
 5. Open a Pull Request with summary and rationale  
-
 ---
 
 ## 🗺️ Roadmap
