@@ -3,10 +3,11 @@ import requests
 import plotly.graph_objects as go
 import pandas as pd
 import json
+import os
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-API_URL = "https://ai-financial-advisor-1-fac2.onrender.com"
+API_URL = os.getenv("API_URL", "https://ai-financial-advisor-1-fac2.onrender.com")
 
 st.set_page_config(
     page_title            = "FinAdvisor AI",
@@ -585,7 +586,9 @@ def load_and_cache_analysis():
         st.session_state.cached_sim       = r.get("simulation", {})
         st.session_state.cached_opt       = r.get("optimizer",  {})
         st.session_state.cached_rebalance = r.get("rebalance",  {})
-        st.session_state.analysis_ran     = True
+    # Mark as checked even when no result exists to avoid repeated slow calls
+    # on every rerun. Explicit refresh paths will reset this flag.
+    st.session_state.analysis_ran = True
 
 
 def refresh_analysis():
@@ -804,11 +807,13 @@ def render_credit_card_widget(card: dict, rank: int):
                       "Lifetime Free" if annual_fee==0 else fmt_inr(annual_fee))
         with c2:
             st.metric("Est. Annual Savings", fmt_inr(savings))
-        if watch_out:
-            st.markdown(f"""
-            <div class="alert alert-warning">
-                ⚠️ <b>Watch Out:</b> {watch_out}
-            </div>""", unsafe_allow_html=True)
+
+    if watch_out:
+        st.markdown(f"""
+        <div class="alert alert-warning">
+            ⚠️ <b>Watch Out:</b> {watch_out}
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -1247,6 +1252,11 @@ def page_dashboard():
     render_navbar()
     load_and_cache_analysis()
 
+    profile = st.session_state.profile_cache or api_get("/profile")
+    if not profile.get("error"):
+        st.session_state.profile_cache = profile
+    has_profile = bool(profile) and not profile.get("detail") and not profile.get("error")
+
     health  = st.session_state.cached_health  or {}
     invest  = st.session_state.cached_invest  or {}
     credit  = st.session_state.cached_credit  or {}
@@ -1266,7 +1276,7 @@ def page_dashboard():
         st.markdown(f"""
         <div class="alert alert-info">
             👋 Welcome, <b>{st.session_state.user_name}</b>!
-            Complete your profile and run your first analysis.
+            {"Run your first analysis." if has_profile else "Complete your profile and run your first analysis."}
         </div>
         """, unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 2, 1])
@@ -1282,8 +1292,11 @@ def page_dashboard():
                     st.success("Analysis complete!")
                     st.rerun()
                 else:
-                    st.error(resp.get("detail",
-                             "Complete your profile first at the Profile page."))
+                    detail = resp.get("detail", "Could not run analysis.")
+                    if isinstance(detail, str) and "profile" in detail.lower():
+                        st.error("Please save your profile first from Profile page.")
+                    else:
+                        st.error(detail)
         render_chat_overlay()
         return
 
@@ -1529,11 +1542,16 @@ def _render_investment_results(inv: dict):
 
     ef = inv.get("emergency_fund_status", {})
     if ef.get("gap_amount", 0) > 0:
-        st.markdown(f"""
-        <div class="alert alert-warning">
-            ⚠️ <b>Emergency Fund Gap:</b> {fmt_inr(ef.get('gap_amount',0))}
-            — {ef.get('action','Build emergency fund first')}
-        </div>""", unsafe_allow_html=True)
+        with st.expander("⚠️ Emergency Fund Gap — Click to See Details", expanded=False):
+            st.markdown(f"""
+            <div style="background:#3f2a10;border:1px solid #f59e0b55;
+                        border-radius:10px;padding:0.9rem;">
+                <div style="color:#ffd58a;line-height:1.6;">
+                    <b>Gap Amount:</b> {fmt_inr(ef.get('gap_amount',0))}<br>
+                    <b>What to do:</b> {ef.get('action','Build emergency fund first')}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     elif ef:
         st.markdown(
             '<div class="alert alert-success">✅ Emergency fund fully funded</div>',
@@ -1691,6 +1709,9 @@ def page_stocks():
     load_and_cache_analysis()
     invest = st.session_state.cached_invest or {}
     stocks = invest.get("stock_recommendations", [])
+    profile_age = int(profile.get("age", 30))
+    profile_risk = profile.get("risk_tolerance", "moderate")
+    profile_horizon = profile.get("investment_horizon", "long")
 
     if not stocks:
         st.markdown("""
@@ -1719,6 +1740,19 @@ def page_stocks():
         '<div class="section-header">📋 Your Stock Picks</div>',
         unsafe_allow_html=True
     )
+
+    strategy_note = invest.get("stock_strategy_note")
+    if strategy_note:
+        st.markdown(f"""
+        <div class="alert alert-info">
+            📌 <b>Age-aware strategy:</b> {strategy_note}
+        </div>""", unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div class="alert alert-info">
+            📌 <b>Age-aware strategy:</b> Age {profile_age}, risk {profile_risk},
+            horizon {profile_horizon}. Picks are adjusted by life stage and timeline.
+        </div>""", unsafe_allow_html=True)
 
     custom_alloc = [float(s.get("allocation_percent",10)) for s in stocks]
     with st.expander("🎚️ Adjust Allocation Preview", expanded=False):
@@ -2031,6 +2065,77 @@ def _render_health_results(health: dict):
                 </div>
             </div>""", unsafe_allow_html=True)
             st.progress(pct)
+
+    detailed_warnings = health.get("detailed_warnings", [])
+    if detailed_warnings:
+        st.markdown(
+            '<div class="section-header">⚠️ Warnings — Click to See Details</div>',
+            unsafe_allow_html=True
+        )
+
+        severity_colors = {
+            "critical": ("#3b1220", "#ef4444", "!"),
+            "high":     ("#3f2a10", "#f59e0b", "!"),
+            "medium":   ("#0f1f3a", "#3b82f6", "i"),
+            "low":      ("#0f2e2c", "#0ea5a4", "+")
+        }
+
+        for w in detailed_warnings:
+            severity = w.get("severity", "medium")
+            bg, border, icon = severity_colors.get(
+                severity,
+                severity_colors["medium"]
+            )
+
+            with st.expander(
+                f"{w.get('title', 'Warning')} - {w.get('summary', '')}",
+                expanded=(severity == "critical")
+            ):
+                st.markdown(f"""
+                <div style="background:{bg};border:1px solid {border}33;
+                            border-radius:10px;padding:1rem;margin-bottom:0.8rem;">
+                    <div style="font-size:0.9rem;color:#e6edf7;line-height:1.6;">
+                        {w.get('detail', '')}
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                if w.get("impact"):
+                    st.markdown(f"""
+                    <div style="background:rgba(251,113,133,0.1);
+                                border:1px solid rgba(251,113,133,0.3);
+                                border-radius:8px;padding:0.7rem 1rem;
+                                margin-bottom:0.8rem;">
+                        <b style="color:#fb7185;">{icon} Financial Impact:</b>
+                        <span style="color:#ffc2cf;"> {w.get('impact', '')}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                steps = w.get("action_steps", [])
+                if steps:
+                    st.markdown(
+                        '<div style="font-weight:600;color:#0ea5a4;margin-bottom:0.4rem;">Action Steps:</div>',
+                        unsafe_allow_html=True
+                    )
+                    for i, step in enumerate(steps, 1):
+                        st.markdown(f"""
+                        <div style="display:flex;gap:0.6rem;align-items:flex-start;
+                                    margin-bottom:0.3rem;">
+                            <span style="color:#0ea5a4;font-weight:700;min-width:1.2rem;">{i}.</span>
+                            <span style="color:#c3d5ef;">{step}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                if w.get("timeline"):
+                    st.markdown(f"""
+                    <div style="margin-top:0.8rem;padding:0.5rem 0.8rem;
+                                background:rgba(14,165,164,0.1);
+                                border-radius:6px;display:inline-block;">
+                        <span style="color:#5eead4;font-size:0.8rem;">
+                            Timeline: <b>{w.get('timeline')}</b>
+                        </span>
+                    </div>
+                    """, unsafe_allow_html=True)
 
     budget = health.get("monthly_budget_suggestion", {})
     if budget:
@@ -2346,11 +2451,12 @@ def page_profile():
             with st.spinner("Saving..."):
                 resp = api_post("/profile", payload, auth=True)
             if "id" in resp:
-                st.session_state.profile_cache = None
+                # Keep the just-saved profile in session to avoid stale/missing
+                # profile reads right after save.
+                st.session_state.profile_cache = resp
                 st.session_state.analysis_ran  = False
                 st.success(
-                    "✅ Profile saved! "
-                    "Go to Dashboard → Refresh Analysis to update."
+                    "✅ Profile saved! Go to Dashboard and click Run Full Analysis."
                 )
             else:
                 st.error(resp.get("detail", f"Save failed: {resp}"))

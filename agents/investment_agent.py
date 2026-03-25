@@ -3,9 +3,308 @@ from langsmith import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import INVESTMENT_AGENT_PROMPT
 from rag.rag_pipeline import build_investment_context, build_stock_context
-from rag.retriever import retrieve_stocks
 from engines.investment_engine import InvestmentEngine
 from engines.risk_engine import RiskEngine
+
+
+def _normalize_risk(risk_tolerance: str) -> str:
+    risk = str(risk_tolerance or "moderate").lower().strip()
+    aliases = {
+        "conservative": "low",
+        "very low": "low",
+        "aggressive": "high",
+        "very aggressive": "very_high"
+    }
+    return aliases.get(risk, risk if risk in {"low", "moderate", "high", "very_high"} else "moderate")
+
+
+def _determine_stock_strategy(age: int, risk_category: str, horizon: str) -> dict:
+    """Build an age, risk, and horizon-aware stock strategy."""
+    risk = _normalize_risk(risk_category)
+    hz   = str(horizon or "long").lower().strip()
+
+    if age <= 25:
+        age_group = "early_career"
+    elif age <= 35:
+        age_group = "growth_phase"
+    elif age <= 45:
+        age_group = "mid_career"
+    elif age <= 55:
+        age_group = "pre_retirement"
+    else:
+        age_group = "near_retirement"
+
+    strategies = {
+        "early_career": {
+            "index_allocation": 30,
+            "midcap_allocation": 40,
+            "max_stocks": 5,
+            "smallcap_allowed": True,
+            "holding_period": "7-10 years",
+            "approach": "Long runway allows higher growth tilt."
+        },
+        "growth_phase": {
+            "index_allocation": 40,
+            "midcap_allocation": 30,
+            "max_stocks": 5,
+            "smallcap_allowed": True,
+            "holding_period": "5-7 years",
+            "approach": "Balance compounding with quality large caps."
+        },
+        "mid_career": {
+            "index_allocation": 50,
+            "midcap_allocation": 20,
+            "max_stocks": 4,
+            "smallcap_allowed": False,
+            "holding_period": "5-7 years",
+            "approach": "Shift toward quality and stability as retirement gets closer."
+        },
+        "pre_retirement": {
+            "index_allocation": 70,
+            "midcap_allocation": 0,
+            "max_stocks": 3,
+            "smallcap_allowed": False,
+            "holding_period": "3-5 years",
+            "approach": "Capital preservation and income become top priorities."
+        },
+        "near_retirement": {
+            "index_allocation": 80,
+            "midcap_allocation": 0,
+            "max_stocks": 3,
+            "smallcap_allowed": False,
+            "holding_period": "2-4 years",
+            "approach": "Defensive equity allocation with limited stock concentration."
+        }
+    }
+
+    base = strategies[age_group].copy()
+
+    if risk in {"low"} and age_group in {"early_career", "growth_phase"}:
+        base["index_allocation"] = min(80, base["index_allocation"] + 20)
+        base["midcap_allocation"] = max(0, base["midcap_allocation"] - 20)
+        base["smallcap_allowed"] = False
+        base["approach"] += " Reduced risk exposure due to low risk tolerance."
+
+    if risk in {"high", "very_high"} and age_group in {"mid_career", "pre_retirement"}:
+        base["midcap_allocation"] = min(20, base["midcap_allocation"] + 10)
+        base["approach"] += " Slight growth tilt maintained for higher risk tolerance."
+
+    if hz == "short":
+        base["smallcap_allowed"] = False
+        base["midcap_allocation"] = 0
+        base["index_allocation"] = min(90, base["index_allocation"] + 20)
+        base["holding_period"] = "1-3 years"
+        base["approach"] += " Short horizon prioritizes index-heavy allocation."
+    elif hz == "medium":
+        base["smallcap_allowed"] = False
+        base["holding_period"] = "3-5 years"
+
+    base["age_group"] = age_group
+    base["risk_category"] = risk
+    base["horizon"] = hz
+    base["strategy_note"] = (
+        f"Age {age} ({age_group.replace('_', ' ')}), risk {risk}, horizon {hz}: "
+        f"{base['index_allocation']}% core index, {base['midcap_allocation']}% midcap, "
+        f"rest in selected stocks. {base['approach']}"
+    )
+    return base
+
+
+def _fallback_stocks(risk_tolerance: str, age: int, allocation: dict, horizon: str = "long") -> list:
+    """Deterministic age-aware stock baskets to avoid one-size-fits-all output."""
+    risk = _normalize_risk(risk_tolerance)
+    hz   = str(horizon or "long").lower().strip()
+    strategy = _determine_stock_strategy(age=age, risk_category=risk, horizon=hz)
+
+    if age >= 55:
+        return [
+            {
+                "company": "Nifty 50 Index Fund",
+                "symbol": "NIFTY50_INDEX",
+                "sector": "Diversified Index",
+                "allocation_percent": 80,
+                "investment_style": "Index, Defensive",
+                "why_now": "At this age, capital preservation and broad diversification are priorities.",
+                "ideal_holding_period": "3-5 years"
+            },
+            {
+                "company": "Power Grid Corporation",
+                "symbol": "POWERGRID",
+                "sector": "Utilities",
+                "allocation_percent": 10,
+                "investment_style": "Dividend, Defensive",
+                "why_now": "Stable cash flows and dividend orientation support pre-retirement income goals.",
+                "ideal_holding_period": "3-5 years"
+            },
+            {
+                "company": "ITC Limited",
+                "symbol": "ITC",
+                "sector": "FMCG",
+                "allocation_percent": 10,
+                "investment_style": "Dividend, Defensive",
+                "why_now": "Defensive business mix and steady dividends fit low-volatility goals.",
+                "ideal_holding_period": "3-5 years"
+            }
+        ]
+
+    if age >= 45:
+        return [
+            {
+                "company": "Nifty 50 Index Fund",
+                "symbol": "NIFTY50_INDEX",
+                "sector": "Diversified Index",
+                "allocation_percent": 60 if hz != "short" else 80,
+                "investment_style": "Index, Core",
+                "why_now": "Core market exposure with lower stock-specific risk.",
+                "ideal_holding_period": strategy["holding_period"]
+            },
+            {
+                "company": "HDFC Bank",
+                "symbol": "HDFCBANK",
+                "sector": "Banking",
+                "allocation_percent": 15 if hz != "short" else 10,
+                "investment_style": "Quality, Core",
+                "why_now": "Large-cap quality stock with long track record.",
+                "ideal_holding_period": "5 years"
+            },
+            {
+                "company": "Asian Paints",
+                "symbol": "ASIANPAINT",
+                "sector": "Consumer",
+                "allocation_percent": 15 if hz != "short" else 5,
+                "investment_style": "Quality, Defensive",
+                "why_now": "Steady demand profile and defensive characteristics.",
+                "ideal_holding_period": "5 years"
+            },
+            {
+                "company": "ITC Limited",
+                "symbol": "ITC",
+                "sector": "FMCG",
+                "allocation_percent": 10 if hz != "short" else 5,
+                "investment_style": "Dividend",
+                "why_now": "Income support through dividends with defensive business profile.",
+                "ideal_holding_period": "3-5 years"
+            }
+        ]
+
+    if age >= 35:
+        return [
+            {
+                "company": "Nifty 50 Index Fund",
+                "symbol": "NIFTY50_INDEX",
+                "sector": "Diversified Index",
+                "allocation_percent": 50 if hz == "long" else 65,
+                "investment_style": "Index, Core",
+                "why_now": "Core long-term compounding base.",
+                "ideal_holding_period": strategy["holding_period"]
+            },
+            {
+                "company": "Nifty Next 50 Index Fund",
+                "symbol": "NIFTYNEXT50_INDEX",
+                "sector": "Large/Mid Index",
+                "allocation_percent": 20 if hz == "long" else 10,
+                "investment_style": "Index, Growth",
+                "why_now": "Adds growth potential above Nifty 50 while keeping diversification.",
+                "ideal_holding_period": "5-7 years"
+            },
+            {
+                "company": "HDFC Bank",
+                "symbol": "HDFCBANK",
+                "sector": "Banking",
+                "allocation_percent": 15,
+                "investment_style": "Quality, Value",
+                "why_now": "Consistent quality large-cap in financials.",
+                "ideal_holding_period": "5 years"
+            },
+            {
+                "company": "Infosys",
+                "symbol": "INFY",
+                "sector": "IT Services",
+                "allocation_percent": 15 if hz != "short" else 10,
+                "investment_style": "Quality, Dividend",
+                "why_now": "Global IT exposure and cash-generative business model.",
+                "ideal_holding_period": "5 years"
+            }
+        ]
+
+    if age >= 25:
+        return [
+            {
+                "company": "Nifty 50 Index Fund",
+                "symbol": "NIFTY50_INDEX",
+                "sector": "Diversified Index",
+                "allocation_percent": 40 if hz == "long" else 70,
+                "investment_style": "Index, Core",
+                "why_now": "Low-cost core for long-term wealth creation.",
+                "ideal_holding_period": strategy["holding_period"]
+            },
+            {
+                "company": "Nifty Midcap 150 Index Fund",
+                "symbol": "NIFTYMID150_INDEX",
+                "sector": "Midcap Index",
+                "allocation_percent": 30 if hz == "long" and risk in {"moderate", "high", "very_high"} else 10,
+                "investment_style": "Index, Growth",
+                "why_now": "Long horizon allows measured midcap compounding exposure.",
+                "ideal_holding_period": "7+ years"
+            },
+            {
+                "company": "Reliance Industries",
+                "symbol": "RELIANCE",
+                "sector": "Energy/Telecom/Retail",
+                "allocation_percent": 15 if hz != "short" else 10,
+                "investment_style": "Growth, Core",
+                "why_now": "Diversified large-cap growth exposure.",
+                "ideal_holding_period": "5-7 years"
+            },
+            {
+                "company": "Infosys",
+                "symbol": "INFY",
+                "sector": "IT Services",
+                "allocation_percent": 15 if hz != "short" else 10,
+                "investment_style": "Quality, Dividend",
+                "why_now": "Strong cash flow quality growth in IT.",
+                "ideal_holding_period": "5 years"
+            }
+        ]
+
+    return [
+        {
+            "company": "Nifty 50 Index Fund",
+            "symbol": "NIFTY50_INDEX",
+            "sector": "Diversified Index",
+            "allocation_percent": 30,
+            "investment_style": "Index, Core",
+            "why_now": "Early start and long runway make index compounding very effective.",
+            "ideal_holding_period": "10+ years"
+        },
+        {
+            "company": "Nifty Midcap 150 Index Fund",
+            "symbol": "NIFTYMID150_INDEX",
+            "sector": "Midcap Index",
+            "allocation_percent": 40 if risk in {"moderate", "high", "very_high"} else 20,
+            "investment_style": "Index, Growth",
+            "why_now": "Higher growth sleeve suited for very long horizon investors.",
+            "ideal_holding_period": "10+ years"
+        },
+        {
+            "company": "Parag Parikh Flexi Cap Fund",
+            "symbol": "PPFAS",
+            "sector": "Flexi Cap",
+            "allocation_percent": 20,
+            "investment_style": "Growth",
+            "why_now": "Diversified managed equity allocation suitable for beginner investors.",
+            "ideal_holding_period": "7+ years"
+        },
+        {
+            "company": "HDFC Bank",
+            "symbol": "HDFCBANK",
+            "sector": "Banking",
+            "allocation_percent": 10,
+            "investment_style": "Quality, Value",
+            "why_now": "Introductory direct stock exposure via a quality large cap.",
+            "ideal_holding_period": "5+ years"
+        }
+    ]
 
 
 @traceable(
@@ -113,7 +412,8 @@ INSTRUCTIONS:
 3. Stock section: 4-6 stocks from universe above
    - Always include Nifty 50 Index Fund as core
    - No single stock above 10% allocation
-   - Match stocks to risk profile: {final_risk}
+    - Match stocks to risk profile: {final_risk}
+    - Differentiate picks by age {age} and horizon {horizon}
 4. Use engine corpus projections — do not recalculate
 5. Include disclaimer
 
@@ -171,6 +471,11 @@ def _parse_response(
         result = json.loads(cleaned)
 
         # Always inject engine numbers for accuracy
+        age      = profile.get("age", 30)
+        risk     = profile.get("risk_tolerance", "moderate")
+        horizon  = profile.get("investment_horizon", "long")
+        strategy = _determine_stock_strategy(age=age, risk_category=risk, horizon=horizon)
+
         result["portfolio_allocation"]     = allocation
         result["total_monthly_investment"] = sip_data["total_sip"]
         result["projected_corpus_5yr"]     = projections["optimized"].get(5,  0)
@@ -186,6 +491,13 @@ def _parse_response(
             "action": "Build emergency fund first" if sip_data["emergency_gap"] > 0
                       else "Emergency fund is adequate"
         }
+        result["stock_recommendations"] = _fallback_stocks(
+            risk_tolerance = risk,
+            age            = age,
+            allocation     = allocation,
+            horizon        = horizon
+        )
+        result["stock_strategy_note"] = strategy["strategy_note"]
         if "tax_saving_plan" not in result:
             result["tax_saving_plan"] = sip_data["tax_plan"]
 
@@ -204,19 +516,17 @@ def _fallback_response(
 ) -> dict:
     risk             = profile.get("risk_tolerance", "moderate")
     age              = profile.get("age", 30)
+    horizon          = profile.get("investment_horizon", "long")
     goals            = profile.get("financial_goals", [])
     monthly_expenses = profile.get("monthly_expenses", 0)
 
-    stocks     = retrieve_stocks(profile, top_k=5)
-    stock_recs = [{
-        "symbol":             s.get("ticker", ""),
-        "company":            s.get("company", ""),
-        "sector":             s.get("sector", ""),
-        "allocation_percent": 10,
-        "why_now":            s.get("analyst_view", "Strong long term pick"),
-        "ideal_holding_period": s.get("ideal_holding_period", "5-10 years"),
-        "investment_style":   ", ".join(s.get("investment_style", []))
-    } for s in stocks]
+    strategy   = _determine_stock_strategy(age=age, risk_category=risk, horizon=horizon)
+    stock_recs = _fallback_stocks(
+        risk_tolerance = risk,
+        age            = age,
+        allocation     = allocation,
+        horizon        = horizon
+    )
 
     existing_savings = profile.get("existing_savings", 0)
     emergency_needed = monthly_expenses * 6
@@ -252,7 +562,7 @@ def _fallback_response(
         "projected_corpus_5yr":     projections["optimized"].get(5,  0),
         "projected_corpus_10yr":    projections["optimized"].get(10, 0),
         "projected_corpus_20yr":    projections["optimized"].get(20, 0),
-        "stock_strategy_note":      f"Core: Nifty 50 ETF. Add quality large caps for {risk} risk.",
+        "stock_strategy_note":      strategy["strategy_note"],
         "key_advice":               f"At age {age}, start SIP immediately. Step up 10% every year. Target retirement corpus: Rs {retirement['corpus_needed']:,.0f}",
         "disclaimer":               "Stocks are subject to market risk. Please read all scheme related documents carefully.",
         "parse_error":              True

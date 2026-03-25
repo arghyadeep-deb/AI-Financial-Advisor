@@ -6,6 +6,190 @@ from rag.rag_pipeline import build_health_context
 from engines.financial_health_engine import FinancialHealthEngine
 
 
+def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
+    """Generate structured warning payloads for expandable frontend display."""
+    warnings = []
+
+    raw            = engine_result.get("raw_metrics", {})
+    monthly_income = profile.get("monthly_income", 0)
+    monthly_exp    = profile.get("monthly_expenses", 0)
+    existing_sav   = profile.get("existing_savings", 0)
+    existing_debt  = profile.get("existing_debts", 0)
+    credit_score   = profile.get("credit_score", 700)
+    age            = profile.get("age", 30)
+
+    savings_rate     = raw.get("savings_rate", 0)
+    emergency_months = raw.get("emergency_months", 0)
+    dti_ratio        = raw.get("dti_ratio", 0)
+    investment_rate  = raw.get("investment_rate", 0)
+    emergency_gap    = raw.get("emergency_gap", 0)
+
+    if emergency_months < 1:
+        warnings.append({
+            "title": "No Emergency Fund",
+            "severity": "critical",
+            "summary": "You have less than 1 month of expenses saved.",
+            "detail": (
+                f"Your current savings cover only {emergency_months:.1f} months of expenses. "
+                f"The recommended minimum is 6 months (Rs {monthly_exp * 6:,.0f}). "
+                "Without this buffer, any unexpected expense can force you to take expensive debt "
+                "or liquidate long-term investments at the wrong time."
+            ),
+            "impact": (
+                f"A sudden Rs {monthly_exp * 2:,.0f} expense may push you toward debt costing "
+                "12-24% annual interest."
+            ),
+            "action_steps": [
+                "Open a liquid fund dedicated to emergencies.",
+                f"Set auto-transfer of Rs {round(monthly_exp * 0.5):,.0f}/month.",
+                f"Target Rs {round(monthly_exp * 6):,.0f} over 12 months.",
+                "Pause aggressive equity investing until emergency cushion is ready."
+            ],
+            "timeline": "Immediate"
+        })
+    elif emergency_months < 3:
+        warnings.append({
+            "title": "Emergency Fund Below 3 Months",
+            "severity": "high",
+            "summary": f"Only {emergency_months:.1f} months covered; target is 6 months.",
+            "detail": (
+                f"You currently have Rs {existing_sav:,.0f} saved, which covers {emergency_months:.1f} months. "
+                f"You need another Rs {emergency_gap:,.0f} to reach the 6-month benchmark. "
+                "This gap increases stress and may derail SIP continuity during volatility."
+            ),
+            "impact": "Insufficient emergency reserve is a common reason for breaking SIPs during downturns.",
+            "action_steps": [
+                f"Add Rs {round(emergency_gap / 12):,.0f}/month to emergency corpus.",
+                "Keep this amount in low-risk, high-liquidity instruments.",
+                "Do not mix emergency money with regular spending account."
+            ],
+            "timeline": "Within 3 months"
+        })
+
+    if savings_rate < 5:
+        warnings.append({
+            "title": "Critically Low Savings Rate",
+            "severity": "critical",
+            "summary": f"You are saving only {savings_rate:.1f}% of income.",
+            "detail": (
+                f"Your monthly surplus is Rs {monthly_income - monthly_exp:,.0f}, which is below healthy levels. "
+                "A long-term wealth plan generally needs at least 20% savings rate."
+            ),
+            "impact": "At this pace, retirement and long-term goals may be delayed significantly.",
+            "action_steps": [
+                "Audit all recurring subscriptions and discretionary spend.",
+                "Track expenses for 30 days to identify leaks.",
+                f"Target an immediate expense reduction of Rs {round(monthly_income * 0.05):,.0f}/month.",
+                "Set an automatic transfer to savings on salary day."
+            ],
+            "timeline": "Immediate"
+        })
+    elif savings_rate < 10:
+        warnings.append({
+            "title": "Low Savings Rate",
+            "severity": "medium",
+            "summary": f"Savings are {savings_rate:.1f}% against a 20%+ target.",
+            "detail": (
+                f"Current savings of Rs {monthly_income - monthly_exp:,.0f}/month can be improved. "
+                f"Reaching 20% (Rs {round(monthly_income * 0.20):,.0f}/month) will materially improve future corpus."
+            ),
+            "impact": "Even small savings-rate improvements compound strongly over 10+ years.",
+            "action_steps": [
+                "Cut 2-3 non-essential spend categories.",
+                f"Increase SIP by Rs {round(monthly_income * 0.05):,.0f}/month.",
+                "Follow a needs-wants-savings monthly cap."
+            ],
+            "timeline": "Within 1 month"
+        })
+
+    if dti_ratio > 50:
+        warnings.append({
+            "title": "Dangerously High Debt Ratio",
+            "severity": "critical",
+            "summary": f"Debt-to-income ratio is {dti_ratio:.1f}%.",
+            "detail": (
+                f"Existing debt of Rs {existing_debt:,.0f} is high versus annual income. "
+                "At this level, EMI burden can crowd out savings and investment capacity."
+            ),
+            "impact": (
+                f"At 14% interest, this debt can cost around Rs {round(existing_debt * 0.14):,.0f}/year in interest alone."
+            ),
+            "action_steps": [
+                "List all loans by interest rate.",
+                "Repay highest-interest debt first.",
+                "Avoid new personal loans until DTI is below 36%.",
+                "Use bonuses/windfalls for part prepayment."
+            ],
+            "timeline": "Immediate priority"
+        })
+    elif dti_ratio > 36:
+        warnings.append({
+            "title": "Elevated Debt Ratio",
+            "severity": "medium",
+            "summary": f"DTI is {dti_ratio:.1f}%; safe range is below 36%.",
+            "detail": "Debt is manageable but high enough to constrain new goal-based investing.",
+            "impact": "High DTI can reduce loan eligibility and increase borrowing costs.",
+            "action_steps": [
+                "Avoid adding new debt for 12 months.",
+                "Make occasional lump-sum prepayments.",
+                "Target DTI below 36% over 12-18 months."
+            ],
+            "timeline": "12-18 months"
+        })
+
+    if credit_score < 650:
+        warnings.append({
+            "title": "Low Credit Score",
+            "severity": "critical",
+            "summary": f"Credit score is {credit_score}, below 650.",
+            "detail": (
+                "This score can lead to lower approval odds and higher borrowing rates for major loans."
+            ),
+            "impact": "A higher interest rate over long tenures can increase total repayment substantially.",
+            "action_steps": [
+                "Pay all card dues in full and on time.",
+                "Keep utilization below 30%.",
+                "Check credit report for errors and disputes.",
+                "Avoid new credit applications for 6 months."
+            ],
+            "timeline": "6-12 months"
+        })
+    elif credit_score < 700:
+        warnings.append({
+            "title": "Below Average Credit Score",
+            "severity": "medium",
+            "summary": f"Credit score is {credit_score}; target 750+.",
+            "detail": "Score is serviceable but not optimal for the best lending terms.",
+            "impact": "Improving score can reduce borrowing costs and improve card/loan offers.",
+            "action_steps": [
+                "Pay statement balances in full each month.",
+                "Maintain low utilization.",
+                "Monitor report and correct inaccuracies."
+            ],
+            "timeline": "6-9 months"
+        })
+
+    if investment_rate < 5 and age < 50:
+        warnings.append({
+            "title": "Not Investing Meaningfully Yet",
+            "severity": "medium",
+            "summary": "Investment rate is below 5% of income.",
+            "detail": (
+                f"At age {age}, delaying investments reduces the compounding runway significantly. "
+                "Starting with a smaller SIP now is usually better than waiting to invest more later."
+            ),
+            "impact": "Late starts can require much higher monthly amounts to reach the same target corpus.",
+            "action_steps": [
+                "Start with a basic index-fund SIP.",
+                f"Set a starting SIP near Rs {round(monthly_income * 0.10):,.0f}/month.",
+                "Automate debit on salary date."
+            ],
+            "timeline": "This week"
+        })
+
+    return warnings
+
+
 @traceable(
     run_type = "chain",
     name     = "health_agent",
@@ -29,7 +213,6 @@ def run_health_agent(profile: dict) -> dict:
     budget      = engine_result["budget_suggestion"]
 
     context = build_health_context(profile)
-
     monthly_income   = profile.get("monthly_income",   0)
     monthly_expenses = profile.get("monthly_expenses", 0)
     credit_score     = profile.get("credit_score",     700)
@@ -117,9 +300,12 @@ def _parse_response(
         result = json.loads(cleaned)
 
         # Always inject engine scores for accuracy
-        result["overall_score"]    = engine_result["overall_score"]
-        result["grade"]            = engine_result["grade"]
-        result["component_scores"] = engine_result["component_scores"]
+        result["overall_score"]      = engine_result["overall_score"]
+        result["grade"]              = engine_result["grade"]
+        result["component_scores"]   = engine_result["component_scores"]
+        result["components"]         = engine_result.get("components", {})
+        result["raw_metrics"]        = engine_result.get("raw_metrics", {})
+        result["detailed_warnings"]  = _generate_detailed_warnings(profile, engine_result)
         return result
 
     except json.JSONDecodeError:
@@ -182,6 +368,7 @@ def _fallback_response(
         "overall_score":   overall,
         "grade":           grade,
         "components":      components,
+        "raw_metrics":     metrics,
         "strengths":       strengths[:2],
         "improvement_areas": improvements[:3],
         "monthly_budget_suggestion": {
@@ -191,5 +378,6 @@ def _fallback_response(
             "note":                budget["note"]
         },
         "priority_actions": priority_actions[:3],
+        "detailed_warnings": _generate_detailed_warnings(profile, engine_result),
         "parse_error":      False
     }
