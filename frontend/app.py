@@ -34,7 +34,6 @@ st.markdown("""
     --danger: #fb7185;
 }
 
-/* ── Force light theme ── */
 html, body, [class*="css"],
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"],
@@ -44,20 +43,47 @@ html, body, [class*="css"],
         radial-gradient(1200px 450px at 8% -10%, rgba(20, 184, 166, 0.16), transparent 58%),
         radial-gradient(1200px 500px at 95% -25%, rgba(59, 130, 246, 0.16), transparent 60%),
         var(--bg) !important;
-    color:            var(--text-1) !important;
+    color: var(--text-1) !important;
 }
 
-/* ── Hide streamlit branding ── */
-#MainMenu, footer, header { visibility: hidden; }
+/* ── Hide menu and footer but keep header for sidebar toggle ── */
+#MainMenu { visibility: hidden; }
+footer    { visibility: hidden; }
+
+/* Minimal transparent header — only shows sidebar toggle */
+header {
+    background:  transparent !important;
+    box-shadow:  none !important;
+    height:      2.5rem !important;
+}
+[data-testid="stHeader"] {
+    background:  transparent !important;
+    box-shadow:  none !important;
+}
+
+/* Style the sidebar collapse/expand toggle button */
+[data-testid="collapsedControl"] {
+    visibility:    visible !important;
+    display:       flex !important;
+    background:    #0f1726 !important;
+    border:        1px solid #223149 !important;
+    border-radius: 8px !important;
+    color:         #e6edf7 !important;
+    margin-top:    0.4rem !important;
+    margin-left:   0.4rem !important;
+}
+[data-testid="collapsedControl"]:hover {
+    background:    #1c2b44 !important;
+    border-color:  #2f4668 !important;
+}
 
 /* ── Main container ── */
 .main .block-container {
-    padding-top:  0.65rem !important;
+    padding-top:    0.65rem !important;
     padding-bottom: 2rem;
-    max-width:    1280px;
+    max-width:      1280px;
 }
 
-/* ── Force all text dark ── */
 p, span, div, label, h1, h2, h3, h4, h5, h6 {
     color: var(--text-1) !important;
 }
@@ -117,15 +143,15 @@ section[data-testid="stSidebar"] .stButton button:hover {
 
 /* ── Metric cards ── */
 .metric-card {
-    background:    var(--surface);
-    border:        1px solid var(--border);
-    border-radius: 16px;
-    padding:       1rem 1.1rem;
-    min-height:    130px;
-    display:       flex;
+    background:     var(--surface);
+    border:         1px solid var(--border);
+    border-radius:  16px;
+    padding:        1rem 1.1rem;
+    min-height:     130px;
+    display:        flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow:    0 10px 24px rgba(2, 6, 23, 0.35);
+    justify-content:space-between;
+    box-shadow:     0 10px 24px rgba(2, 6, 23, 0.35);
 }
 .metric-value {
     font-size:   1.75rem;
@@ -150,12 +176,12 @@ section[data-testid="stSidebar"] .stButton button:hover {
 
 /* ── Section header ── */
 .section-header {
-    font-size:     1.06rem;
-    font-weight:   700;
-    color:         var(--text-1) !important;
-    border-left:   3px solid var(--accent);
-    padding-left:  0.7rem;
-    margin:        1.35rem 0 0.9rem;
+    font-size:    1.06rem;
+    font-weight:  700;
+    color:        var(--text-1) !important;
+    border-left:  3px solid var(--accent);
+    padding-left: 0.7rem;
+    margin:       1.35rem 0 0.9rem;
 }
 
 /* ── Cards ── */
@@ -167,32 +193,28 @@ section[data-testid="stSidebar"] .stButton button:hover {
     margin-bottom: 0.7rem;
     box-shadow:    0 8px 18px rgba(2, 6, 23, 0.3);
 }
-.card p, .card div, .card span {
-    color: var(--text-1) !important;
-}
+.card p, .card div, .card span { color: var(--text-1) !important; }
 .card-green  { border-left: 3px solid var(--accent); }
 .card-blue   { border-left: 3px solid var(--accent-2); }
 .card-orange { border-left: 3px solid #f59e0b; }
 
 /* ── Badge ── */
 .badge {
-    display:       inline-block;
-    padding:       3px 10px;
-    border-radius: 20px;
-    font-size:     0.72rem;
-    font-weight:   700;
+    display:        inline-block;
+    padding:        3px 10px;
+    border-radius:  20px;
+    font-size:      0.72rem;
+    font-weight:    700;
     letter-spacing: 0.01em;
-    background:    rgba(20, 184, 166, 0.22);
-    border:        1px solid rgba(20, 184, 166, 0.45);
-    color:         #c9fffa !important;
-    margin-bottom: 0.3rem;
+    background:     rgba(20, 184, 166, 0.22);
+    border:         1px solid rgba(20, 184, 166, 0.45);
+    color:          #c9fffa !important;
+    margin-bottom:  0.3rem;
 }
-
-/* Ensure badges stay readable inside cards where span colors are force-set. */
 .card .badge {
-    color: #c9fffa !important;
-    background: rgba(20, 184, 166, 0.22) !important;
-    border: 1px solid rgba(20, 184, 166, 0.45) !important;
+    color:       #c9fffa !important;
+    background:  rgba(20, 184, 166, 0.22) !important;
+    border:      1px solid rgba(20, 184, 166, 0.45) !important;
 }
 
 /* ── Alerts ── */
@@ -252,25 +274,25 @@ section[data-testid="stSidebar"] .stButton button:hover {
     display:         flex;
     justify-content: space-between;
     font-size:       0.8rem;
-    color:           #475569 !important;
+    color:           var(--text-2) !important;
     margin-bottom:   0.2rem;
 }
 
 /* ── SIP row ── */
 .sip-row {
-    background:    var(--surface);
-    border:        1px solid var(--border);
-    border-left:   3px solid var(--accent);
-    border-radius: 10px;
-    padding:       0.8rem 1.1rem;
-    margin-bottom: 0.5rem;
-    display:       flex;
+    background:      var(--surface);
+    border:          1px solid var(--border);
+    border-left:     3px solid var(--accent);
+    border-radius:   10px;
+    padding:         0.8rem 1.1rem;
+    margin-bottom:   0.5rem;
+    display:         flex;
     justify-content: space-between;
-    align-items:   center;
+    align-items:     center;
 }
-.sip-name  { font-weight: 600; font-size: 0.88rem; color: var(--text-1) !important; }
-.sip-cat   { font-size: 0.75rem; color: var(--text-2) !important; margin-top: 1px; }
-.sip-amt   { font-size: 1.05rem; font-weight: 700; color: var(--accent) !important; }
+.sip-name { font-weight: 600; font-size: 0.88rem; color: var(--text-1) !important; }
+.sip-cat  { font-size: 0.75rem; color: var(--text-2) !important; margin-top: 1px; }
+.sip-amt  { font-size: 1.05rem; font-weight: 700; color: var(--accent) !important; }
 
 /* ── Credit card widget ── */
 .cc-card {
@@ -294,71 +316,7 @@ section[data-testid="stSidebar"] .stButton button:hover {
     background:    rgba(255,255,255,0.06);
 }
 
-/* ── FIXED CHAT OVERLAY ── */
-#chat-overlay-wrapper {
-    position:   fixed;
-    bottom:     24px;
-    right:      24px;
-    z-index:    9999;
-    display:    flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap:        12px;
-    pointer-events: none;
-}
-
-.chat-bubble-btn {
-    pointer-events: all;
-    background:     linear-gradient(135deg, var(--accent), var(--accent-2));
-    color:          white !important;
-    border:         none;
-    border-radius:  50px;
-    padding:        12px 20px;
-    font-size:      0.9rem;
-    font-weight:    700;
-    cursor:         pointer;
-    box-shadow:     0 4px 20px rgba(0,212,170,0.4);
-    display:        flex;
-    align-items:    center;
-    gap:            8px;
-    transition:     transform 0.15s ease;
-}
-.chat-bubble-btn:hover {
-    transform: translateY(-2px);
-}
-
-.chat-panel {
-    pointer-events: all;
-    background:     var(--surface);
-    border:         1px solid var(--border);
-    border-radius:  16px;
-    width:          380px;
-    max-height:     520px;
-    box-shadow:     0 24px 68px rgba(0, 0, 0, 0.45);
-    display:        flex;
-    flex-direction: column;
-    overflow:       hidden;
-}
-
-.chat-panel-header {
-    background:  linear-gradient(135deg, #0f172a, #1e3a8a);
-    padding:     0.9rem 1.1rem;
-    display:     flex;
-    align-items: center;
-    gap:         0.7rem;
-    flex-shrink: 0;
-}
-.chat-panel-header * { color: white !important; }
-
-.chat-panel-body {
-    flex:       1;
-    overflow-y: auto;
-    padding:    0.8rem;
-    background: var(--surface-2);
-    min-height: 200px;
-    max-height: 300px;
-}
-
+/* ── Chat messages ── */
 .chat-msg-user {
     background:    linear-gradient(135deg, var(--accent), var(--accent-2));
     padding:       0.6rem 0.9rem;
@@ -370,7 +328,6 @@ section[data-testid="stSidebar"] .stButton button:hover {
     word-wrap:     break-word;
 }
 .chat-msg-user * { color: white !important; }
-
 .chat-msg-bot {
     background:    #16243a;
     border:        1px solid var(--border);
@@ -384,12 +341,13 @@ section[data-testid="stSidebar"] .stButton button:hover {
 }
 .chat-msg-bot * { color: #e9f0fb !important; }
 
+/* ── Typing animation ── */
 .typing-indicator {
     display:       flex;
     gap:           4px;
     padding:       0.6rem 0.9rem;
-    background:    white;
-    border:        1px solid #e2e8f0;
+    background:    #16243a;
+    border:        1px solid var(--border);
     border-radius: 16px;
     width:         fit-content;
     margin:        0.3rem 0;
@@ -407,13 +365,6 @@ section[data-testid="stSidebar"] .stButton button:hover {
     50%       { opacity: 1;   transform: scale(1.1); }
 }
 
-.chat-panel-input {
-    padding:      0.7rem;
-    border-top:   1px solid var(--border);
-    background:   var(--surface);
-    flex-shrink:  0;
-}
-
 /* ── Buttons ── */
 .stButton button {
     border-radius: 10px !important;
@@ -424,19 +375,17 @@ section[data-testid="stSidebar"] .stButton button:hover {
     min-height:    46px !important;
 }
 .stButton button[kind="primary"] {
-    background:  linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
-    border:      none !important;
-    color:       white !important;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+    border:     none !important;
+    color:      white !important;
 }
-.stButton button[kind="primary"] * {
-    color: white !important;
-}
+.stButton button[kind="primary"] * { color: white !important; }
 .stButton button:not([kind="primary"]) {
     background: var(--surface) !important;
-    color: var(--text-1) !important;
+    color:      var(--text-1) !important;
 }
 .stButton button:not([kind="primary"]):hover {
-    background: #1c2c45 !important;
+    background:   #1c2c45 !important;
     border-color: #2f4668 !important;
 }
 
@@ -474,7 +423,7 @@ section[data-testid="stSidebar"] .stButton button:hover {
 .stSelectbox label,
 .stSlider label,
 .stMultiSelect label {
-    color: #334155 !important;
+    color:       var(--text-2) !important;
     font-weight: 500 !important;
 }
 
@@ -509,27 +458,21 @@ section[data-testid="stSidebar"] .stButton button:hover {
 [data-testid="metric-container"] [data-testid="stMetricValue"] {
     color: var(--text-1) !important;
 }
-
 section[data-testid="stSidebar"] [data-testid="stMetricValue"] {
     color: #d9e7fb !important;
 }
-
 section[data-testid="stSidebar"] [data-testid="stMetricLabel"] {
     color: #93a4bc !important;
 }
 
 @media (max-width: 900px) {
     .main .block-container {
-        padding-top: 0.4rem !important;
-        padding-left: 0.9rem !important;
+        padding-top:   0.4rem !important;
+        padding-left:  0.9rem !important;
         padding-right: 0.9rem !important;
     }
-    .hero {
-        padding: 2.1rem 1.4rem;
-    }
-    .hero h1 {
-        font-size: 2rem;
-    }
+    .hero { padding: 2.1rem 1.4rem; }
+    .hero h1 { font-size: 2rem; }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -615,17 +558,15 @@ def fmt_inr(amount) -> str:
 
 
 def _queue_chat_message(message: str):
-    """Queue a chat message so it appears instantly and is processed on rerun."""
     clean = (message or "").strip()
     if not clean:
         return
     st.session_state.chat_messages.append({"role": "user", "content": clean})
-    st.session_state["pending_chat"] = clean
-    st.session_state["chat_input_draft"] = ""
+    st.session_state["pending_chat"]      = clean
+    st.session_state["chat_input_draft"]  = ""
 
 
 def _submit_chat_from_draft():
-    """Submit current draft when user presses Enter in chat input."""
     _queue_chat_message(st.session_state.get("chat_input_draft", ""))
 
 
@@ -662,7 +603,7 @@ def refresh_analysis():
 # ─── Charts ───────────────────────────────────────────────────────────────────
 
 def pie_chart(labels, values, title="", height=300):
-    colors = ["#0ea5a4", "#2563eb", "#f59e0b", "#be185d", "#7c3aed", "#0891b2"]
+    colors = ["#0ea5a4","#2563eb","#f59e0b","#be185d","#7c3aed","#0891b2"]
     fig = go.Figure(go.Pie(
         labels=labels, values=values, hole=0.55,
         marker_colors=colors[:len(labels)],
@@ -711,15 +652,17 @@ def line_chart(x, y1, y2, name1, name2, title="", height=300):
         title=dict(text=title, font=dict(size=14, color="#d9e7fb")),
         height=height, margin=dict(t=40,b=10,l=10,r=10),
         paper_bgcolor="#0f1726", plot_bgcolor="#0f1726",
-        yaxis=dict(showgrid=True, gridcolor="#223149", tickfont=dict(color="#c3d5ef")),
+        yaxis=dict(showgrid=True, gridcolor="#223149",
+                   tickfont=dict(color="#c3d5ef")),
         xaxis=dict(showgrid=False),
-        legend=dict(orientation="h", y=-0.18, font=dict(size=11, color="#c3d5ef"))
+        legend=dict(orientation="h", y=-0.18,
+                    font=dict(size=11, color="#c3d5ef"))
     )
     return fig
 
 
 def gauge_chart(value, title="", height=270):
-    color = "#0ea5a4" if value >= 70 else "#f59e0b" if value >= 50 else "#ef4444"
+    color = "#0ea5a4" if value>=70 else "#f59e0b" if value>=50 else "#ef4444"
     fig = go.Figure(go.Indicator(
         mode="gauge+number", value=value,
         title={"text": title, "font": {"size": 14, "color": "#d9e7fb"}},
@@ -763,26 +706,26 @@ BANK_LOGOS = {
 }
 
 CARD_COLORS = {
-    "infinia": "#0f172a", "diners": "#1e3a5f", "regalia": "#1e1b4b",
-    "millennia": "#1d4ed8", "moneyback": "#065f46", "amazon": "#c2410c",
-    "flipkart": "#6d28d9", "magnus": "#0c1445", "atlas": "#0f3460",
-    "ace": "#14532d", "simplyone": "#1e293b", "platinum": "#374151",
-    "cashback": "#134e4a", "default": "#0f172a"
+    "infinia":   "#0f172a", "diners":    "#1e3a5f",
+    "regalia":   "#1e1b4b", "millennia": "#1d4ed8",
+    "moneyback": "#065f46", "amazon":    "#c2410c",
+    "flipkart":  "#6d28d9", "magnus":    "#0c1445",
+    "atlas":     "#0f3460", "ace":       "#14532d",
+    "simplyone": "#1e293b", "platinum":  "#374151",
+    "cashback":  "#134e4a", "default":   "#0f172a"
 }
 
 
 def get_bank_logo(bank_name: str) -> str:
-    bank_lower = bank_name.lower()
     for key, url in BANK_LOGOS.items():
-        if key in bank_lower:
+        if key in bank_name.lower():
             return url
     return ""
 
 
 def get_card_color(card_name: str) -> str:
-    card_lower = card_name.lower()
     for key, color in CARD_COLORS.items():
-        if key in card_lower:
+        if key in card_name.lower():
             return color
     return CARD_COLORS["default"]
 
@@ -863,8 +806,9 @@ def render_credit_card_widget(card: dict, rank: int):
             st.metric("Est. Annual Savings", fmt_inr(savings))
         if watch_out:
             st.markdown(f"""
-            <div class="alert alert-warning">⚠️ <b>Watch Out:</b> {watch_out}</div>
-            """, unsafe_allow_html=True)
+            <div class="alert alert-warning">
+                ⚠️ <b>Watch Out:</b> {watch_out}
+            </div>""", unsafe_allow_html=True)
 
 
 # ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -874,7 +818,9 @@ def render_navbar():
     <div class="navbar">
         <div class="navbar-logo">💰 FinAdvisor AI</div>
         <div class="navbar-user">
-            👤 <b style="color:var(--text-1)">{st.session_state.user_name or 'User'}</b>
+            👤 <b style="color:var(--text-1)">
+                {st.session_state.user_name or 'User'}
+            </b>
             &nbsp;|&nbsp; {st.session_state.user_email or ''}
         </div>
     </div>
@@ -889,7 +835,8 @@ def render_sidebar():
         <div style="padding:1.2rem 1rem 0.8rem;border-bottom:1px solid #1e293b;">
             <div style="font-size:1.2rem;font-weight:800;
                         background:linear-gradient(135deg,#0ea5a4,#2563eb);
-                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                        -webkit-background-clip:text;
+                        -webkit-text-fill-color:transparent;">
                 💰 FinAdvisor AI
             </div>
             <div style="font-size:0.68rem;color:#9fb2ca;margin-top:2px;">
@@ -948,10 +895,14 @@ def render_sidebar():
             score = st.session_state.cached_health.get("overall_score", 0)
             grade = st.session_state.cached_health.get("grade", "N/A")
             if score > 0:
-                color = "#00d4aa" if score>=70 else "#f59e0b" if score>=50 else "#ef4444"
+                color = (
+                    "#00d4aa" if score>=70 else
+                    "#f59e0b" if score>=50 else "#ef4444"
+                )
                 st.markdown(f"""
                 <div style="margin:0.8rem 0.6rem 0;padding:0.8rem;
-                            background:#1e293b;border-radius:10px;text-align:center;">
+                            background:#1e293b;border-radius:10px;
+                            text-align:center;">
                     <div style="font-size:0.62rem;color:#64748b;
                                 text-transform:uppercase;letter-spacing:0.1em;">
                         Health Score
@@ -967,19 +918,10 @@ def render_sidebar():
                 """, unsafe_allow_html=True)
 
 
-# ─── Fixed Chat Overlay ───────────────────────────────────────────────────────
+# ─── Chat Overlay ─────────────────────────────────────────────────────────────
 
 def render_chat_overlay():
-    """
-    Fixed position chat overlay — bottom right corner.
-    Does NOT scroll with page content.
-    User message appears instantly before LLM replies.
-    """
-
-    # ── Toggle button ─────────────────────────────────────────────────────
     chat_label = "💬 Chat" if not st.session_state.chat_open else "✕ Close"
-
-    # Use a column pushed to the right for the toggle
     cols = st.columns([1, 1, 1, 1, 1])
     with cols[4]:
         if st.button(
@@ -994,17 +936,15 @@ def render_chat_overlay():
     if not st.session_state.chat_open:
         return
 
-    # ── Chat panel ────────────────────────────────────────────────────────
     st.markdown("---")
 
     with st.container():
-        # Header
         st.markdown("""
         <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);
                     padding:0.9rem 1.2rem;border-radius:12px 12px 0 0;
                     display:flex;align-items:center;gap:0.8rem;">
             <div style="width:32px;height:32px;border-radius:50%;
-                        background:linear-gradient(135deg,#00d4aa,#0066ff);
+                        background:linear-gradient(135deg,#0ea5a4,#2563eb);
                         display:flex;align-items:center;justify-content:center;
                         font-size:0.9rem;flex-shrink:0;">🤖</div>
             <div>
@@ -1018,7 +958,6 @@ def render_chat_overlay():
         </div>
         """, unsafe_allow_html=True)
 
-        # Suggested questions
         with st.expander("💡 Quick Questions", expanded=False):
             suggestions = [
                 "Explain my health score",
@@ -1037,7 +976,6 @@ def render_chat_overlay():
                         _queue_chat_message(q)
                         st.rerun()
 
-        # ── Message history ───────────────────────────────────────────────
         if not st.session_state.chat_messages:
             st.markdown(f"""
             <div class="chat-msg-bot">
@@ -1059,27 +997,22 @@ def render_chat_overlay():
                         unsafe_allow_html=True
                     )
 
-        # ── Input with Enter-to-send + button ───────────────────────────
         c1, c2 = st.columns([5, 1])
         with c1:
             st.text_input(
                 "msg",
-                key="chat_input_draft",
-                placeholder="Ask about your finances...",
-                label_visibility="collapsed",
-                on_change=_submit_chat_from_draft,
+                key             = "chat_input_draft",
+                placeholder     = "Ask about your finances...",
+                label_visibility= "collapsed",
+                on_change       = _submit_chat_from_draft
             )
         with c2:
-            send = st.button("→", key="chat_send_btn", use_container_width=True)
+            if st.button("→", key="chat_send_btn", use_container_width=True):
+                _queue_chat_message(st.session_state.get("chat_input_draft", ""))
+                st.rerun()
 
-        if send:
-            _queue_chat_message(st.session_state.get("chat_input_draft", ""))
-            st.rerun()
-
-    # ── Process pending chat AFTER rerun ─────────────────────────────────
     pending = st.session_state.pop("pending_chat", None)
     if pending:
-        # Show typing indicator
         typing_ph = st.empty()
         typing_ph.markdown("""
         <div class="typing-indicator">
@@ -1093,7 +1026,6 @@ def render_chat_overlay():
         full_reply = ""
         stream_ok  = False
 
-        # Try streaming
         try:
             with requests.post(
                 f"{API_URL}/chat/stream",
@@ -1127,11 +1059,9 @@ def render_chat_overlay():
                                             )
                                 except json.JSONDecodeError:
                                     pass
-
-        except Exception as e:
+        except Exception:
             stream_ok = False
 
-        # Fallback to non-streaming
         if not stream_ok or not full_reply:
             typing_ph.empty()
             reply_ph.empty()
@@ -1147,7 +1077,6 @@ def render_chat_overlay():
             if "thread_id" in resp:
                 st.session_state.chat_thread_id = resp["thread_id"]
 
-        # Clear placeholders and save
         typing_ph.empty()
         reply_ph.empty()
 
@@ -1184,9 +1113,9 @@ def page_landing():
             st.markdown(f"""
             <div class="card card-green" style="text-align:center;padding:1.5rem;">
                 <div style="font-size:1.8rem;margin-bottom:0.7rem;">{icon}</div>
-                <div style="font-weight:700;font-size:0.95rem;color:#0f172a;
+                <div style="font-weight:700;font-size:0.95rem;
                             margin-bottom:0.4rem;">{title}</div>
-                <div style="color:#64748b;font-size:0.83rem;">{desc}</div>
+                <div style="color:#9fb2ca;font-size:0.83rem;">{desc}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1201,11 +1130,12 @@ def page_landing():
 
     c1, c2, c3 = st.columns([2, 1, 2])
     with c2:
-        if st.button("Login →", use_container_width=True, type="secondary"):
+        if st.button("Login →", use_container_width=True):
             go_to("login")
 
     st.markdown("""
-    <div style="text-align:center;margin-top:3rem;color:#94a3b8;font-size:0.75rem;">
+    <div style="text-align:center;margin-top:3rem;
+                color:#94a3b8;font-size:0.75rem;">
         Powered by Groq · LangSmith · Graph RAG · Indian Knowledge Base
     </div>
     """, unsafe_allow_html=True)
@@ -1219,10 +1149,8 @@ def page_login():
         st.markdown("""
         <div style="text-align:center;margin-bottom:2rem;">
             <div style="font-size:2.2rem;">💰</div>
-            <div style="font-size:1.4rem;font-weight:800;color:#0f172a;">
-                Welcome Back
-            </div>
-            <div style="color:#64748b;font-size:0.85rem;">
+            <div style="font-size:1.4rem;font-weight:800;">Welcome Back</div>
+            <div style="color:#9fb2ca;font-size:0.85rem;">
                 Login to your FinAdvisor account
             </div>
         </div>
@@ -1269,10 +1197,8 @@ def page_signup():
         st.markdown("""
         <div style="text-align:center;margin-bottom:2rem;">
             <div style="font-size:2.2rem;">💰</div>
-            <div style="font-size:1.4rem;font-weight:800;color:#0f172a;">
-                Create Account
-            </div>
-            <div style="color:#64748b;font-size:0.85rem;">
+            <div style="font-size:1.4rem;font-weight:800;">Create Account</div>
+            <div style="color:#9fb2ca;font-size:0.85rem;">
                 Start your financial journey
             </div>
         </div>
@@ -1298,7 +1224,8 @@ def page_signup():
             else:
                 with st.spinner("Creating your account..."):
                     resp = api_post("/auth/signup", {
-                        "email": email, "full_name": full_name, "password": password
+                        "email": email, "full_name": full_name,
+                        "password": password
                     })
                 if "access_token" in resp:
                     st.session_state.token      = resp["access_token"]
@@ -1347,7 +1274,9 @@ def page_dashboard():
             if st.button("📊 Run Full Analysis Now",
                          use_container_width=True, type="primary"):
                 with st.spinner("AI analysing your finances — ~30 seconds..."):
-                    resp = api_post("/analysis", {"analysis_type": "full"}, auth=True)
+                    resp = api_post(
+                        "/analysis", {"analysis_type": "full"}, auth=True
+                    )
                 if "results" in resp:
                     refresh_analysis()
                     st.success("Analysis complete!")
@@ -1365,7 +1294,7 @@ def page_dashboard():
 
     c1, c2, c3, c4 = st.columns(4)
     score_color = (
-        "#00d4aa" if health_score>=70 else
+        "#0ea5a4" if health_score>=70 else
         "#f59e0b" if health_score>=50 else "#ef4444"
     )
     with c1:
@@ -1421,12 +1350,12 @@ def page_dashboard():
             st.plotly_chart(
                 line_chart(
                     ["5yr","10yr","20yr"],
-                    [sim_c.get("corpus_5yr",0),
-                     sim_c.get("corpus_10yr",0),
-                     sim_c.get("corpus_20yr",0)],
-                    [sim_o.get("corpus_5yr",0),
-                     sim_o.get("corpus_10yr",0),
-                     sim_o.get("corpus_20yr",0)],
+                    [sim_c.get("corpus_5yr",  0),
+                     sim_c.get("corpus_10yr", 0),
+                     sim_c.get("corpus_20yr", 0)],
+                    [sim_o.get("corpus_5yr",  0),
+                     sim_o.get("corpus_10yr", 0),
+                     sim_o.get("corpus_20yr", 0)],
                     "Current Path", "Optimized Path", "Wealth Projection"
                 ), use_container_width=True
             )
@@ -1438,15 +1367,15 @@ def page_dashboard():
             unsafe_allow_html=True
         )
         for p in priorities[:3]:
-            ic = "#00d4aa" if p.get("impact")=="high" else "#f59e0b"
+            ic = "#0ea5a4" if p.get("impact")=="high" else "#f59e0b"
             st.markdown(f"""
             <div class="card card-green">
                 <div style="display:flex;justify-content:space-between;
                             align-items:flex-start;">
                     <div>
                         <span class="badge">Priority {p.get('priority','')}</span>
-                        <div style="font-weight:600;color:#0f172a;
-                                    font-size:0.9rem;margin-top:2px;">
+                        <div style="font-weight:600;font-size:0.9rem;
+                                    margin-top:2px;">
                             {p.get('action','')}
                         </div>
                     </div>
@@ -1542,8 +1471,7 @@ def page_portfolio():
                     st.success("Plan generated!")
                     st.rerun()
                 else:
-                    detail = resp.get("detail", str(resp))
-                    st.error(f"Failed: {detail}")
+                    st.error(resp.get("detail", str(resp)))
 
     if invest:
         _render_investment_results(invest)
@@ -1592,9 +1520,9 @@ def _render_investment_results(inv: dict):
         st.plotly_chart(
             bar_chart(
                 ["5 Years","10 Years","20 Years"],
-                [inv.get("projected_corpus_5yr",0),
-                 inv.get("projected_corpus_10yr",0),
-                 inv.get("projected_corpus_20yr",0)],
+                [inv.get("projected_corpus_5yr",  0),
+                 inv.get("projected_corpus_10yr", 0),
+                 inv.get("projected_corpus_20yr", 0)],
                 "Corpus Growth"
             ), use_container_width=True
         )
@@ -1659,7 +1587,7 @@ def _render_investment_results(inv: dict):
         </div>""", unsafe_allow_html=True)
 
     st.markdown("""
-    <div style="color:#94a3b8;font-size:0.7rem;margin-top:0.8rem;">
+    <div style="color:#64748b;font-size:0.7rem;margin-top:0.8rem;">
         ⚠️ Investments are subject to market risk.
         Please read all scheme documents carefully.
     </div>""", unsafe_allow_html=True)
@@ -1683,75 +1611,82 @@ def page_stocks():
             with c1:
                 risk = st.selectbox(
                     "Risk Tolerance",
-                    ["low", "moderate", "high", "very_high"],
-                    index=["low", "moderate", "high", "very_high"].index(
-                        profile.get("risk_tolerance", "moderate")
-                    ) if profile.get("risk_tolerance", "moderate") in ["low", "moderate", "high", "very_high"] else 1
+                    ["low","moderate","high","very_high"],
+                    index=(
+                        ["low","moderate","high","very_high"].index(
+                            profile.get("risk_tolerance","moderate")
+                        ) if profile.get("risk_tolerance") in
+                        ["low","moderate","high","very_high"] else 1
+                    )
                 )
                 horizon = st.selectbox(
                     "Investment Horizon",
-                    ["short", "medium", "long"],
-                    index=["short", "medium", "long"].index(
-                        profile.get("investment_horizon", "long")
-                    ) if profile.get("investment_horizon", "long") in ["short", "medium", "long"] else 2
+                    ["short","medium","long"],
+                    index=(
+                        ["short","medium","long"].index(
+                            profile.get("investment_horizon","long")
+                        ) if profile.get("investment_horizon") in
+                        ["short","medium","long"] else 2
+                    )
                 )
                 goals = st.multiselect(
                     "Financial Goals",
-                    ["retirement", "house", "car", "education", "wedding", "travel", "business"],
-                    default=profile.get("financial_goals", [])
+                    ["retirement","house","car","education",
+                     "wedding","travel","business"],
+                    default=profile.get("financial_goals",[])
                 )
             with c2:
                 monthly_income = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income", 50000))
+                    value=int(profile.get("monthly_income",50000))
                 )
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)", min_value=0,
-                    value=int(profile.get("monthly_expenses", 30000))
+                    value=int(profile.get("monthly_expenses",30000))
                 )
                 existing_investments = st.number_input(
                     "Existing Investments (₹)", min_value=0,
-                    value=int(profile.get("existing_investments", 0))
+                    value=int(profile.get("existing_investments",0))
                 )
 
-            submit_update = st.form_submit_button(
-                "Save Inputs & Re-run Stock Analysis",
-                use_container_width=True,
-                type="primary"
-            )
-
-        if submit_update:
-            payload = {
-                "age": int(profile.get("age", 25)),
-                "employment_type": profile.get("employment_type", "salaried"),
-                "monthly_income": int(monthly_income),
-                "monthly_expenses": int(monthly_expenses),
-                "existing_savings": int(profile.get("existing_savings", 0)),
-                "existing_investments": int(existing_investments),
-                "existing_debts": int(profile.get("existing_debts", 0)),
-                "risk_tolerance": risk,
-                "investment_horizon": horizon,
-                "financial_goals": goals,
-                "credit_score": int(profile.get("credit_score", 700)),
-                "monthly_credit_spend": int(profile.get("monthly_credit_spend", 0)),
-                "top_spend_categories": profile.get("top_spend_categories", [])
-            }
-
-            with st.spinner("Saving inputs and regenerating stock picks..."):
-                save_resp = api_post("/profile", payload, auth=True)
-                run_resp = api_post("/analysis", {"analysis_type": "investment"}, auth=True)
-
-            if "id" in save_resp and "results" in run_resp:
-                st.session_state.profile_cache = None
-                st.session_state.cached_invest = run_resp["results"].get("investment", {})
-                st.success("Stock inputs updated and analysis refreshed.")
-                st.rerun()
-            else:
-                st.error(
-                    save_resp.get("detail")
-                    or run_resp.get("detail")
-                    or "Could not refresh stock analysis."
-                )
+            if st.form_submit_button(
+                "Save & Re-run Stock Analysis",
+                use_container_width=True, type="primary"
+            ):
+                payload = {
+                    "age":                  int(profile.get("age",25)),
+                    "employment_type":      profile.get("employment_type","salaried"),
+                    "monthly_income":       int(monthly_income),
+                    "monthly_expenses":     int(monthly_expenses),
+                    "existing_savings":     int(profile.get("existing_savings",0)),
+                    "existing_investments": int(existing_investments),
+                    "existing_debts":       int(profile.get("existing_debts",0)),
+                    "risk_tolerance":       risk,
+                    "investment_horizon":   horizon,
+                    "financial_goals":      goals,
+                    "credit_score":         int(profile.get("credit_score",700)),
+                    "monthly_credit_spend": int(profile.get("monthly_credit_spend",0)),
+                    "top_spend_categories": profile.get("top_spend_categories",[])
+                }
+                with st.spinner("Saving and refreshing stock picks..."):
+                    save_resp = api_post("/profile", payload, auth=True)
+                    run_resp  = api_post(
+                        "/analysis",
+                        {"analysis_type": "investment"}, auth=True
+                    )
+                if "id" in save_resp and "results" in run_resp:
+                    st.session_state.profile_cache = None
+                    st.session_state.cached_invest = (
+                        run_resp["results"].get("investment",{})
+                    )
+                    st.success("Stock picks refreshed.")
+                    st.rerun()
+                else:
+                    st.error(
+                        save_resp.get("detail")
+                        or run_resp.get("detail")
+                        or "Could not refresh stock analysis."
+                    )
 
     load_and_cache_analysis()
     invest = st.session_state.cached_invest or {}
@@ -1761,18 +1696,18 @@ def page_stocks():
         st.markdown("""
         <div class="alert alert-info">
             📈 Stock picks are part of your investment analysis.
-            Run a full analysis to see your personalised stock picks.
         </div>""", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
             if st.button("📊 Run Analysis", use_container_width=True, type="primary"):
-                with st.spinner("Running investment analysis..."):
+                with st.spinner("Running..."):
                     resp = api_post(
-                        "/analysis", {"analysis_type": "investment"}, auth=True
+                        "/analysis",
+                        {"analysis_type": "investment"}, auth=True
                     )
                 if "results" in resp:
                     st.session_state.cached_invest = (
-                        resp["results"].get("investment", {})
+                        resp["results"].get("investment",{})
                     )
                     st.rerun()
                 else:
@@ -1785,35 +1720,29 @@ def page_stocks():
         unsafe_allow_html=True
     )
 
-    custom_alloc = [float(s.get("allocation_percent", 10)) for s in stocks]
+    custom_alloc = [float(s.get("allocation_percent",10)) for s in stocks]
     with st.expander("🎚️ Adjust Allocation Preview", expanded=False):
-        st.caption("Preview custom allocation weights in table and chart (normalised to 100%).")
         raw_vals = []
         for i, stock in enumerate(stocks):
-            label = f"{stock.get('company', '')} ({stock.get('symbol', '')})"
-            raw_vals.append(
-                st.slider(
-                    label,
-                    min_value=0,
-                    max_value=100,
-                    value=int(custom_alloc[i]),
-                    key=f"stock_alloc_slider_{i}"
-                )
-            )
+            label = f"{stock.get('company','')} ({stock.get('symbol','')})"
+            raw_vals.append(st.slider(
+                label, 0, 100,
+                value=int(custom_alloc[i]),
+                key=f"stock_alloc_slider_{i}"
+            ))
         total_raw = sum(raw_vals)
         if total_raw > 0:
-            custom_alloc = [round((v / total_raw) * 100, 1) for v in raw_vals]
-            st.caption(f"Normalised total: {round(sum(custom_alloc), 1)}%")
+            custom_alloc = [round((v/total_raw)*100,1) for v in raw_vals]
         else:
-            st.warning("Allocation cannot be all zeros. Showing original values.")
+            st.warning("Allocation cannot be all zeros.")
 
     df = pd.DataFrame([{
-        "Company":     s.get("company",  ""),
-        "Symbol":      s.get("symbol",   ""),
-        "Sector":      s.get("sector",   ""),
+        "Company":     s.get("company",""),
+        "Symbol":      s.get("symbol",""),
+        "Sector":      s.get("sector",""),
         "Allocation":  f"{custom_alloc[i]}%",
-        "Style":       s.get("investment_style", ""),
-        "Hold Period": s.get("ideal_holding_period", "")
+        "Style":       s.get("investment_style",""),
+        "Hold Period": s.get("ideal_holding_period","")
     } for i, s in enumerate(stocks)])
     st.dataframe(df, use_container_width=True, hide_index=True)
 
@@ -1841,9 +1770,11 @@ def page_stocks():
                 with c1:
                     st.markdown(f"""
                     <div class="card card-green" style="padding:0.8rem;">
-                        <div style="font-size:0.72rem;color:#64748b;">Allocation</div>
+                        <div style="font-size:0.72rem;color:#64748b;">
+                            Allocation
+                        </div>
                         <div style="font-size:1.3rem;font-weight:800;
-                                    color:#00d4aa;">
+                                    color:#0ea5a4;">
                             {custom_alloc[i]}%
                         </div>
                     </div>""", unsafe_allow_html=True)
@@ -1852,12 +1783,13 @@ def page_stocks():
                 with c2:
                     why = stock.get("why_now","")
                     if why:
-                        st.markdown(f"""
-                        <div class="alert alert-info">💡 {why}</div>
-                        """, unsafe_allow_html=True)
+                        st.markdown(
+                            f'<div class="alert alert-info">💡 {why}</div>',
+                            unsafe_allow_html=True
+                        )
 
     st.markdown("""
-    <div style="color:#94a3b8;font-size:0.7rem;margin-top:1rem;">
+    <div style="color:#64748b;font-size:0.7rem;margin-top:1rem;">
         ⚠️ Stocks are subject to market risk.
         This is not SEBI registered investment advice.
     </div>""", unsafe_allow_html=True)
@@ -1885,23 +1817,23 @@ def page_credit():
             with c1:
                 monthly_income = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income", 50000))
+                    value=int(profile.get("monthly_income",50000))
                 )
                 credit_spend = st.number_input(
                     "Monthly Credit Spend (₹)", min_value=0,
-                    value=int(profile.get("monthly_credit_spend", 10000))
+                    value=int(profile.get("monthly_credit_spend",10000))
                 )
             with c2:
                 credit_score = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score", 700))
+                    value=int(profile.get("credit_score",700))
                 )
                 categories = st.multiselect(
                     "Top Spend Categories",
                     ["online shopping","dining","travel","fuel","movies",
                      "grocery","upi","food delivery","amazon","flipkart",
                      "international travel"],
-                    default=profile.get("top_spend_categories", [])
+                    default=profile.get("top_spend_categories",[])
                 )
 
             if st.form_submit_button(
@@ -1914,7 +1846,7 @@ def page_credit():
                     )
                 if "results" in resp:
                     st.session_state.cached_credit = (
-                        resp["results"].get("credit", {})
+                        resp["results"].get("credit",{})
                     )
                     credit = st.session_state.cached_credit
                     st.success("Recommendations ready!")
@@ -1947,7 +1879,7 @@ def _render_credit_results(credit: dict):
     )
 
     top_recs = recs[:3]
-    cols = st.columns(len(top_recs))
+    cols     = st.columns(len(top_recs))
     for i, rec in enumerate(top_recs):
         with cols[i]:
             render_credit_card_widget(rec, rec.get("rank", i+1))
@@ -1988,29 +1920,29 @@ def page_health():
             with c1:
                 monthly_income   = st.number_input(
                     "Monthly Income (₹)",
-                    value=int(profile.get("monthly_income",   50000))
+                    value=int(profile.get("monthly_income",50000))
                 )
                 existing_savings = st.number_input(
                     "Existing Savings (₹)",
-                    value=int(profile.get("existing_savings", 0))
+                    value=int(profile.get("existing_savings",0))
                 )
             with c2:
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)",
-                    value=int(profile.get("monthly_expenses", 30000))
+                    value=int(profile.get("monthly_expenses",30000))
                 )
                 existing_invest  = st.number_input(
                     "Existing Investments (₹)",
-                    value=int(profile.get("existing_investments", 0))
+                    value=int(profile.get("existing_investments",0))
                 )
             with c3:
                 credit_score   = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score", 700))
+                    value=int(profile.get("credit_score",700))
                 )
                 existing_debts = st.number_input(
                     "Existing Debts (₹)",
-                    value=int(profile.get("existing_debts", 0))
+                    value=int(profile.get("existing_debts",0))
                 )
 
             if st.form_submit_button(
@@ -2023,7 +1955,7 @@ def page_health():
                     )
                 if "results" in resp:
                     st.session_state.cached_health = (
-                        resp["results"].get("health", {})
+                        resp["results"].get("health",{})
                     )
                     health = st.session_state.cached_health
                     st.success("Health score calculated!")
@@ -2055,26 +1987,27 @@ def _render_health_results(health: dict):
         st.plotly_chart(gauge_chart(score, "Health Score"),
                         use_container_width=True)
         grade_color = (
-            "#00d4aa" if score>=70 else "#f59e0b" if score>=50 else "#ef4444"
+            "#0ea5a4" if score>=70 else
+            "#f59e0b" if score>=50 else "#ef4444"
         )
         st.markdown(f"""
         <div style="text-align:center;margin-top:-0.5rem;">
             <div style="font-size:2.5rem;font-weight:800;
                         color:{grade_color};">{grade}</div>
-            <div style="color:#64748b;font-size:0.78rem;">Overall Grade</div>
+            <div style="color:#9fb2ca;font-size:0.78rem;">Overall Grade</div>
         </div>""", unsafe_allow_html=True)
 
     with c2:
         st.markdown(
-            '<p style="font-weight:600;color:#0f172a;">Score Breakdown:</p>',
+            '<p style="font-weight:600;">Score Breakdown:</p>',
             unsafe_allow_html=True
         )
         component_labels = {
-            "savings_rate":   "💰 Savings Rate",
-            "emergency_fund": "🛡️ Emergency Fund",
-            "debt_ratio":     "💳 Debt Ratio",
-            "investment_rate":"📈 Investment Rate",
-            "credit_score":   "⭐ Credit Score"
+            "savings_rate":    "💰 Savings Rate",
+            "emergency_fund":  "🛡️ Emergency Fund",
+            "debt_ratio":      "💳 Debt Ratio",
+            "investment_rate": "📈 Investment Rate",
+            "credit_score":    "⭐ Credit Score"
         }
         for key, label in component_labels.items():
             comp     = health.get("components", {}).get(key, {})
@@ -2084,15 +2017,15 @@ def _render_health_results(health: dict):
             c_bench  = comp.get("benchmark", "")
             c_status = comp.get("status",    "")
             pct      = (c_score / c_max) if c_max > 0 else 0
-            vc = "#00d4aa" if c_status in ["good","excellent"] else "#f59e0b"
+            vc = "#0ea5a4" if c_status in ["good","excellent"] else "#f59e0b"
 
             st.markdown(f"""
             <div class="prog-row">
                 <div class="prog-label">
-                    <span style="color:#0f172a;">
+                    <span>
                         {label}: <b style="color:{vc};">{c_val}</b>
                     </span>
-                    <span style="color:#94a3b8;">
+                    <span style="color:#64748b;">
                         {c_score}/{c_max} · {c_bench}
                     </span>
                 </div>
@@ -2150,7 +2083,7 @@ def _render_health_results(health: dict):
             st.markdown(f"""
             <div class="card card-green">
                 <span class="badge">{i}</span>
-                <span style="font-size:0.88rem;color:#0f172a;"> {action}</span>
+                <span style="font-size:0.88rem;"> {action}</span>
             </div>""", unsafe_allow_html=True)
 
 
@@ -2173,14 +2106,17 @@ def page_reports():
 
     if not health and not invest:
         st.markdown("""
-        <div class="alert alert-info">📭 No reports yet. Run a full analysis first.</div>
-        """, unsafe_allow_html=True)
+        <div class="alert alert-info">
+            📭 No reports yet. Run a full analysis first.
+        </div>""", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
             if st.button("📊 Run Full Analysis",
                          use_container_width=True, type="primary"):
                 with st.spinner("Running..."):
-                    resp = api_post("/analysis",{"analysis_type":"full"}, auth=True)
+                    resp = api_post(
+                        "/analysis", {"analysis_type":"full"}, auth=True
+                    )
                 if "results" in resp:
                     refresh_analysis()
                     st.rerun()
@@ -2191,13 +2127,14 @@ def page_reports():
 
     st.markdown(f"""
     <div class="card card-blue">
-        <div style="font-weight:700;font-size:1rem;color:#0f172a;">
+        <div style="font-weight:700;font-size:1rem;">
             📊 Full Financial Report — {st.session_state.user_name}
         </div>
-        <div style="color:#64748b;font-size:0.8rem;margin-top:3px;">
+        <div style="color:#9fb2ca;font-size:0.8rem;margin-top:3px;">
             Health: {health.get('overall_score',0):.0f}/100
             ({health.get('grade','N/A')}) &nbsp;·&nbsp;
-            SIP: {fmt_inr(invest.get('total_monthly_investment',0))}/mo &nbsp;·&nbsp;
+            SIP: {fmt_inr(invest.get('total_monthly_investment',0))}/mo
+            &nbsp;·&nbsp;
             10yr: {fmt_inr(invest.get('projected_corpus_10yr',0))}
             &nbsp;·&nbsp; {st.session_state.user_email}
         </div>
@@ -2205,7 +2142,8 @@ def page_reports():
     """, unsafe_allow_html=True)
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 Summary","❤️ Health","💰 Investment","💳 Credit Cards","🔧 Optimization"
+        "📊 Summary","❤️ Health","💰 Investment",
+        "💳 Credit Cards","🔧 Optimization"
     ])
 
     with tab1:
@@ -2315,24 +2253,24 @@ def page_profile():
             with c1:
                 monthly_income   = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income",   50000))
+                    value=int(profile.get("monthly_income",50000))
                 )
                 existing_savings = st.number_input(
                     "Existing Savings (₹)", min_value=0,
-                    value=int(profile.get("existing_savings", 0))
+                    value=int(profile.get("existing_savings",0))
                 )
                 existing_debts   = st.number_input(
                     "Existing Debts (₹)", min_value=0,
-                    value=int(profile.get("existing_debts",   0))
+                    value=int(profile.get("existing_debts",0))
                 )
             with c2:
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)", min_value=0,
-                    value=int(profile.get("monthly_expenses",     30000))
+                    value=int(profile.get("monthly_expenses",30000))
                 )
                 existing_invest  = st.number_input(
                     "Existing Investments (₹)", min_value=0,
-                    value=int(profile.get("existing_investments", 0))
+                    value=int(profile.get("existing_investments",0))
                 )
 
             st.markdown("#### 📊 Investment Preferences")
@@ -2367,14 +2305,14 @@ def page_profile():
             st.markdown("#### 💳 Credit Card")
             c1, c2 = st.columns(2)
             with c1:
-                credit_score   = st.slider(
+                credit_score = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score", 700))
+                    value=int(profile.get("credit_score",700))
                 )
             with c2:
                 monthly_credit = st.number_input(
                     "Monthly Credit Spend (₹)", min_value=0,
-                    value=int(profile.get("monthly_credit_spend", 0))
+                    value=int(profile.get("monthly_credit_spend",0))
                 )
 
             categories = st.multiselect(
