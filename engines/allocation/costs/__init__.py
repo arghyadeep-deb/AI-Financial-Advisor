@@ -1,6 +1,6 @@
 """Comparison arithmetic; unknown sale taxes cannot establish net improvement."""
 from backend.core.money import check_paise, sum_paise
-from engines.allocation.contracts import AllocationResult, AssumptionPack, Holding
+from engines.allocation.contracts import ASSET_ORDER, AllocationResult, AssumptionPack, Holding
 
 
 def compare(plan: AllocationResult, holdings: tuple[Holding, ...] | None, pack: AssumptionPack,
@@ -16,20 +16,34 @@ def compare(plan: AllocationResult, holdings: tuple[Holding, ...] | None, pack: 
         raise ValueError("duplicate holdings")
     if plan.status != "feasible":
         return {"status": "unavailable", "net_improvement": None}
+    if plan.assumption_version != pack.version:
+        raise ValueError('Comparison assumptions do not match the plan')
     fees = {a.asset: a.annual_fee_bps for a in pack.assets}
+    if any(h.asset not in fees for h in (*plan.amounts, *(holdings or ()))):
+        raise ValueError('Holdings outside the assumption universe')
     # Aggregate exact numerators, then ceil once for conservative annual estimate.
     fee = (sum(h.value_paise * fees[h.asset] for h in plan.amounts) + 9999) // 10000
     current = None if holdings is None else {h.asset: h.value_paise for h in holdings}
     total = None if holdings is None else sum_paise(h.value_paise for h in holdings)
+    if total is not None and sale_paise > total:
+        raise ValueError('Sale exceeds observed holdings')
+    combined = None if holdings is None else {
+        b.asset: sum_paise([current.get(b.asset, 0), next(
+            (h.value_paise for h in plan.amounts if h.asset == b.asset), 0)]) for b in pack.assets}
+    if combined is not None:
+        sum_paise(combined.values())
     return {"status": "partial", "current_allocation_paise": current,
             "contribution_first": {"sales_paise": 0, "annual_fee_estimate_paise": fee,
-                                   "allocation_paise": {h.asset: h.value_paise for h in plan.amounts}},
+                                   "fee_scope": "new_contribution_only_illustrative_annual",
+                                   "allocation_paise": {h.asset: h.value_paise for h in plan.amounts},
+                                   "resulting_holdings_paise": combined},
             "baseline": {"rule": "retain_holdings_add_contribution_to_cash.v1",
                          "existing_holdings_paise": current, "new_cash_paise": plan.budget_paise},
             "current_value_paise": total, "sale_alternative_paise": sale_paise,
             "cost_basis_status": "unknown" if cost_basis_paise is None else "supplied_unverified",
             "tax_cost_paise": None, "exit_load_paise": None, "transaction_cost_paise": None,
             "excluded_costs": ["tax: no supported disposal rule pack", "exit loads", "transaction costs"],
+            "net_improvement_status": "blocked_unknown_costs",
             "net_improvement": None}
 
 
@@ -52,13 +66,16 @@ def rebalance(holdings: tuple[Holding, ...], contribution_paise: int, target_bps
     deficits with contributions first; any leftover contribution stays in cash.
     Sale alternative is a comparison, never a transaction instruction.
     """
-    assets = ('cash', 'debt', 'equity')
+    # Preserve legacy three-class scenarios, but never silently drop gold holdings.
+    assets = ASSET_ORDER if 'gold' in target_bps else ASSET_ORDER[:3]
     check_paise(contribution_paise)
     if contribution_paise < 0 or set(target_bps) != set(assets) or any(
             type(n) is not int or not 0 <= n <= 10000 for n in target_bps.values()) or sum(target_bps.values()) != 10000:
         raise ValueError('Invalid hypothetical target or contribution')
     if len({h.asset for h in holdings}) != len(holdings):
         raise ValueError('Duplicate asset classes')
+    if any(h.asset not in assets for h in holdings):
+        raise ValueError('Holdings outside the target universe')
     current = {a: sum(h.value_paise for h in holdings if h.asset == a) for a in assets}
     total = sum_paise([*current.values(), contribution_paise])
     targets = {a: total * target_bps[a] // 10000 for a in assets}
@@ -78,4 +95,6 @@ def rebalance(holdings: tuple[Holding, ...], contribution_paise: int, target_bps
             'result_paise': {a: current[a] + additions[a] for a in assets}},
         'sale_alternative': {'delta_paise': delta, 'sales_paise': sum(-n for n in delta.values() if n < 0)},
         'tax_cost_paise': None, 'transaction_cost_paise': None, 'exit_load_paise': None,
+        'excluded_costs': ['tax: no supported disposal rule pack', 'exit loads', 'transaction costs'],
+        'net_improvement_status': 'blocked_unknown_costs',
         'net_improvement': None, 'execution_enabled': False}

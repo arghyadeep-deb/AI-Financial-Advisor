@@ -123,7 +123,10 @@ def create_owned_scenario(db, owner, payload):
     old = db.query(AllocationPlan).filter(AllocationPlan.user_id == owner,
         AllocationPlan.input_snapshot['request']['idempotency_key'].as_string() == payload.idempotency_key).first()
     if old:
-        if old.input_snapshot['request'] != request:
+        # Fill added optional defaults for old immutable requests before comparing.
+        # Never rewrite the original receipt or recompute its stored allocation.
+        prior_request = type(payload).model_validate(old.input_snapshot['request']).model_dump(mode='json')
+        if prior_request != request:
             raise HTTPException(409, 'Idempotency key reused with different input.')
         db.rollback()
         return read_owned_plan(db, owner, old.id)
@@ -161,11 +164,13 @@ def create_owned_scenario(db, owner, payload):
         finance = replace(finance, available_contribution_paise=None, contribution_status='unavailable',
             contribution_reason='Shared planning capacity required for existing commitments and goals')
     try:
-        pack, registry = synthetic_fixture()
+        pack, registry = synthetic_fixture('v2')
     except (OSError, ValueError) as exc:
         raise HTTPException(503, 'Synthetic assumptions unavailable; retry after operator review.') from exc
     suitability = Suitability.model_validate_json(json.dumps(answers.data))
-    constraints = Constraints(eligible_liquid_paise=payload.eligible_liquid_paise)
+    constraints = Constraints(eligible_liquid_paise=payload.eligible_liquid_paise,
+        excluded=tuple(payload.excluded_assets), liquidity_floor_bps=payload.liquidity_floor_bps,
+        maximum_liquidity_days=payload.maximum_liquidity_days)
     result = allocate(finance, suitability, pack, constraints, registry, owner_id=owner, as_of=day)
     observed = portfolio.valuation_data(book.data, day)
     complete = (observed['total_value_paise'] is not None and not observed['stale'] and
@@ -213,7 +218,7 @@ def read_owned_plan(db, owner, identity):
         raise
     day = portfolio.today()
     try:
-        pack, registry = synthetic_fixture()
+        pack, registry = synthetic_fixture('v2')
     except (OSError, ValueError):
         return envelope(['assumptions_unavailable'])
     reasons = []

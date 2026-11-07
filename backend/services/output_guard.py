@@ -8,9 +8,8 @@ Agents and models propose; this module decides what is published.  It
   contribution is zero/unavailable;
 * removes income-band tax-saving figures and fund-switch/rebalance claims
   that would rest on holdings the user never supplied;
-* suppresses named stocks/funds unless NAMED_PRODUCT_RECOMMENDATIONS is
-  explicitly enabled (personalised securities recommendations are a gated
-  capability, release-gates D05);
+* suppresses named stocks/funds unless the shared public release gate and
+  NAMED_PRODUCT_RECOMMENDATIONS both allow them (release-gates D05);
 * records per-section provenance (llm | deterministic_fallback | deterministic
   | unavailable) and an overall status that cannot read as plain success when
   any section fell back or failed;
@@ -42,7 +41,15 @@ _NAMED = re.compile(
 
 
 def named_products_enabled() -> bool:
-    return os.getenv("NAMED_PRODUCT_RECOMMENDATIONS", "false").strip().lower() == "true"
+    from backend.core.feature_flags import allocation_public_eligible
+    return allocation_public_eligible() and os.getenv("NAMED_PRODUCT_RECOMMENDATIONS", "false").strip().lower() == "true"
+
+
+def named_product_violation(text: Any) -> Optional[str]:
+    """Product gating does not depend on the presence of a financial profile."""
+    if isinstance(text, str) and not named_products_enabled() and _NAMED.search(text):
+        return 'names_specific_product'
+    return None
 
 
 # ── helpers ────────────────────────────────────────────────────────────────
@@ -105,7 +112,7 @@ def narrative_violation(text: Any, allowed: Set[int], snapshot: FinanceSnapshot,
             continue
         if not any(abs(amt - a) <= 1 for a in allowed):
             return "unsupported_amount"
-    if not named_products_enabled() and _NAMED.search(text):
+    if named_product_violation(text):
         return "names_specific_product"
     avail = snapshot.available_contribution_paise
     if avail in (0, None) and (re.search(

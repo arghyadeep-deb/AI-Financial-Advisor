@@ -39,3 +39,22 @@ class Suitability(BaseModel):
         ):
             reasons.append("Resolve high tolerance against near-term needs or unstable income")
         return tuple(reasons)
+
+    def assessment(self) -> dict:
+        """Derived from immutable answers; never inferred from demographics or prose.
+
+        Keep incomplete/conflicting answers so the owner can resolve them in a
+        subsequent revision. This assessment grants no public advice eligibility.
+        """
+        reasons = self.blockers()
+        return {
+            "assessment_rule_version": "suitability-assessment.v1",
+            "questionnaire_version": self.questionnaire_version,
+            "revision": self.revision,
+            "status": "needs_review" if reasons else "complete",
+            "blocks_personalized_proposal": bool(reasons),
+            "reasons": list(reasons),
+            "resolution": "Submit a new answer revision resolving the listed facts or conflicts." if reasons else None,
+            "capacity_basis": "owner_declared_unverified",
+            "public_eligible": False,
+        }

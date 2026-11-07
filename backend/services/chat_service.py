@@ -242,6 +242,9 @@ Do not name specific stocks or funds. Keep replies to 3-6 sentences and end with
         return system_prompt, user_message
 
     def _validate(self, reply: str, snap: Optional[FinanceSnapshot]) -> Optional[str]:
+        product_violation = output_guard.named_product_violation(reply)
+        if product_violation:
+            return product_violation
         if snap is None or not reply:
             return None
         return output_guard.narrative_violation(reply, set(), snap, check_amounts=False)

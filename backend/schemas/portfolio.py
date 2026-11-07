@@ -6,13 +6,14 @@ from pydantic import Field, StrictBool, StrictInt, field_validator, model_valida
 from backend.schemas.statements import Contract, Operation
 from backend.schemas.planning import Money, GoalPlan
 from backend.finance.suitability import Suitability
+from engines.allocation.contracts import Asset
 
 
 class Observation(Contract):
     account_ref: str = Field(min_length=1, max_length=80)
     instrument_id: str = Field(min_length=1, max_length=80)
     issuer_id: str | None = Field(default=None, max_length=80)
-    asset_class: Literal['cash', 'debt', 'equity'] | None = None
+    asset_class: Asset | None = None
     currency: Literal['INR'] = 'INR'
     units: str = Field(max_length=40)
     observation_date: date
@@ -97,6 +98,9 @@ class AllocationScenario(Operation):
     assumptions_accepted: Literal[True]
     eligible_liquid_paise: Money | None = None
     planning_capacity: GoalPlan | None = None
+    excluded_assets: list[Asset] = Field(default_factory=list, max_length=4)
+    liquidity_floor_bps: StrictInt = Field(default=1000, ge=0, le=10000)
+    maximum_liquidity_days: StrictInt | None = Field(default=None, ge=0, le=3650)
 
     @field_validator('assumptions_accepted', mode='before')
     @classmethod

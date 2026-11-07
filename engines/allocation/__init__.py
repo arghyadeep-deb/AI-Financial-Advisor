@@ -1,6 +1,6 @@
 """Transparent bounded allocator: minima, then target deficits, then spare capacity.
 
-Stable order cash/debt/equity resolves residual paise. Bounds use ceil for minima
+Stable order cash/debt/equity/gold resolves residual paise. Bounds use ceil for minima
 and floor for maxima; infeasible integer rounding fails closed. No expected-return
 optimization. FinanceSnapshot is supplied by the shared profile/ledger owner.
 """
@@ -11,7 +11,7 @@ from backend.core.money import check_paise
 from backend.finance.suitability import Suitability
 from backend.knowledge.registry import Registry
 from engines.cashflow import FinanceSnapshot
-from .contracts import AllocationResult, AssumptionPack, Constraints, Holding
+from .contracts import ASSET_ORDER, AllocationResult, AssumptionPack, Constraints, Holding
 
 
 def evidence_current(pack: AssumptionPack, registry: Registry, owner_id: int, as_of: date) -> bool:
@@ -51,23 +51,29 @@ def allocate(snapshot: FinanceSnapshot, suitability: Suitability, pack: Assumpti
     budget = min(cap, constraints.eligible_liquid_paise)
     if budget == 0:
         return result("infeasible", ["No eligible liquid cash"])
-    bounds = constraints.bounds or pack.assets
-    if len(bounds) != 3 or {b.asset for b in bounds} != {b.asset for b in pack.assets}:
+    bounds = pack.assets if constraints.bounds is None else constraints.bounds
+    if len(bounds) != len(pack.assets) or {b.asset for b in bounds} != {b.asset for b in pack.assets}:
         return result("infeasible", ["Unsupported or duplicate asset bounds"])
+    if not set(constraints.excluded).issubset({b.asset for b in pack.assets}):
+        return result("infeasible", ["Exclusion outside the sourced universe"])
     canonical = {b.asset: b for b in pack.assets}
     # User bounds may tighten the sourced universe, never relax it.
     lows, highs, targets = {}, {}, {}
-    for b in sorted(bounds, key=lambda b: ("cash", "debt", "equity").index(b.asset)):
+    for b in sorted(bounds, key=lambda b: ASSET_ORDER.index(b.asset)):
         source = canonical[b.asset]
         low_bps = max(b.minimum_bps, source.minimum_bps,
                       constraints.liquidity_floor_bps if b.asset == "cash" else 0)
         high_bps = min(b.maximum_bps, source.maximum_bps)
-        if b.asset == "equity":
-            high_bps = min(high_bps, {"low": 1000, "moderate": 4000, "high": 6000}[suitability.loss_capacity])
+        if b.asset in {"equity", "gold"}:
+            caps = {"low": 1000, "moderate": 4000, "high": 6000} if b.asset == 'equity' else {
+                "low": 0, "moderate": 1000, "high": 2000}
+            high_bps = min(high_bps, caps[suitability.loss_capacity], caps[suitability.loss_tolerance])
             if (suitability.horizon_months < 36 or suitability.income_stable is False
                 or (suitability.essential_goal_months is not None and suitability.essential_goal_months < 36)):
                 high_bps = 0
         if b.asset in constraints.excluded:
+            high_bps = 0
+        if constraints.maximum_liquidity_days is not None and source.liquidity_days > constraints.maximum_liquidity_days:
             high_bps = 0
         lows[b.asset] = (budget * low_bps + 9999) // 10000
         highs[b.asset] = budget * high_bps // 10000
