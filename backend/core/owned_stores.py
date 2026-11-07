@@ -68,6 +68,8 @@ from backend.models.models import AllocationPlan
 register_database_store("allocation", [AllocationPlan], "hypothetical allocation scenarios (feature 007, gated off)")
 from backend.models.models import PortfolioRevision
 register_database_store('portfolio', [PortfolioRevision], 'confirmed dated holdings and suitability answers')
+from backend.models.models import TaxRevision
+register_database_store('tax', [TaxRevision], 'immutable synthetic salary evidence reviews and draft estimates')
 from backend.models.models import (StatementAccount, StatementDocument, StatementImport, StatementRow,
     LedgerEntry, LedgerEvidence, LedgerCorrection, LedgerLink, MonthlyReport)
 _statement_models = [MonthlyReport, LedgerLink, LedgerCorrection, LedgerEvidence, LedgerEntry,
