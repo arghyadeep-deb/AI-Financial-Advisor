@@ -68,6 +68,44 @@ from backend.models.models import AllocationPlan
 register_database_store("allocation", [AllocationPlan], "hypothetical allocation scenarios (feature 007, gated off)")
 from backend.models.models import PortfolioRevision
 register_database_store('portfolio', [PortfolioRevision], 'confirmed dated holdings and suitability answers')
+from backend.models.models import HouseholdRevision
+register_database_store('household_books', [HouseholdRevision], 'private declared net worth and protection books')
+from backend.models.models import Household, HouseholdMembership, HouseholdGrant
+
+
+def _purge_household_relationships(db, owner):
+    from sqlalchemy import or_
+    owned = [r.id for r in db.query(Household).filter_by(user_id=owner)]
+    db.query(HouseholdGrant).filter(or_(HouseholdGrant.member_id == owner,
+        HouseholdGrant.household_id.in_(owned))).delete(synchronize_session=False)
+    db.query(HouseholdMembership).filter(or_(HouseholdMembership.member_id == owner,
+        HouseholdMembership.household_id.in_(owned))).delete(synchronize_session=False)
+
+
+def _export_household_relationships(db, owner):
+    from sqlalchemy import or_
+    result = {}
+    for model in (HouseholdGrant, HouseholdMembership, Household):
+        query = db.query(model)
+        scope = model.user_id == owner
+        if model is not Household:
+            scope = or_(scope, model.member_id == owner)
+        result[model.__tablename__] = [{c.name: getattr(row, c.name) for c in inspect(model).columns
+            if c.name != 'token_hash'} for row in query.filter(scope)]
+    return result
+
+
+def _purge_household_store(db, owner):
+    _purge_household_relationships(db, owner)
+    for model in (HouseholdGrant, HouseholdMembership, Household):
+        db.query(model).filter(model.user_id == owner).delete(synchronize_session=False)
+
+
+register_owned_store(OwnedStore('household_sharing',
+    frozenset({'household_grants', 'household_memberships', 'households'}),
+    _export_household_relationships, _purge_household_store,
+    'explicit read grants and expiring adult invitations',
+    'synthetic-only; production retention pending D03'))
 from backend.models.models import (StatementAccount, StatementDocument, StatementImport, StatementRow,
     LedgerEntry, LedgerEvidence, LedgerCorrection, LedgerLink, MonthlyReport)
 _statement_models = [MonthlyReport, LedgerLink, LedgerCorrection, LedgerEvidence, LedgerEntry,

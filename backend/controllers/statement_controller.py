@@ -110,7 +110,7 @@ def generation_comparison(import_id: str, user: User = Depends(get_current_user)
 
 @router.get('/ledger')
 def entries(user: User = Depends(get_current_user), db: Session = Depends(get_db), offset: int = Query(0, ge=0)):
-    return [{key: getattr(e, key) for key in ('id', 'account_id', 'posting_date', 'amount_paise', 'components', 'revision', 'active')}
+    return [{key: getattr(e, key) for key in ('id', 'account_id', 'posting_date', 'amount_paise', 'origin', 'components', 'revision', 'active')}
             for e in db.query(LedgerEntry).filter_by(user_id=user.id).order_by(LedgerEntry.id).offset(offset).limit(100)]
 
 

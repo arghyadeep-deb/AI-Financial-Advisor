@@ -64,7 +64,25 @@ def run_scheduled(db, job_id, fence):
     _, category, event_key = row.event_key.split(':', 2)
     def publish(db, owner):
         deadline = row.created_at + timedelta(days=7)
-        if category == 'reminder' and ':' in event_key:
+        if category == 'reminder' and event_key.startswith('p:'):
+            from backend.services import household_service
+            from backend.finance.ledger import lock_owner
+            from backend.core.config import config
+            if not config.SYNTHETIC_HOUSEHOLDS_ENABLED or config.is_production_like:
+                return
+            lock_owner(db, owner, bump=False)
+            _, identity, ordinal = event_key.split(':')
+            book = household_service.latest(db, owner, 'protection')
+            if not book or book.id != identity:
+                return
+            policy = book.data['policies'][int(ordinal)]
+            if not policy['reminder_opt_in'] or policy['archived'] or policy['renewal_date'] is None:
+                return
+            from datetime import datetime, time
+            deadline = datetime.combine(datetime.fromisoformat(policy['renewal_date']).date(), time(3, 30)) + timedelta(days=7)
+            if utcnow() >= deadline:
+                return
+        elif category == 'reminder' and ':' in event_key:
             from backend.services import planning_service
             from backend.finance.ledger import lock_owner
             lock_owner(db, owner, bump=False)
