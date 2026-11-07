@@ -20,13 +20,19 @@ export function renderHealth(hl, target) {
 
   const comps = Object.entries(hl.components || {});
   if (comps.length) {
-    target.appendChild(card("Score breakdown", h("div", { class: "stack" }, comps.map(([k, c]) => {
+    target.appendChild(card("Score breakdown", h("div", { class: "score-rows" }, comps.map(([k, c]) => {
       const unknown = c.value === "unknown" || c.score === null || c.score === undefined;
       const pct = !unknown && c.max ? (c.score / c.max) * 100 : 0;
-      return h("div", {},
-        h("div", { class: "spread" }, h("strong", { text: LABELS[k] || k }),
-          h("span", { class: "muted", text: unknown ? "Not provided" : `${c.value} (target ${c.benchmark})` })),
-        h("div", { class: "bar " + (pct < 40 ? "bad" : pct < 70 ? "warn" : ""), role: "img", "aria-label": unknown ? "No score" : `${num(pct, 0)} percent` },
+      const tone = unknown ? "" : pct < 40 ? "bad" : pct < 70 ? "warn" : "ok";
+      const status = unknown ? "Not provided" : pct < 40 ? "Needs work" : pct < 70 ? "Getting there" : "On track";
+      return h("div", { class: "score-row" },
+        h("div", { class: "score-top" },
+          h("strong", { text: LABELS[k] || k }),
+          h("span", { class: "pill " + tone, text: status })),
+        h("div", { class: "score-mid" },
+          h("span", { class: "score-val", text: unknown ? "—" : String(c.value) }),
+          h("span", { class: "muted small", text: unknown ? "Add this to include it in your score" : "Target " + c.benchmark })),
+        h("div", { class: "bar thick " + (pct < 40 ? "bad" : pct < 70 ? "warn" : ""), role: "img", "aria-label": unknown ? "No score" : `${num(pct, 0)} percent` },
           h("span", { class: pctClass(pct) })));
     }))));
   }

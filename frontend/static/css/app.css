@@ -227,3 +227,25 @@ body:not(.shell) .page>section.hero{margin-top:0}
 .theme-btn{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:0;background:none;border-radius:var(--radius-sm);color:var(--ink-2);font:inherit;font-weight:500;cursor:pointer;width:100%;text-align:left}
 .theme-btn:hover{background:var(--accent-soft);color:var(--accent-strong)}
 .nav .theme-btn{width:auto;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong)}
+
+/* health score rows (budget-row pattern) */
+.score-rows{display:flex;flex-direction:column}
+.score-row{padding:16px 0;border-top:1px solid var(--line)}
+.score-row:first-child{border-top:0;padding-top:0}
+.score-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px}
+.score-mid{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.score-val{font-family:var(--display);font-size:1.5rem;font-weight:600;letter-spacing:-.01em}
+.bar.thick{height:12px}
+.bar.bad>span{background:#C2412D}.bar.warn>span{background:#C98A1E}
+/* amounts and summary cards */
+.pos{color:var(--ok-ink);font-weight:600}
+.neg{color:var(--ink);font-weight:600}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:16px}
+.summary>div{padding:14px 16px;border-left:1px solid var(--line)}
+.summary>div:first-child{border-left:0}
+.summary .k{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.summary .v{font-family:var(--display);font-size:1.35rem;font-weight:600}
+/* pill tabs */
+.tabs{border-bottom:0;gap:8px}
+.tabs button{border:1px solid var(--line-strong);border-radius:999px;padding:8px 18px;background:var(--surface)}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}

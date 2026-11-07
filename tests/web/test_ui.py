@@ -307,7 +307,8 @@ def test_statement_upload_review_and_confirm(page, live_url, tracker, db_engine,
     page.get_by_role("button", name="Refresh status").click()
     expect(page.get_by_text("Needs your review")).to_be_visible()
     expect(page.get_by_text("Synthetic salary")).to_be_visible()
-    expect(page.get_by_text("₹45,000.00")).to_be_visible()
+    expect(page.get_by_role("cell", name="₹45,000.00")).to_be_visible()
+    expect(page.get_by_text("Balance check")).to_be_visible()
     page.get_by_role("button", name="Confirm import").click()
     expect(page.get_by_text("Imported", exact=True)).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
