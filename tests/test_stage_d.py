@@ -344,12 +344,12 @@ def test_settlement_partial_duplicate_paused_reversal_and_evidence_correction(db
 
 
 def test_reminders_opt_in_revision_fencing_and_deduplication(db_engine):
-    from backend.models.models import WorkItem, DeliveryAttempt
+    from backend.models.models import WorkItem, DeliveryAttempt, utcnow
     from backend.services.notification_service import run_scheduled
     from backend.workers import queue
     with Session(db_engine) as db:
         owner, _ = setup(db)
-        data = {'label': 'Private bill', 'amount_paise': 10000, 'due_date': '2026-01-05'}
+        data = {'label': 'Private bill', 'amount_paise': 10000, 'due_date': (utcnow().date() - timedelta(days=1)).isoformat()}
         bill = store.write(db, owner.id, 'obligation', write(p.ObligationWrite, data))
         assert db.query(WorkItem).filter_by(kind='notification').count() == 0
         bill = store.write(db, owner.id, 'obligation', write(p.ObligationWrite, {**data, 'reminder_opt_in': True}, 1), bill['id'])

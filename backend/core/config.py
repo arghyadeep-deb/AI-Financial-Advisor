@@ -53,6 +53,12 @@ class Config:
     STATEMENT_MAX_BYTES = _int("STATEMENT_MAX_BYTES", 1024 * 1024)
     STATEMENT_MAX_ROWS = _int("STATEMENT_MAX_ROWS", 10000)
     STATEMENT_TIMEOUT_SECONDS = _int("STATEMENT_TIMEOUT_SECONDS", 5)
+    RETENTION_INTERVAL_SECONDS = _int("RETENTION_INTERVAL_SECONDS", 3600)
+    WORKER_STALE_SECONDS = _int("WORKER_STALE_SECONDS", 300)
+    SOURCE_STORAGE_LIMIT_BYTES = _int("SOURCE_STORAGE_LIMIT_BYTES", 100 * 1024 * 1024)
+    MODEL_DAILY_COST_PAISE = _int("MODEL_DAILY_COST_PAISE", 0)
+    MODEL_DAILY_TOKEN_LIMIT = _int("MODEL_DAILY_TOKEN_LIMIT", 0)
+    GLOBAL_MODEL_DAILY_COST_PAISE = _int("GLOBAL_MODEL_DAILY_COST_PAISE", 0)
 
     # ── Environment ───────────────────────────────────────────────────────
     # production | staging | development | test.  Unknown values are treated
@@ -140,9 +146,12 @@ class Config:
         """
         key = self.SECRET_KEY
         for value in (self.ANALYSIS_DAILY_LIMIT, self.CHAT_DAILY_LIMIT, self.UPLOAD_DAILY_LIMIT,
-                      self.STORAGE_DAILY_BYTES, self.EXPORT_DAILY_LIMIT):
+                      self.STORAGE_DAILY_BYTES, self.EXPORT_DAILY_LIMIT, self.SOURCE_STORAGE_LIMIT_BYTES,
+                      self.MODEL_DAILY_COST_PAISE, self.MODEL_DAILY_TOKEN_LIMIT, self.GLOBAL_MODEL_DAILY_COST_PAISE):
             if type(value) is not int or not 0 <= value <= 10**13:
                 raise ConfigError("Invalid resource limit")
+        if not (60 <= self.RETENTION_INTERVAL_SECONDS <= 86400 and 30 <= self.WORKER_STALE_SECONDS <= 3600):
+            raise ConfigError("Invalid operations scheduling bounds")
         if not (1 <= self.SOURCE_RETENTION_DAYS <= 3650 and 1 <= self.BACKUP_RETENTION_DAYS <= 3650
                 and 1 <= self.EXPORT_TTL_SECONDS <= 3600 and 1 <= self.STATEMENT_MAX_BYTES <= 10*1024*1024
                 and 1 <= self.STATEMENT_MAX_ROWS <= 10000 and 1 <= self.STATEMENT_TIMEOUT_SECONDS <= 30):

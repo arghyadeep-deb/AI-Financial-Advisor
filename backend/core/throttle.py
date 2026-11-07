@@ -11,6 +11,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
+from sqlalchemy import update, case
+from sqlalchemy.exc import IntegrityError
 
 from backend.core.config import config
 from backend.models.models import LoginThrottle
@@ -32,19 +34,38 @@ def seconds_locked(db: Session, email: str, now: Optional[datetime] = None) -> i
     return 0
 
 
-def record_failure(db: Session, email: str, now: Optional[datetime] = None) -> None:
+def _record_attempt(db: Session, email: str, now=None, *, bounded=False) -> bool:
     now = now or _now()
     k = key_for(email)
-    row = db.get(LoginThrottle, k)
-    if row is None:
-        row = LoginThrottle(key=k, failures=0, window_start=now)
-        db.add(row)
-    if now - row.window_start > timedelta(seconds=config.LOGIN_WINDOW_SECONDS):
-        row.failures, row.window_start, row.locked_until = 0, now, None
-    row.failures += 1
-    if row.failures >= config.LOGIN_MAX_FAILURES:
-        row.locked_until = now + timedelta(seconds=config.LOGIN_LOCK_SECONDS)
+    if db.get(LoginThrottle, k) is None:
+        try:
+            with db.begin_nested():
+                db.add(LoginThrottle(key=k, failures=0, window_start=now))
+                db.flush()
+        except IntegrityError:
+            pass
+    expired = LoginThrottle.window_start < now - timedelta(seconds=config.LOGIN_WINDOW_SECONDS)
+    failures = case((expired, 1), else_=LoginThrottle.failures + 1)
+    statement = update(LoginThrottle).where(LoginThrottle.key == k)
+    if bounded:
+        statement = statement.where(
+            (LoginThrottle.locked_until.is_(None)) | (LoginThrottle.locked_until <= now),
+            expired | (LoginThrottle.failures < config.LOGIN_MAX_FAILURES))
+    count = db.execute(statement.values(
+        failures=failures, window_start=case((expired, now), else_=LoginThrottle.window_start),
+        locked_until=case((failures >= config.LOGIN_MAX_FAILURES, now + timedelta(seconds=config.LOGIN_LOCK_SECONDS)),
+                          (expired, None), else_=LoginThrottle.locked_until))).rowcount
     db.commit()
+    return count == 1
+
+
+def record_failure(db: Session, email: str, now: Optional[datetime] = None) -> None:
+    _record_attempt(db, email, now)
+
+
+def consume_attempt(db: Session, key: str, now: Optional[datetime] = None) -> bool:
+    """Atomic bounded admission for generic recovery responses, known or unknown."""
+    return _record_attempt(db, key, now, bounded=True)
 
 
 def record_success(db: Session, email: str) -> None:

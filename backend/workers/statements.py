@@ -4,6 +4,9 @@ from agents.monthly_finance_graph import run_claimed
 
 
 def run_once(db, *, scanner_available=True):
+    from backend.core.operations import heartbeat
+    heartbeat(db, 'statements')
+    db.commit()
     claimed = queue.claim(db, kind='statement')
     if claimed is None:
         return False

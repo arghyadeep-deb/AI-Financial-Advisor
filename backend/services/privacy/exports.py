@@ -47,10 +47,13 @@ def download(db, owner, identity):
         raise HTTPException(410, 'Export is no longer available.') from exc
 
 
-def expire(db):
+def expire(db, journal=None):
     storage = configured_storage()
     count = 0
+    held = journal.held_owners() if journal else set()
     for row in db.query(PrivacyRequest).filter(PrivacyRequest.expires_at <= utcnow()):
+        if row.user_id in held:
+            continue
         storage.delete(row.user_id, row.storage_key)
         count += 1
     return count

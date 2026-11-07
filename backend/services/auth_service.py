@@ -155,6 +155,9 @@ class AuthService:
     def request_reset(self, email: str) -> None:
         """Always returns without revealing whether the account exists."""
         email = email.strip().lower()
+        bucket = 'recovery:' + email
+        if not throttle.consume_attempt(self.db, bucket):
+            return  # same 202 body, including throttled unknown accounts
         user = self.db.query(User).filter(func.lower(User.email) == email).first()
         if not user or not user.is_active:
             return

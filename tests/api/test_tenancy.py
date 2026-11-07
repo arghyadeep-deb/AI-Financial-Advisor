@@ -10,6 +10,7 @@ PUBLIC = {
     ("GET", "/"), ("GET", "/health"),
     ("POST", "/auth/signup"), ("POST", "/auth/login"),
     ("POST", "/auth/password-reset/request"), ("POST", "/auth/password-reset/confirm"),
+    ("POST", "/privacy/deletion-receipt"),  # narrow receipt capability tested in Stage G
 }
 DOC_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
 PW = "Correct-Horse-9"
