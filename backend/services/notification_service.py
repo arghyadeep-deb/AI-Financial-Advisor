@@ -63,29 +63,40 @@ def run_scheduled(db, job_id, fence):
         raise ValueError('Unsupported work')
     _, category, event_key = row.event_key.split(':', 2)
     def publish(db, owner):
+        deadline = row.created_at + timedelta(days=7)
         if category == 'reminder' and ':' in event_key:
             from backend.services import planning_service
             from backend.finance.ledger import lock_owner
             lock_owner(db, owner, bump=False)
             identity, revision = event_key.rsplit(':', 1)
+            kind = 'goal' if identity.startswith('goal:') else 'obligation'
+            if kind == 'goal':
+                identity = identity.removeprefix('goal:')
             try:
-                obligation = planning_service.get(db, owner, 'obligation', identity)
+                obligation = planning_service.get(db, owner, kind, identity)
             except HTTPException as exc:
                 # A deleted resource never authorizes a reminder.
                 if exc.status_code == 404:
                     return
                 raise
             data = obligation.data
-            if str(obligation.revision) != revision or not data['reminder_opt_in'] or data['paused'] or data['archived']:
+            if str(obligation.revision) != revision or not data.get('reminder_opt_in', False) or data.get('paused', False) or data['archived']:
+                return
+            if kind == 'goal' and data['allocated_paise'] >= data['target_paise']:
                 return
             paid = sum(-planning_service.owned(db, planning_service.LedgerEntry, owner, s.data['entry_id']).amount_paise
                        for s in planning_service.current(db, owner, 'settlement') if
-                       s.data['obligation_id'] == identity and planning_service.settlement_valid(db, owner, s))
-            if paid >= data['amount_paise']:
+                       kind == 'obligation' and s.data['obligation_id'] == identity and planning_service.settlement_valid(db, owner, s))
+            if kind == 'obligation' and paid >= data['amount_paise']:
                 return
+            from datetime import datetime, time
+            due = datetime.combine(datetime.fromisoformat(data['target_date'] if kind == 'goal' else data['due_date']).date(), time(3, 30))
+            deadline = due + timedelta(days=7)
+            if utcnow() >= deadline:
+                return  # an old deadline never becomes a fresh reminder on restart
         notice = deliver(db, owner, event_key, category)
         if notice.state == 'deferred':
-            if utcnow() - row.created_at >= timedelta(days=7):
+            if utcnow() >= deadline:
                 notice.state = 'suppressed'
                 return
             # One finite retry per hour, bounded by current preferences at delivery.

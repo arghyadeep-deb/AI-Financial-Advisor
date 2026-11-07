@@ -420,3 +420,12 @@ class PlanningRevision(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'resource_id', 'revision', name='uq_planning_revision'),
         UniqueConstraint('user_id', 'operation_key', name='uq_planning_operation'))
+
+
+class OperationalCounter(Base):
+    """Aggregate counters/worker liveness only: no owners, payloads or identifiers."""
+    __tablename__ = 'operational_counters'
+    key = Column(String(40), primary_key=True)
+    period = Column(String(10), primary_key=True)
+    used = Column(BigInteger, nullable=False, default=0)
+    updated_at = Column(DateTime, nullable=False, default=utcnow)

@@ -93,3 +93,9 @@ def _purge_export_files(db, owner):
 
 register_database_store('privacy_requests', [PrivacyRequest], 'short-lived private export delivery',
                         before_purge=_purge_export_files)
+
+# Explicitly nonpersonal: deleting an owner must not reset the global spend cap.
+register_owned_store(OwnedStore('operations', frozenset({'operational_counters'}),
+    lambda db, owner: {}, lambda db, owner: None,
+    'aggregate cost admission and worker liveness; no owner identifiers',
+    'daily counters retained 7 days; current fixed worker timestamps overwritten'))

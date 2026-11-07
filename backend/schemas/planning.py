@@ -55,6 +55,7 @@ class Goal(Contract):
     priority: StrictInt = Field(default=1, ge=1, le=100)
     funding_account_id: str
     archived: StrictBool = False
+    reminder_opt_in: StrictBool = False
 
 
 class Debt(Contract):

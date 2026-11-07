@@ -89,6 +89,10 @@ def write(db, owner, kind, payload, identity=None):
         # Notification worker rechecks this exact revision before delivery.
         schedule(db, owner, row.resource_id + ':' + str(row.revision), 'reminder',
                  datetime.combine(date.fromisoformat(data['due_date']), time(3, 30)))
+    if kind == 'goal' and data['reminder_opt_in'] and not data['archived'] and data['allocated_paise'] < data['target_paise']:
+        from backend.services.notification_service import schedule
+        schedule(db, owner, 'goal:' + row.resource_id + ':' + str(row.revision), 'reminder',
+                 datetime.combine(date.fromisoformat(data['target_date']), time(3, 30)))
     db.commit()
     return describe(row)
 

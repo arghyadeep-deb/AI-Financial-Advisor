@@ -49,6 +49,13 @@ def upload(db, owner, account_id, content):
         return db.query(StatementImport).filter_by(user_id=owner, document_id=existing.id).order_by(StatementImport.generation.desc()).first()
     storage = configured_storage()
     document_id = str(uuid4())
+    from backend.finance.ledger import lock_owner
+    lock_owner(db, owner, bump=False)
+    # Expiry is not erasure: count expired/held bytes until cleanup removed them.
+    stored = sum(d.size for d in db.query(StatementDocument).filter_by(user_id=owner)
+                 if storage.path(owner, d.storage_key).exists())
+    if stored + len(content) > config.SOURCE_STORAGE_LIMIT_BYTES:
+        raise HTTPException(429, 'Source storage limit reached.', headers={'Retry-After': '86400'})
     reserve(db, owner, 'uploads', 1, config.UPLOAD_DAILY_LIMIT)
     reserve(db, owner, 'storage_bytes', len(content), config.STORAGE_DAILY_BYTES)
     reserve(db, owner, 'jobs', 1, config.UPLOAD_DAILY_LIMIT)

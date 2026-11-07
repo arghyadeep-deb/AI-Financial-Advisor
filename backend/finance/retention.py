@@ -9,23 +9,28 @@ from backend.models.models import StatementDocument, utcnow
 from backend.finance.storage import configured_storage
 
 
-def sweep(db, grace_seconds=86400):
+def sweep(db, grace_seconds=86400, *, include_orphans=True, journal=None):
     if grace_seconds < 3600:
         raise ValueError('Orphan grace must be at least one hour')
     storage = configured_storage()
     documents = db.query(StatementDocument).all()
-    retained = {(d.user_id, d.storage_key) for d in documents if d.expires_at > utcnow()}
+    from backend.models.models import PrivacyRequest
+    held = journal.held_owners() if journal else set()
+    retained = {(d.user_id, d.storage_key) for d in documents if d.expires_at > utcnow() or d.user_id in held}
+    retained.update((r.user_id, r.storage_key) for r in db.query(PrivacyRequest) if r.expires_at > utcnow())
     expired = 0
     for document in documents:
-        if document.expires_at <= utcnow():
+        if document.expires_at <= utcnow() and document.user_id not in held:
             storage.delete(document.user_id, document.storage_key)
             expired += 1
     orphans = 0
-    if storage.root.exists():
+    if include_orphans and storage.root.exists():
         for directory in storage.root.iterdir():
             if directory.is_symlink() or not directory.is_dir() or not directory.name.isdigit():
                 continue
             owner = int(directory.name)
+            if owner in held:
+                continue
             for path in directory.iterdir():
                 if path.is_symlink() or not path.is_file() or (owner, path.name) in retained:
                     continue

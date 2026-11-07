@@ -4,6 +4,9 @@ from backend.services.notification_service import run_scheduled
 
 
 def run_once(db):
+    from backend.core.operations import heartbeat
+    heartbeat(db, 'notifications')
+    db.commit()
     claimed = queue.claim(db, kind='notification')
     if claimed is None:
         return False

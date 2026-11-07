@@ -43,8 +43,19 @@ def export(payload: Reauthentication, response: Response, ctx: AuthContext = Dep
     return export_owned(db, ctx.user, payload.password.get_secret_value())
 
 @router.post("/privacy/deletion", status_code=202)
-def deletion(payload: Reauthentication, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+def deletion(payload: Reauthentication, response: Response, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    response.headers['Cache-Control'] = 'no-store'
     return delete_owned(db, ctx.user, payload.password.get_secret_value(), configured_journal())
+
+
+from backend.schemas.platform import DeletionReceipt
+
+
+@router.post('/privacy/deletion-receipt')
+def deletion_receipt(payload: DeletionReceipt, response: Response):
+    # Receipt is a narrow bearer capability, sent in a body, never a URL or log.
+    response.headers['Cache-Control'] = 'no-store'
+    return configured_journal().receipt(payload.token.get_secret_value())
 
 @router.get("/sessions")
 def sessions(ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):

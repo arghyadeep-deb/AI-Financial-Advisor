@@ -17,6 +17,11 @@ class Reauthentication(BaseModel):
     model_config = ConfigDict(extra="forbid")
     password: SecretStr = Field(min_length=1, max_length=1024)
 
+
+class DeletionReceipt(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    token: SecretStr = Field(min_length=43, max_length=43)
+
 from pydantic import model_validator
 class Preferences(BaseModel):
     model_config = ConfigDict(extra="forbid")
