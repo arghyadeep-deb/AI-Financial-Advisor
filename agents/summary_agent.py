@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import SUMMARY_AGENT_PROMPT
 from rag.rag_pipeline import build_summary_context
@@ -113,7 +113,10 @@ def _parse_response(raw, profile, health_result, investment_result, credit_resul
             cleaned = "\n".join(lines)
         return json.loads(cleaned)
     except json.JSONDecodeError:
-        return _fallback_response(profile, health_result, investment_result, credit_result)
+        _fb = _fallback_response(profile, health_result, investment_result, credit_result)
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(profile, health_result, investment_result, credit_result):

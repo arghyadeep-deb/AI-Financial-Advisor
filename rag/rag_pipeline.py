@@ -271,7 +271,7 @@ Savings Rate Score   : {metrics['component_scores']['savings_rate']}/25
 Emergency Fund Score : {metrics['component_scores']['emergency_fund']}/25
 Debt Ratio Score     : {metrics['component_scores']['debt_ratio']}/25
 Investment Rate Score: {metrics['component_scores']['investment_rate']}/15
-Credit Score Score   : {metrics['component_scores']['credit_score']}/10
+Credit Score Score   : {('unknown (excluded from score)' if metrics['component_scores']['credit_score'] is None else str(metrics['component_scores']['credit_score']) + '/10')}
 
 === BENCHMARKS ===
 Savings Rate         : Poor <10% | Average 10-19% | Good 20-29% | Excellent 30%+

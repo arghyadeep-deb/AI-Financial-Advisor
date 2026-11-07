@@ -52,6 +52,26 @@ The codebase follows a layered architecture with clear separation of concerns:
 - **Base API URL:** https://ai-financial-advisor-1-fac2.onrender.com  
 - This is the production backend host used by frontend/API clients.
 
+### Start frontend
+```bash
+streamlit run frontend/app.py
+```
+
+### Database migrations
+The schema is managed by Alembic (`alembic.ini`, `migrations/`). The API checks or applies migrations at startup
+(`AUTO_MIGRATE`). Existing pre-Alembic databases are backed up (SQLite) and stamped automatically; see
+`specs/implementation-handoff.md` for the backup, restore and rollback steps.
+```bash
+python -m backend.core.migrations_runner --help
+```
+
+### Run the tests
+```bash
+python -m pytest tests -q
+```
+Uses isolated temporary databases and mocked providers - no network, no real keys. PostgreSQL tests run only when
+`TEST_POSTGRES_URL` is set.
+
 ### API Documentation (Swagger)
 - **URL:** https://ai-financial-advisor-1-fac2.onrender.com/docs  
 - Use this to explore and test all available API endpoints interactively.
@@ -113,7 +133,7 @@ Services (business logic orchestration)
 - **Validation:** Pydantic schemas  
 - **Database:** SQLite  
 - **Architecture:** Layered API + Agentic Intelligence  
-- **Dependency Management:** `requirements.txt`  
+- **Dependency Management:** `backend_requirements.txt`, `frontend/requirements.txt`, `requirements-dev.txt`  
 - **Deployment:** Render (Backend), Streamlit Cloud (Frontend)
 
 ---
@@ -126,7 +146,7 @@ AI-Financial-Advisor/
 ├── .env
 ├── .gitignore
 ├── advisor.db
-├── requirements.txt
+├── backend_requirements.txt
 ├── convert_data_sources.py
 ├── rebuild_graph.py
 │
@@ -184,7 +204,7 @@ AI-Financial-Advisor/
 ├── memory/
 ├── rag/
 ├── utils/
-└── venv/
+└── .venv/
 ```
 
 ---
@@ -241,23 +261,25 @@ cd AI-Financial-Advisor
 
 #### macOS/Linux
 ```bash
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 ```
 
 #### Windows (PowerShell)
 ```bash
-python -m venv venv
-venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 ```
 
 ### 3) Install dependencies
 ```bash
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # backend + frontend + test tools
 ```
 
 ### 4) Configure environment variables
-Create/update `.env` with required keys and runtime settings.
+Copy `.env.example` to `.env`. Outside `APP_ENV=development` a strong `SECRET_KEY` is mandatory
+(the app refuses to start with a weak key, wildcard CORS, or SQLite). With no model keys the app still runs and
+returns clearly labelled deterministic fallbacks.
 
 ---
 

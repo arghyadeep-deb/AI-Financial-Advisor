@@ -1,6 +1,6 @@
 import traceback
 from typing import Dict, Any
-from langsmith import traceable
+from backend.core.telemetry import traceable
 
 
 class GraphExecutor:
@@ -209,6 +209,8 @@ class GraphExecutor:
                 i = run_investment_agent(profile)
                 c = run_credit_agent(profile)
                 results["summary"] = run_summary_agent(profile, {"health": h, "investment": i, "credit": c})
+                # the summary is only meaningful next to the figures it was built from
+                results.update({"health": h, "investment": i, "credit": c})
 
             else:
                 errors[agent_name] = f"Unknown agent: {agent_name}"

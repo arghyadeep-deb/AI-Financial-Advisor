@@ -1,5 +1,14 @@
+"""Application configuration (T108 / F001-FR12).
+
+Secrets have no usable fallback in production: ``Config.validate()`` is called
+at startup and raises ``ConfigError`` for a missing, placeholder or short
+signing key.  Development and test modes may use an explicitly generated
+ephemeral key, never a constant shared across installs.
+"""
 import os
+import secrets
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,19 +16,57 @@ load_dotenv()
 # Project root = AI ADVISORY/
 BASE_DIR = Path(__file__).parent.parent.parent
 
+_PLACEHOLDER_SECRETS = {
+    "", "changeme", "changeme-in-production", "secret", "password",
+    "your-secret-key", "your_secret_key", "replace-me", "replace_me", "test",
+}
+MIN_SECRET_LENGTH = 32
+
+
+class ConfigError(RuntimeError):
+    """Raised when configuration is unsafe for the selected APP_ENV."""
+
+
+def _int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, default))
+    except (TypeError, ValueError):
+        return default
+
 
 class Config:
+
+    # ── Environment ───────────────────────────────────────────────────────
+    # production | staging | development | test.  Unknown values are treated
+    # as production so a typo can never weaken the checks.
+    APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
 
     # ── Database ──────────────────────────────────────────────────────────
     DATABASE_URL = os.getenv(
         "DATABASE_URL",
-        f"sqlite:///{BASE_DIR}/advisor.db"
+        f"sqlite:///{(BASE_DIR / 'advisor.db').as_posix()}"
     )
 
     # ── Auth ──────────────────────────────────────────────────────────────
-    SECRET_KEY        = os.getenv("SECRET_KEY", "changeme")
+    # SECRET_KEY signs access tokens only.  It is never used to hash passwords.
+    SECRET_KEY        = os.getenv("SECRET_KEY", "")
+    # Previous signing keys still accepted for verification during rotation
+    # (comma separated).  Tokens are always issued with SECRET_KEY.
+    SECRET_KEY_PREVIOUS = [k for k in os.getenv("SECRET_KEY_PREVIOUS", "").split(",") if k.strip()]
+    # The historical HMAC secret.  Needed only to verify legacy password
+    # hashes once; a successful login rehashes with Argon2id.
+    LEGACY_PASSWORD_SECRET = os.getenv("LEGACY_PASSWORD_SECRET", os.getenv("SECRET_KEY", ""))
     ALGORITHM         = "HS256"
-    TOKEN_EXPIRE_DAYS = 7
+    TOKEN_ISSUER      = os.getenv("TOKEN_ISSUER", "ai-advisory")
+    TOKEN_AUDIENCE    = os.getenv("TOKEN_AUDIENCE", "ai-advisory-api")
+    ACCESS_TOKEN_MINUTES = _int("ACCESS_TOKEN_MINUTES", 60)
+    PASSWORD_RESET_MINUTES = _int("PASSWORD_RESET_MINUTES", 30)
+    MIN_PASSWORD_LENGTH = _int("MIN_PASSWORD_LENGTH", 10)
+
+    # Login protection
+    LOGIN_MAX_FAILURES   = _int("LOGIN_MAX_FAILURES", 5)
+    LOGIN_WINDOW_SECONDS = _int("LOGIN_WINDOW_SECONDS", 900)
+    LOGIN_LOCK_SECONDS   = _int("LOGIN_LOCK_SECONDS", 900)
 
     # ── LLM Keys ──────────────────────────────────────────────────────────
     GROQ_KEYS = [
@@ -40,15 +87,60 @@ class Config:
 
     OPENROUTER_KEY = os.getenv("OPENROUTER_API_KEY")
 
+    # Hard bound on one model call (seconds) so a cold/unavailable provider
+    # cannot hang a request indefinitely.
+    LLM_TIMEOUT_SECONDS = _int("LLM_TIMEOUT_SECONDS", 30)
+    LLM_MAX_ATTEMPTS    = _int("LLM_MAX_ATTEMPTS", 2)
+
+    # ── Observability ─────────────────────────────────────────────────────
+    # Raw prompt/response tracing is OFF unless explicitly enabled.  Even when
+    # enabled, only the metadata allow-list in backend/core/telemetry.py is sent.
+    TRACING_ENABLED = os.getenv("TELEMETRY_EXPORT_ENABLED", "false").strip().lower() == "true"
+
     # ── Paths (all shared folders are at project root) ────────────────────
     KB_DIR            = BASE_DIR / "knowledge_base"
     DATA_SOURCES_DIR  = BASE_DIR / "data_sources"
     CACHE_DIR         = BASE_DIR / ".cache"
 
     # ── API ───────────────────────────────────────────────────────────────
-    API_HOST = "0.0.0.0"
-    API_PORT = 8000
-    FRONTEND_URL = "http://localhost:8501"
+    API_HOST = os.getenv("API_HOST", "127.0.0.1")
+    API_PORT = _int("API_PORT", 8000)
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8501")
+    CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", FRONTEND_URL).split(",") if o.strip()]
+
+    # ── helpers ───────────────────────────────────────────────────────────
+    @property
+    def is_production_like(self) -> bool:
+        return self.APP_ENV not in {"development", "dev", "test", "local"}
+
+    def validate(self) -> None:
+        """Refuse to start with an unsafe configuration.
+
+        Production-like environments require a strong signing key.  In
+        development/test a missing key is replaced by a per-process random key
+        (tokens do not survive restart) and a warning is logged by the caller.
+        """
+        key = self.SECRET_KEY
+        weak = key.strip().lower() in _PLACEHOLDER_SECRETS or len(key) < MIN_SECRET_LENGTH
+        if self.is_production_like:
+            if weak:
+                raise ConfigError(
+                    "SECRET_KEY is missing, a known placeholder, or shorter than "
+                    f"{MIN_SECRET_LENGTH} characters; refusing to start in APP_ENV={self.APP_ENV!r}."
+                )
+            if self.CORS_ORIGINS == ["*"]:
+                raise ConfigError("CORS_ORIGINS must not be '*' in a production-like environment.")
+            if self.DATABASE_URL.startswith("sqlite") and os.getenv("ALLOW_SQLITE_IN_PRODUCTION") != "1":
+                raise ConfigError(
+                    "SQLite is for local use only; set DATABASE_URL to PostgreSQL "
+                    "(or ALLOW_SQLITE_IN_PRODUCTION=1 for a documented transitional deployment)."
+                )
+        elif weak:
+            # Per-process ephemeral key: unguessable, never a shared constant.
+            type(self).SECRET_KEY = secrets.token_urlsafe(48)
+            type(self)._ephemeral_key = True
+
+    _ephemeral_key = False
 
 
 config = Config()

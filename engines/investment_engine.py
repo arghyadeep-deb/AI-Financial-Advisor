@@ -202,8 +202,15 @@ class InvestmentEngine:
         emergency_monthly = round(emergency_gap / 12) if emergency_gap > 0 else 0
 
         # ── Available for Investment ──────────────────────────────────────
-        investable = max(0, monthly_surplus - emergency_monthly)
-        investable = round(investable * 0.90)   # 10% buffer
+        supplied = profile.get("available_monthly_contribution", "unset")
+        if supplied == "unset":
+            # Direct engine callers (unit tests): legacy estimate.
+            investable = max(0, monthly_surplus - emergency_monthly)
+            investable = round(investable * 0.90)   # 10% buffer
+        else:
+            # Canonical affordable amount from the analysis service (already
+            # net of obligations, reserve top-up and buffer). None == unavailable.
+            investable = int(max(0, supplied or 0))
 
         equity_pct = allocation.get("equity", 60) / 100
         debt_pct   = allocation.get("debt",   30) / 100
@@ -318,6 +325,14 @@ class InvestmentEngine:
         tax_plan["total_tax_saved_annually"] = tax_saved_80c + tax_saved_nps + tax_saved_80d
 
         total_sip = sum(s["monthly_amount"] for s in sip_plan)
+
+        # Hard cap: the plan may never allocate more than the affordable amount.
+        if total_sip > investable:
+            scale = investable / total_sip if total_sip else 0
+            for s in sip_plan:
+                s["monthly_amount"] = int(s["monthly_amount"] * scale)
+            sip_plan  = [s for s in sip_plan if s["monthly_amount"] > 0]
+            total_sip = sum(s["monthly_amount"] for s in sip_plan)
 
         return {
             "sip_plan":      sip_plan,

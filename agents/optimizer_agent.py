@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import OPTIMIZER_AGENT_PROMPT
 
@@ -130,11 +130,14 @@ def _parse_response(raw, profile, remaining_80c, remaining_nps,
             cleaned = "\n".join(lines)
         return json.loads(cleaned)
     except json.JSONDecodeError:
-        return _fallback_response(
+        _fb = _fallback_response(
             profile, remaining_80c, remaining_nps,
             potential_80c, potential_nps,
             direct_plan_save, current_alloc, investment_result
         )
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(profile, remaining_80c, remaining_nps,

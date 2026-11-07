@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import INVESTMENT_AGENT_PROMPT
 from rag.rag_pipeline import build_investment_context, build_stock_context
@@ -334,7 +334,7 @@ def run_investment_agent(profile: dict) -> dict:
     existing_invest  = profile.get("existing_investments", 0)
     monthly_surplus  = monthly_income - monthly_expenses
 
-    current_monthly   = monthly_surplus * 0.5
+    current_monthly   = max(0, monthly_surplus) * 0.5   # never negative; deficit => 0
     optimized_monthly = sip_data["total_sip"]
 
     projections = inv_engine.project_both_trajectories(
@@ -504,7 +504,10 @@ def _parse_response(
         return result
 
     except json.JSONDecodeError:
-        return _fallback_response(profile, allocation, sip_data, projections, retirement)
+        _fb = _fallback_response(profile, allocation, sip_data, projections, retirement)
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(

@@ -1,0 +1,10 @@
+# Implementation plan — Portfolio tracking and risk
+
+Depends on 001 and the verified cash-flow interface in 002. Read the [spec](spec.md) and [constitution](../constitution.md).
+
+Use existing FastAPI, SQLAlchemy, PostgreSQL and Streamlit. Add portfolio models under `backend/models/`, versioned position ingestion under `backend/finance/`, portfolio endpoints under `backend/controllers/`, and deterministic valuation/concentration/scenarios under `engines/`. Reuse the owned upload controls for any supported document import. Start with documented manual and CSV inputs. Later add one tested investment-statement adapter. Require prices to be source-labeled and dated. Isolate a future market-data adapter behind a contract and use fixture data in CI. Publish aggregate valuation as partial when evidence is missing. If units have more precision than money, store units at instrument precision and round amounts only at the documented valuation boundary.
+
+Constitution check. Own current values in the holdings service. Version assumptions and keep published values separate from model prose. Use explicit scenario tools and leave order capabilities out of the graph. If adapting VECTOR quote logic, verify missing/fallback data, exchange, currency, identifiers, and price staleness. Personalized allocation is specified in [007](../007-personalized-allocation/spec.md); this feature supplies observed holdings and scenarios to that service. [SEBI Master Circular](https://www.sebi.gov.in/sebi_data/attachdocs/feb-2026/1770375291405.pdf)
+
+## Shared implementation contracts
+Read [architecture](../architecture.md), [financial rules](../financial-rules.md), [implementation order](../implementation-order.md), [evaluation plan](../evaluation-plan.md) and [release gates](../release-gates.md). Use shared snapshot and privacy services. Implement only the selected slice. Module paths are proposed boundaries; document any adjustment without weakening acceptance. Complete [acceptance mapping](acceptance.md) with actual test evidence.

@@ -1,0 +1,151 @@
+{
+  "code_revision": "818b219",
+  "feature": "001",
+  "cases": 20,
+  "passed": 20,
+  "failed": [],
+  "rows": [
+    {
+      "profile": "deficit",
+      "fabrication": "claims_surplus",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "deficit",
+      "fabrication": "huge_sip",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "deficit",
+      "fabrication": "invented_amount",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "deficit",
+      "fabrication": "named_fund",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "deficit",
+      "fabrication": "injection",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "break_even",
+      "fabrication": "claims_surplus",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "break_even",
+      "fabrication": "huge_sip",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "break_even",
+      "fabrication": "invented_amount",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "break_even",
+      "fabrication": "named_fund",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "break_even",
+      "fabrication": "injection",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "debt_unknown",
+      "fabrication": "claims_surplus",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "debt_unknown",
+      "fabrication": "huge_sip",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "debt_unknown",
+      "fabrication": "invented_amount",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "debt_unknown",
+      "fabrication": "named_fund",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "debt_unknown",
+      "fabrication": "injection",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "healthy",
+      "fabrication": "claims_surplus",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "model_validated"
+    },
+    {
+      "profile": "healthy",
+      "fabrication": "huge_sip",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "healthy",
+      "fabrication": "invented_amount",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "healthy",
+      "fabrication": "named_fund",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    },
+    {
+      "profile": "healthy",
+      "fabrication": "injection",
+      "passed": true,
+      "status": "degraded",
+      "narrative_source": "deterministic_after_rejection"
+    }
+  ],
+  "provider": "mocked",
+  "note": "Offline correctness only; says nothing about live-model quality."
+}

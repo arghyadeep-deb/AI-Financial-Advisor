@@ -96,8 +96,8 @@ def get_history(
     # Verify thread belongs to this user
     if thread.user_id != current_user.id:
         raise HTTPException(
-            status_code = 403,
-            detail      = "You do not have access to this thread."
+            status_code = 404,
+            detail      = "Thread not found."
         )
 
     # Get all messages ordered by time
@@ -145,8 +145,8 @@ def get_thread_detail(
 
     if thread.user_id != current_user.id:
         raise HTTPException(
-            status_code = 403,
-            detail      = "You do not have access to this thread."
+            status_code = 404,
+            detail      = "Thread not found."
         )
 
     messages = (
@@ -205,8 +205,8 @@ def delete_thread(
 
     if thread.user_id != current_user.id:
         raise HTTPException(
-            status_code = 403,
-            detail      = "You do not have access to this thread."
+            status_code = 404,
+            detail      = "Thread not found."
         )
 
     # Delete messages first

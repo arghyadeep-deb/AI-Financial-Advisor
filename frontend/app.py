@@ -4,6 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 import json
 import os
+import uuid
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
@@ -558,11 +559,79 @@ def fmt_inr(amount) -> str:
         return "₹0"
 
 
+def _num(profile: dict, key: str, default: int) -> int:
+    """Widget default that tolerates an explicitly unknown (null) saved value."""
+    v = (profile or {}).get(key)
+    return int(v) if v is not None else default
+
+
+def error_text(resp: dict) -> str:
+    """One readable message from the API's structured error (or a transport error)."""
+    if not isinstance(resp, dict):
+        return "Something went wrong. Please try again."
+    fields = resp.get("field_errors") or []
+    if fields:
+        return "; ".join(f"{f.get('field', 'input')}: {f.get('message', 'invalid')}" for f in fields)
+    detail = resp.get("message") or resp.get("detail") or resp.get("error")
+    return detail if isinstance(detail, str) else "Something went wrong. Please try again."
+
+
+def run_analysis(kind: str, scenario: dict | None = None) -> dict:
+    """POST /analysis.  ``scenario`` carries one-off what-if values: they are used for
+    this run only and never change the saved profile."""
+    body = {"analysis_type": kind}
+    if scenario:
+        body["scenario"] = scenario
+    return api_post("/analysis", body, auth=True)
+
+
+def show_run_status(resp: dict) -> None:
+    """Honest labels: scenario / degraded / partial / superseded are never shown as plain success."""
+    status = resp.get("status", "complete")
+    if resp.get("is_scenario"):
+        st.info("What-if result: based on the values you entered. Your saved profile was not changed.")
+    if status == "complete":
+        if not resp.get("is_scenario"):
+            st.success("Done.")
+    elif status == "degraded":
+        st.warning("Some AI services were unavailable, so parts of this result use verified numbers "
+                   "and standard wording only.")
+    elif status == "superseded":
+        st.warning("Your profile changed while this ran, so this result is out of date. Run it again.")
+    elif status in ("partial", "failed"):
+        st.warning("Some sections could not be produced. The ones shown are still based on your verified numbers.")
+
+
+def store_scenario(page: str, section: str, resp: dict) -> None:
+    """Keep a what-if result apart from the saved-analysis caches (never shown on other pages)."""
+    st.session_state["scenario"] = {"page": page, "data": (resp.get("results") or {}).get(section, {}),
+                                    "status": resp.get("status", "complete")}
+
+
+def scenario_for(page: str):
+    sc = st.session_state.get("scenario")
+    return sc if sc and sc.get("page") == page else None
+
+
+def show_scenario_banner(sc: dict) -> None:
+    st.info("What-if result: based on the values you entered. Your saved profile and saved analysis "
+            "were not changed. Leaving this page discards it.")
+    if sc.get("status") in ("degraded", "partial", "failed"):
+        st.warning("Some AI services were unavailable, so parts of this result use verified numbers "
+                   "and standard wording only.")
+
+
+def stale_notice(last: dict) -> None:
+    if last.get("stale"):
+        st.warning("Your profile changed since this analysis was produced. Re-run it to update these results.")
+
+
 def _queue_chat_message(message: str):
     clean = (message or "").strip()
     if not clean:
         return
     st.session_state.chat_messages.append({"role": "user", "content": clean})
+    st.session_state["pending_chat_id"]   = uuid.uuid4().hex   # one id per user message; reused on retry
     st.session_state["pending_chat"]      = clean
     st.session_state["chat_input_draft"]  = ""
 
@@ -577,6 +646,7 @@ def load_and_cache_analysis():
     if st.session_state.analysis_ran:
         return
     last = api_get("/analysis/last")
+    st.session_state["analysis_stale"] = bool(last.get("stale"))
     if last.get("found") and last.get("results"):
         r = last["results"]
         st.session_state.cached_health    = r.get("health",     {})
@@ -586,6 +656,7 @@ def load_and_cache_analysis():
         st.session_state.cached_sim       = r.get("simulation", {})
         st.session_state.cached_opt       = r.get("optimizer",  {})
         st.session_state.cached_rebalance = r.get("rebalance",  {})
+        st.session_state["cached_snapshot"] = last.get("snapshot") or {}
     # Mark as checked even when no result exists to avoid repeated slow calls
     # on every rerun. Explicit refresh paths will reset this flag.
     st.session_state.analysis_ran = True
@@ -600,6 +671,7 @@ def refresh_analysis():
     st.session_state.cached_sim       = None
     st.session_state.cached_opt       = None
     st.session_state.cached_rebalance = None
+    st.session_state["cached_snapshot"] = None
     load_and_cache_analysis()
 
 
@@ -1017,6 +1089,7 @@ def render_chat_overlay():
                 st.rerun()
 
     pending = st.session_state.pop("pending_chat", None)
+    pending_id = st.session_state.pop("pending_chat_id", None) or uuid.uuid4().hex
     if pending:
         typing_ph = st.empty()
         typing_ph.markdown("""
@@ -1030,13 +1103,15 @@ def render_chat_overlay():
         reply_ph   = st.empty()
         full_reply = ""
         stream_ok  = False
+        completed  = False
 
         try:
             with requests.post(
                 f"{API_URL}/chat/stream",
                 json={
                     "message":   pending,
-                    "thread_id": st.session_state.chat_thread_id
+                    "thread_id": st.session_state.chat_thread_id,
+                    "client_message_id": pending_id,
                 },
                 headers={"Authorization": f"Bearer {st.session_state.token}"},
                 stream=True, timeout=90
@@ -1062,23 +1137,34 @@ def render_chat_overlay():
                                             st.session_state.chat_thread_id = (
                                                 data["thread_id"]
                                             )
+                                        # the server's stored reply is authoritative
+                                        # (it may replace text a safety check rejected)
+                                        full_reply = data.get("full_reply") or full_reply
+                                        completed = bool(full_reply)
+                                    elif data.get("error"):
+                                        stream_ok = False   # fall back to the idempotent POST below
+                                        if data.get("thread_id"):
+                                            st.session_state.chat_thread_id = data["thread_id"]
                                 except json.JSONDecodeError:
                                     pass
         except Exception:
             stream_ok = False
 
-        if not stream_ok or not full_reply:
+        if not (stream_ok and completed):         # no completed, non-empty reply: use the idempotent POST
             typing_ph.empty()
             reply_ph.empty()
+            # Same client_message_id: the server returns the stored turn if the stream
+            # already completed, so a retry can never create a duplicate message.
             resp = api_post(
                 "/chat",
                 {
                     "message":   pending,
-                    "thread_id": st.session_state.chat_thread_id
+                    "thread_id": st.session_state.chat_thread_id,
+                    "client_message_id": pending_id,
                 },
                 auth=True
             )
-            full_reply = resp.get("reply", "Sorry, I had trouble. Please try again.")
+            full_reply = resp.get("reply") or error_text(resp)
             if "thread_id" in resp:
                 st.session_state.chat_thread_id = resp["thread_id"]
 
@@ -1263,13 +1349,19 @@ def page_dashboard():
     summary = st.session_state.cached_summary or {}
     sim     = st.session_state.cached_sim     or {}
 
-    health_score = health.get("overall_score", 0)
+    snap = st.session_state.get("cached_snapshot") or {}
+    # No investable money (deficit, debt payments consume the surplus, or unknown): do not show
+    # a plan, a projection or a card pitch that implies there is money to invest.
+    nothing_to_invest = (bool(snap) and not snap.get("available_contribution_paise"))         or bool(snap.get("shortfall_paise"))
+    health_score = health.get("overall_score")
+    health_known = isinstance(health_score, (int, float))
+    health_score = health_score if health_known else 0
     health_grade = health.get("grade", "N/A")
-    total_sip    = invest.get("total_monthly_investment", 0)
-    corpus_10yr  = invest.get("projected_corpus_10yr", 0)
+    total_sip    = 0 if nothing_to_invest else invest.get("total_monthly_investment", 0)
+    corpus_10yr  = 0 if nothing_to_invest else invest.get("projected_corpus_10yr", 0)
     top_card     = (
         credit.get("recommendations", [{}])[0].get("card_name", "—")
-        if credit.get("recommendations") else "—"
+        if credit.get("recommendations") and not nothing_to_invest else "—"
     )
 
     if not health and not invest:
@@ -1289,16 +1381,21 @@ def page_dashboard():
                     )
                 if "results" in resp:
                     refresh_analysis()
-                    st.success("Analysis complete!")
+                    st.session_state["last_run"] = resp
                     st.rerun()
                 else:
-                    detail = resp.get("detail", "Could not run analysis.")
-                    if isinstance(detail, str) and "profile" in detail.lower():
-                        st.error("Please save your profile first from Profile page.")
+                    if resp.get("code") in ("profile_incomplete", "profile_missing"):
+                        st.error("Please complete your profile first from the Profile page. "
+                                 + error_text(resp))
                     else:
-                        st.error(detail)
+                        st.error(error_text(resp))
         render_chat_overlay()
         return
+
+    if st.session_state.get("last_run"):
+        show_run_status(st.session_state.pop("last_run"))
+    elif st.session_state.get("analysis_stale"):
+        stale_notice({"stale": True})
 
     st.markdown(
         '<div class="section-header">📊 Financial Overview</div>',
@@ -1314,7 +1411,7 @@ def page_dashboard():
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-value" style="color:{score_color};">
-                {health_score:.0f}
+                {f"{health_score:.0f}" if health_known else "—"}
             </div>
             <div class="metric-label">Health Score</div>
             <div class="metric-delta">Grade {health_grade}</div>
@@ -1346,9 +1443,13 @@ def page_dashboard():
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    if nothing_to_invest:
+        st.info("Your current numbers leave nothing to invest each month, so no allocation, "
+                "projection or card recommendation is shown. Close the gap first (see Priority Actions); "
+                "then re-run the analysis.")
     cl, cr = st.columns(2)
     with cl:
-        alloc = invest.get("portfolio_allocation", {})
+        alloc = {} if nothing_to_invest else invest.get("portfolio_allocation", {})
         if alloc:
             st.plotly_chart(
                 pie_chart(
@@ -1359,7 +1460,7 @@ def page_dashboard():
     with cr:
         sim_c = sim.get("current_trajectory",   {})
         sim_o = sim.get("optimized_trajectory", {})
-        if sim_c and sim_o:
+        if sim_c and sim_o and not nothing_to_invest:
             st.plotly_chart(
                 line_chart(
                     ["5yr","10yr","20yr"],
@@ -1418,8 +1519,12 @@ def page_dashboard():
     with c2:
         if st.button("🔄 Refresh Analysis", use_container_width=True):
             with st.spinner("Running..."):
-                api_post("/analysis", {"analysis_type": "full"}, auth=True)
+                resp = run_analysis("full")
             refresh_analysis()
+            if "results" in resp:
+                st.session_state["last_run"] = resp
+            else:
+                st.error(error_text(resp))
             st.rerun()
 
     render_chat_overlay()
@@ -1473,19 +1578,22 @@ def page_portfolio():
                 "📊 Generate Plan", use_container_width=True, type="primary"
             ):
                 with st.spinner("Building your investment plan..."):
-                    resp = api_post(
-                        "/analysis", {"analysis_type": "investment"}, auth=True
-                    )
+                    resp = run_analysis("investment", {
+                        "risk_tolerance": risk, "investment_horizon": horizon,
+                        "financial_goals": goals,
+                    })
                 if "results" in resp:
-                    st.session_state.cached_invest = (
-                        resp["results"].get("investment", {})
-                    )
-                    invest = st.session_state.cached_invest
-                    st.success("Plan generated!")
+                    store_scenario("portfolio", "investment", resp)
                     st.rerun()
                 else:
-                    st.error(resp.get("detail", str(resp)))
+                    st.error(error_text(resp))
 
+    _sc = scenario_for("portfolio")
+    if _sc:
+        show_scenario_banner(_sc)
+        invest = _sc["data"]
+    elif st.session_state.get("analysis_stale"):
+        stale_notice({"stale": True})
     if invest:
         _render_investment_results(invest)
     else:
@@ -1581,7 +1689,7 @@ def _render_investment_results(inv: dict):
             </div>""", unsafe_allow_html=True)
 
     tax = inv.get("tax_saving_plan", {})
-    if tax and tax.get("total_tax_saved_annually", 0) > 0:
+    if tax and (tax.get("total_tax_saved_annually") or 0) > 0:
         st.markdown(
             '<div class="section-header">💸 Tax Saving</div>',
             unsafe_allow_html=True
@@ -1656,42 +1764,47 @@ def page_stocks():
             with c2:
                 monthly_income = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income",50000))
+                    value=_num(profile, "monthly_income", 50000)
                 )
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)", min_value=0,
-                    value=int(profile.get("monthly_expenses",30000))
+                    value=_num(profile, "monthly_expenses", 30000)
                 )
                 existing_investments = st.number_input(
                     "Existing Investments (₹)", min_value=0,
-                    value=int(profile.get("existing_investments",0))
+                    value=_num(profile, "existing_investments", 0)
                 )
 
             if st.form_submit_button(
                 "Save & Re-run Stock Analysis",
                 use_container_width=True, type="primary"
             ):
+                if profile.get("needs_reentry"):
+                    st.error("Some saved amounts need to be re-entered first. Open the Profile page and save it.")
+                    st.stop()
                 payload = {
-                    "age":                  int(profile.get("age",25)),
+                    "age":                  _num(profile, "age", 25),
                     "employment_type":      profile.get("employment_type","salaried"),
                     "monthly_income":       int(monthly_income),
                     "monthly_expenses":     int(monthly_expenses),
-                    "existing_savings":     int(profile.get("existing_savings",0)),
+                    "existing_savings":     _num(profile, "existing_savings", 0),
                     "existing_investments": int(existing_investments),
-                    "existing_debts":       int(profile.get("existing_debts",0)),
+                    "existing_debts":       _num(profile, "existing_debts", 0),
                     "risk_tolerance":       risk,
                     "investment_horizon":   horizon,
                     "financial_goals":      goals,
-                    "credit_score":         int(profile.get("credit_score",700)),
-                    "monthly_credit_spend": int(profile.get("monthly_credit_spend",0)),
+                    # never invent a credit score: keep exactly what the user entered (or unknown)
+                    "credit_score":         profile.get("credit_score"),
+                    "monthly_debt_payment": profile.get("monthly_debt_payment"),
+                    "monthly_credit_spend": _num(profile, "monthly_credit_spend", 0),
                     "top_spend_categories": profile.get("top_spend_categories",[])
                 }
+                if profile.get("revision"):
+                    payload["expected_revision"] = profile["revision"]
                 with st.spinner("Saving and refreshing stock picks..."):
                     save_resp = api_post("/profile", payload, auth=True)
-                    run_resp  = api_post(
-                        "/analysis",
-                        {"analysis_type": "investment"}, auth=True
-                    )
+                    run_resp  = (run_analysis("investment")
+                                 if "id" in save_resp else {})
                 if "id" in save_resp and "results" in run_resp:
                     st.session_state.profile_cache = None
                     st.session_state.cached_invest = (
@@ -1700,23 +1813,21 @@ def page_stocks():
                     st.success("Stock picks refreshed.")
                     st.rerun()
                 else:
-                    st.error(
-                        save_resp.get("detail")
-                        or run_resp.get("detail")
-                        or "Could not refresh stock analysis."
-                    )
+                    st.error(error_text(save_resp if "id" not in save_resp else run_resp))
 
     load_and_cache_analysis()
     invest = st.session_state.cached_invest or {}
     stocks = invest.get("stock_recommendations", [])
-    profile_age = int(profile.get("age", 30))
+    profile_age = _num(profile, "age", 30)
     profile_risk = profile.get("risk_tolerance", "moderate")
     profile_horizon = profile.get("investment_horizon", "long")
 
     if not stocks:
         st.markdown("""
         <div class="alert alert-info">
-            📈 Stock picks are part of your investment analysis.
+            📈 Named stock picks are switched off until product-recommendation
+            compliance review is complete. Your investment plan uses generic
+            instrument categories instead.
         </div>""", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
@@ -1851,16 +1962,19 @@ def page_credit():
             with c1:
                 monthly_income = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income",50000))
+                    value=_num(profile, "monthly_income", 50000)
                 )
                 credit_spend = st.number_input(
                     "Monthly Credit Spend (₹)", min_value=0,
-                    value=int(profile.get("monthly_credit_spend",10000))
+                    value=_num(profile, "monthly_credit_spend", 10000)
                 )
             with c2:
+                credit_unknown = st.checkbox(
+                    "I don't know my credit score (the slider below is then ignored)",
+                    value=profile.get("credit_score") is None, key="credit_unknown_cf")
                 credit_score = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score",700))
+                    value=int(profile.get("credit_score") or 700)
                 )
                 categories = st.multiselect(
                     "Top Spend Categories",
@@ -1874,20 +1988,26 @@ def page_credit():
                 "💳 Get Recommendations",
                 use_container_width=True, type="primary"
             ):
+                what_if = {
+                    "monthly_income": monthly_income,
+                    "monthly_credit_spend": credit_spend,
+                    "top_spend_categories": categories,
+                }
+                what_if["credit_score"] = None if credit_unknown else int(credit_score)
                 with st.spinner("Finding best cards..."):
-                    resp = api_post(
-                        "/analysis", {"analysis_type": "credit"}, auth=True
-                    )
+                    resp = run_analysis("credit", what_if)
                 if "results" in resp:
-                    st.session_state.cached_credit = (
-                        resp["results"].get("credit",{})
-                    )
-                    credit = st.session_state.cached_credit
-                    st.success("Recommendations ready!")
+                    store_scenario("credit", "credit", resp)
                     st.rerun()
                 else:
-                    st.error(resp.get("detail", str(resp)))
+                    st.error(error_text(resp))
 
+    _sc = scenario_for("credit")
+    if _sc:
+        show_scenario_banner(_sc)
+        credit = _sc["data"]
+    elif st.session_state.get("analysis_stale"):
+        stale_notice({"stale": True})
     if credit:
         _render_credit_results(credit)
     else:
@@ -1954,49 +2074,58 @@ def page_health():
             with c1:
                 monthly_income   = st.number_input(
                     "Monthly Income (₹)",
-                    value=int(profile.get("monthly_income",50000))
+                    value=_num(profile, "monthly_income", 50000)
                 )
                 existing_savings = st.number_input(
                     "Existing Savings (₹)",
-                    value=int(profile.get("existing_savings",0))
+                    value=_num(profile, "existing_savings", 0)
                 )
             with c2:
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)",
-                    value=int(profile.get("monthly_expenses",30000))
+                    value=_num(profile, "monthly_expenses", 30000)
                 )
                 existing_invest  = st.number_input(
                     "Existing Investments (₹)",
-                    value=int(profile.get("existing_investments",0))
+                    value=_num(profile, "existing_investments", 0)
                 )
             with c3:
+                credit_unknown = st.checkbox(
+                    "I don't know my credit score (the slider below is then ignored)",
+                    value=profile.get("credit_score") is None, key="credit_unknown_hf")
                 credit_score   = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score",700))
+                    value=int(profile.get("credit_score") or 700)
                 )
                 existing_debts = st.number_input(
-                    "Existing Debts (₹)",
-                    value=int(profile.get("existing_debts",0))
+                    "Existing Debts (₹)", min_value=0,
+                    value=_num(profile, "existing_debts", 0)
                 )
 
             if st.form_submit_button(
                 "❤️ Calculate Score",
                 use_container_width=True, type="primary"
             ):
+                what_if = {
+                    "monthly_income": monthly_income, "monthly_expenses": monthly_expenses,
+                    "existing_savings": existing_savings, "existing_investments": existing_invest,
+                    "existing_debts": existing_debts,
+                }
+                what_if["credit_score"] = None if credit_unknown else int(credit_score)
                 with st.spinner("Calculating health score..."):
-                    resp = api_post(
-                        "/analysis", {"analysis_type": "health"}, auth=True
-                    )
+                    resp = run_analysis("health", what_if)
                 if "results" in resp:
-                    st.session_state.cached_health = (
-                        resp["results"].get("health",{})
-                    )
-                    health = st.session_state.cached_health
-                    st.success("Health score calculated!")
+                    store_scenario("health", "health", resp)
                     st.rerun()
                 else:
-                    st.error(resp.get("detail", str(resp)))
+                    st.error(error_text(resp))
 
+    _sc = scenario_for("health")
+    if _sc:
+        show_scenario_banner(_sc)
+        health = _sc["data"]
+    elif st.session_state.get("analysis_stale"):
+        stale_notice({"stale": True})
     if health:
         _render_health_results(health)
     else:
@@ -2045,12 +2174,22 @@ def _render_health_results(health: dict):
         }
         for key, label in component_labels.items():
             comp     = health.get("components", {}).get(key, {})
-            c_score  = comp.get("score",     0)
-            c_max    = comp.get("max",       25)
+            c_score  = comp.get("score")
+            c_max    = comp.get("max") or 25
             c_val    = comp.get("value",     "N/A")
             c_bench  = comp.get("benchmark", "")
             c_status = comp.get("status",    "")
-            pct      = (c_score / c_max) if c_max > 0 else 0
+            if c_score is None:
+                # unknown input: never shown as 0 and never guessed; excluded from the score
+                st.markdown(f"""
+            <div class="prog-row">
+                <div class="prog-label">
+                    <span>{label}: <b style="color:#94a3b8;">Not provided</b></span>
+                    <span style="color:#64748b;">excluded from your score</span>
+                </div>
+            </div>""", unsafe_allow_html=True)
+                continue
+            pct      = max(0.0, min(1.0, c_score / c_max)) if c_max > 0 else 0
             vc = "#0ea5a4" if c_status in ["good","excellent"] else "#f59e0b"
 
             st.markdown(f"""
@@ -2269,8 +2408,9 @@ def page_reports():
             with c2:
                 st.metric("Emergency Gap",
                           fmt_inr(key_nums.get("emergency_fund_gap",0)))
+                _ts = key_nums.get("annual_tax_saving")
                 st.metric("Annual Tax Saving",
-                          fmt_inr(key_nums.get("annual_tax_saving",0)))
+                          fmt_inr(_ts) if _ts is not None else "Not estimated")
             with c3:
                 st.metric("Best Card", key_nums.get("best_credit_card","—"))
                 st.metric("10yr Corpus",
@@ -2333,6 +2473,10 @@ def page_profile():
     st.session_state.profile_cache = profile
 
     tab1, tab2 = st.tabs(["📋 Edit Profile","📊 Quick Stats"])
+    if profile.get("needs_reentry"):
+        st.warning("Some saved amounts could not be verified after an upgrade and need to be re-entered: "
+                   + ", ".join(profile["needs_reentry"]).replace("_", " ")
+                   + ". The fields below show placeholders, not your saved values.")
 
     with tab1:
         with st.form("profile_form"):
@@ -2340,7 +2484,7 @@ def page_profile():
             c1, c2 = st.columns(2)
             with c1:
                 age = st.number_input(
-                    "Age", 18, 80, value=int(profile.get("age",25))
+                    "Age", 18, 80, value=_num(profile, "age", 25)
                 )
             with c2:
                 employment = st.selectbox(
@@ -2358,24 +2502,30 @@ def page_profile():
             with c1:
                 monthly_income   = st.number_input(
                     "Monthly Income (₹)", min_value=0,
-                    value=int(profile.get("monthly_income",50000))
+                    value=_num(profile, "monthly_income", 50000)
                 )
                 existing_savings = st.number_input(
                     "Existing Savings (₹)", min_value=0,
-                    value=int(profile.get("existing_savings",0))
+                    value=_num(profile, "existing_savings", 0)
                 )
                 existing_debts   = st.number_input(
                     "Existing Debts (₹)", min_value=0,
-                    value=int(profile.get("existing_debts",0))
+                    value=_num(profile, "existing_debts", 0)
+                )
+                debt_payment = st.number_input(
+                    "Monthly Debt Payment (₹)", min_value=0,
+                    value=int(profile.get("monthly_debt_payment") or 0),
+                    help="What you pay towards debt every month (EMIs, minimum dues). "
+                         "Needed to work out how much you can safely invest."
                 )
             with c2:
                 monthly_expenses = st.number_input(
                     "Monthly Expenses (₹)", min_value=0,
-                    value=int(profile.get("monthly_expenses",30000))
+                    value=_num(profile, "monthly_expenses", 30000)
                 )
                 existing_invest  = st.number_input(
                     "Existing Investments (₹)", min_value=0,
-                    value=int(profile.get("existing_investments",0))
+                    value=_num(profile, "existing_investments", 0)
                 )
 
             st.markdown("#### 📊 Investment Preferences")
@@ -2410,14 +2560,17 @@ def page_profile():
             st.markdown("#### 💳 Credit Card")
             c1, c2 = st.columns(2)
             with c1:
+                credit_unknown = st.checkbox(
+                    "I don't know my credit score (the slider below is then ignored)",
+                    value=profile.get("credit_score") is None, key="credit_unknown_pf")
                 credit_score = st.slider(
                     "Credit Score", 300, 900,
-                    value=int(profile.get("credit_score",700))
+                    value=int(profile.get("credit_score") or 700)
                 )
             with c2:
                 monthly_credit = st.number_input(
                     "Monthly Credit Spend (₹)", min_value=0,
-                    value=int(profile.get("monthly_credit_spend",0))
+                    value=_num(profile, "monthly_credit_spend", 0)
                 )
 
             categories = st.multiselect(
@@ -2444,13 +2597,21 @@ def page_profile():
                 "risk_tolerance":       risk,
                 "investment_horizon":   horizon,
                 "financial_goals":      goals,
-                "credit_score":         credit_score,
+                "credit_score":         None if credit_unknown else int(credit_score),
                 "monthly_credit_spend": monthly_credit,
-                "top_spend_categories": categories
+                "top_spend_categories": categories,
+                # 0 with no debt is a real answer; with a debt balance the user must say it
+                "monthly_debt_payment": debt_payment if (debt_payment or not existing_debts) else None,
             }
+            if profile.get("revision"):
+                payload["expected_revision"] = profile["revision"]   # detect edits from another tab
             with st.spinner("Saving..."):
                 resp = api_post("/profile", payload, auth=True)
-            if "id" in resp:
+            if resp.get("code") == "revision_conflict":
+                st.session_state.profile_cache = None
+                st.warning("Your profile was changed elsewhere. The latest version has been loaded; "
+                           "please review it and save again.")
+            elif "id" in resp:
                 # Keep the just-saved profile in session to avoid stale/missing
                 # profile reads right after save.
                 st.session_state.profile_cache = resp
@@ -2459,21 +2620,24 @@ def page_profile():
                     "✅ Profile saved! Go to Dashboard and click Run Full Analysis."
                 )
             else:
-                st.error(resp.get("detail", f"Save failed: {resp}"))
+                st.error(error_text(resp))
 
     with tab2:
         state = api_get("/analysis/state")
-        if state and state.get("health_score", 0) > 0:
+        if state and (state.get("health_score") or 0) > 0:
+            if state.get("stale"):
+                st.warning("Your profile changed since this score was calculated. Re-run the analysis.")
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.metric("Health Score",
-                          f"{state.get('health_score',0):.0f}/100")
+                          f"{state['health_score']:.0f}/100")
             with c2:
-                st.metric("Portfolio Value",
-                          fmt_inr(state.get("portfolio_value",0)))
+                pv = state.get("portfolio_value")
+                st.metric("Declared Investments",
+                          fmt_inr(pv) if pv is not None else "Not entered")
             with c3:
-                st.metric("Savings Rate",
-                          f"{state.get('monthly_savings_rate',0):.1f}%")
+                rate = state.get("monthly_savings_rate")
+                st.metric("Savings Rate", f"{rate:.1f}%" if rate is not None else "—")
             if state.get("last_updated"):
                 st.caption(f"Last analysis: {state['last_updated']}")
         else:
@@ -2517,6 +2681,8 @@ def main():
         "profile":    page_profile,
     }
 
+    if st.session_state.get("scenario") and st.session_state["scenario"].get("page") != page:
+        st.session_state.pop("scenario", None)       # a what-if never outlives its page
     page_map.get(page, page_dashboard)()
 
 

@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import CREDIT_AGENT_PROMPT
 from rag.rag_pipeline import build_credit_card_context
@@ -20,7 +20,7 @@ def run_credit_agent(profile: dict) -> dict:
     monthly_income = profile.get("monthly_income",       0)
     credit_spend   = profile.get("monthly_credit_spend", 0)
     categories     = profile.get("top_spend_categories", [])
-    credit_score   = profile.get("credit_score",         700)
+    credit_score   = profile.get("credit_score")          # None == unknown
     employment     = profile.get("employment_type",      "salaried")
     goals          = profile.get("financial_goals",      [])
     age            = profile.get("age",                  30)
@@ -38,7 +38,7 @@ USER DETAILS:
 - Monthly Credit Spend : Rs {credit_spend:,.0f}
 - Annual Credit Spend  : Rs {credit_spend * 12:,.0f}
 - Top Spend Categories : {categories}
-- Credit Score         : {credit_score}
+- Credit Score         : {credit_score if credit_score is not None else 'unknown (not provided) - do not assume a value'}
 - Financial Goals      : {goals}
 
 INSTRUCTIONS:
@@ -77,7 +77,10 @@ def _parse_response(raw: str, profile: dict) -> dict:
         return json.loads(cleaned)
 
     except json.JSONDecodeError:
-        return _fallback_response(raw, profile)
+        _fb = _fallback_response(raw, profile)
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(raw: str, profile: dict) -> dict:

@@ -1,6 +1,9 @@
 # ── Load .env FIRST before anything else ─────────────────────────────────────
+import logging
 import os
 import sys
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,60 +15,68 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-# ── Now import FastAPI ────────────────────────────────────────────────────────
+# Windows consoles default to cp1252; never let a log/print crash a request.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(errors="replace")
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.core import errors
+from backend.core.config import config
 
-# ─── Create App ───────────────────────────────────────────────────────────────
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"),
+                    format="%(asctime)s %(levelname)s %(name)s %(message)s")
+log = logging.getLogger("advisor")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Refuse unsafe production configuration before serving anything.
+    config.validate()
+    if config._ephemeral_key:
+        log.warning("SECRET_KEY not set: using an ephemeral per-process key (tokens expire on restart). "
+                    "Never do this outside local development.")
+    from backend.core.database import init_db
+    state = init_db()
+    log.info("database ready (schema %s)", (state or {}).get("current") or (state or {}).get("after", {}).get("current"))
+    yield
+
 
 app = FastAPI(
-    title       = "AI Financial Advisor API",
-    description = "Intelligent financial advisory platform for Indian investors",
-    version     = "1.0.0",
-    docs_url    = "/docs",
-    redoc_url   = "/redoc"
+    title="AI Financial Advisor API",
+    description="Intelligent financial advisory platform for Indian investors",
+    version="1.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins     = ["*"],
-    allow_credentials = True,
-    allow_methods     = ["*"],
-    allow_headers     = ["*"]
+    allow_origins=config.CORS_ORIGINS,           # explicit origins; never "*" with credentials
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+    expose_headers=["X-Request-ID", "Retry-After"],
 )
+errors.install(app)
 
-
-# ─── Startup ──────────────────────────────────────────────────────────────────
-
-@app.on_event("startup")
-def startup():
-    print("[API] Starting AI Financial Advisor...")
-    from backend.core.database import init_db
-    init_db()
-    print("[API] Ready ✓")
-
-
-# ─── Health Check ─────────────────────────────────────────────────────────────
 
 @app.get("/health", tags=["System"])
 def health():
-    """Check if API is running."""
-    return {
-        "status":  "ok",
-        "service": "AI Financial Advisor API",
-        "version": "1.0.0"
-    }
+    """Liveness only: no database, provider or secret details."""
+    return {"status": "ok", "service": "AI Financial Advisor API", "version": app.version}
 
 
-# ─── Include Routers ──────────────────────────────────────────────────────────
-# Imported after app is created to avoid circular import issues
-
-from backend.controllers.auth_controller     import router as auth_router
-from backend.controllers.profile_controller  import router as profile_router
-from backend.controllers.analysis_controller import router as analysis_router
-from backend.controllers.chat_controller     import router as chat_router
-from backend.controllers.thread_controller   import router as thread_router
+from backend.controllers.auth_controller import router as auth_router          # noqa: E402
+from backend.controllers.profile_controller import router as profile_router    # noqa: E402
+from backend.controllers.analysis_controller import router as analysis_router  # noqa: E402
+from backend.controllers.chat_controller import router as chat_router          # noqa: E402
+from backend.controllers.thread_controller import router as thread_router      # noqa: E402
 
 app.include_router(auth_router)
 app.include_router(profile_router)
@@ -73,6 +84,7 @@ app.include_router(analysis_router)
 app.include_router(chat_router)
 app.include_router(thread_router)
 
+
 @app.get("/")
 def root():
-    return {"message": "AI Financial Advisor API is running 🚀"}
+    return {"message": "AI Financial Advisor API is running"}

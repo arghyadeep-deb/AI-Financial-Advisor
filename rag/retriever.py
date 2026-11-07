@@ -338,119 +338,23 @@ def get_portfolio_allocation(profile: dict) -> dict:
 
 def calculate_health_metrics(profile: dict) -> dict:
     """
-    Pre-calculate all financial health metrics from profile.
-    Used by health agent to avoid recalculating.
+    Health metrics for prompt context.
+
+    Delegates to FinancialHealthEngine so there is exactly ONE implementation
+    of the score (no divergent copy); an unknown credit score is excluded from
+    the score rather than defaulted.
     """
-    monthly_income   = profile.get("monthly_income", 1)
-    monthly_expenses = profile.get("monthly_expenses", 0)
-    savings          = profile.get("existing_savings", 0)
-    investments      = profile.get("existing_investments", 0)
-    debts            = profile.get("existing_debts", 0)
-    credit_score     = profile.get("credit_score", 650)
-
-    monthly_surplus   = monthly_income - monthly_expenses
-    savings_rate      = (monthly_surplus / monthly_income * 100) if monthly_income > 0 else 0
-    emergency_months  = (savings / monthly_expenses) if monthly_expenses > 0 else 0
-    dti_ratio         = (debts / (monthly_income * 12) * 100) if monthly_income > 0 else 0
-    investment_rate   = ((investments / 12) / monthly_income * 100) if monthly_income > 0 else 0
-
-    # ── Score Each Component ──────────────────────────────────────────────
-    benchmarks = get_health_benchmarks()
-    weights    = benchmarks.get("health_score_weights", {
-        "savings_rate": 25,
-        "emergency_fund": 25,
-        "debt_to_income": 25,
-        "investment_rate": 15,
-        "credit_score": 10
-    })
-
-    # Savings rate score (max 25)
-    if savings_rate >= 30:
-        savings_score = 25
-    elif savings_rate >= 20:
-        savings_score = 20
-    elif savings_rate >= 10:
-        savings_score = 12
-    else:
-        savings_score = 5
-
-    # Emergency fund score (max 25)
-    if emergency_months >= 6:
-        emergency_score = 25
-    elif emergency_months >= 3:
-        emergency_score = 15
-    elif emergency_months >= 1:
-        emergency_score = 8
-    else:
-        emergency_score = 0
-
-    # Debt to income score (max 25)
-    if dti_ratio < 20:
-        debt_score = 25
-    elif dti_ratio < 36:
-        debt_score = 18
-    elif dti_ratio < 50:
-        debt_score = 10
-    else:
-        debt_score = 3
-
-    # Investment rate score (max 15)
-    if investment_rate >= 20:
-        invest_score = 15
-    elif investment_rate >= 15:
-        invest_score = 12
-    elif investment_rate >= 10:
-        invest_score = 8
-    else:
-        invest_score = 3
-
-    # Credit score (max 10)
-    if credit_score >= 800:
-        credit_component = 10
-    elif credit_score >= 750:
-        credit_component = 8
-    elif credit_score >= 700:
-        credit_component = 6
-    elif credit_score >= 650:
-        credit_component = 4
-    else:
-        credit_component = 2
-
-    overall = (
-        savings_score +
-        emergency_score +
-        debt_score +
-        invest_score +
-        credit_component
-    )
-
-    # ── Grade Assignment ──────────────────────────────────────────────────
-    if overall >= 90:
-        grade = "A+"
-    elif overall >= 80:
-        grade = "A"
-    elif overall >= 70:
-        grade = "B+"
-    elif overall >= 60:
-        grade = "B"
-    elif overall >= 50:
-        grade = "C"
-    else:
-        grade = "D"
-
+    from engines.financial_health_engine import FinancialHealthEngine
+    result = FinancialHealthEngine().calculate(profile)
+    raw = result["raw_metrics"]
     return {
-        "monthly_surplus":   round(monthly_surplus, 2),
-        "savings_rate":      round(savings_rate, 2),
-        "emergency_months":  round(emergency_months, 2),
-        "dti_ratio":         round(dti_ratio, 2),
-        "investment_rate":   round(investment_rate, 2),
-        "overall_score":     overall,
-        "grade":             grade,
-        "component_scores": {
-            "savings_rate":   savings_score,
-            "emergency_fund": emergency_score,
-            "debt_ratio":     debt_score,
-            "investment_rate":invest_score,
-            "credit_score":   credit_component
-        }
+        "monthly_surplus":   raw["monthly_surplus"],
+        "monthly_shortfall": raw.get("monthly_shortfall", 0),
+        "savings_rate":      raw["savings_rate"],
+        "emergency_months":  raw["emergency_months"],
+        "dti_ratio":         raw["dti_ratio"],
+        "investment_rate":   raw["investment_rate"],
+        "overall_score":     result["overall_score"],
+        "grade":             result["grade"],
+        "component_scores":  result["component_scores"],
     }

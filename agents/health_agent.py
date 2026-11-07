@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import HEALTH_AGENT_PROMPT
 from rag.rag_pipeline import build_health_context
@@ -15,8 +15,16 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
     monthly_exp    = profile.get("monthly_expenses", 0)
     existing_sav   = profile.get("existing_savings", 0)
     existing_debt  = profile.get("existing_debts", 0)
-    credit_score   = profile.get("credit_score", 700)
+    credit_score   = profile.get("credit_score")      # None == unknown
     age            = profile.get("age", 30)
+
+    # Amounts in suggested steps must be affordable: never more than the real
+    # monthly surplus, and SIP-type steps never more than the canonical
+    # available contribution (zero during a deficit).
+    surplus_nonneg = max(0, monthly_income - monthly_exp)
+    _avail = profile.get("available_monthly_contribution", "unset")
+    sip_cap = surplus_nonneg if _avail == "unset" else int(_avail or 0)
+    gap_note = "Once your monthly gap is closed, set up an automatic transfer toward your emergency fund."
 
     savings_rate     = raw.get("savings_rate", 0)
     emergency_months = raw.get("emergency_months", 0)
@@ -41,7 +49,8 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
             ),
             "action_steps": [
                 "Open a liquid fund dedicated to emergencies.",
-                f"Set auto-transfer of Rs {round(monthly_exp * 0.5):,.0f}/month.",
+                (f"Set auto-transfer of up to Rs {min(round(monthly_exp * 0.5), surplus_nonneg):,.0f}/month "
+                 "(what your budget allows)." if surplus_nonneg > 0 else gap_note),
                 f"Target Rs {round(monthly_exp * 6):,.0f} over 12 months.",
                 "Pause aggressive equity investing until emergency cushion is ready."
             ],
@@ -59,7 +68,8 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
             ),
             "impact": "Insufficient emergency reserve is a common reason for breaking SIPs during downturns.",
             "action_steps": [
-                f"Add Rs {round(emergency_gap / 12):,.0f}/month to emergency corpus.",
+                (f"Add up to Rs {min(round(emergency_gap / 12), surplus_nonneg):,.0f}/month to emergency corpus."
+                 if surplus_nonneg > 0 else gap_note),
                 "Keep this amount in low-risk, high-liquidity instruments.",
                 "Do not mix emergency money with regular spending account."
             ],
@@ -96,7 +106,8 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
             "impact": "Even small savings-rate improvements compound strongly over 10+ years.",
             "action_steps": [
                 "Cut 2-3 non-essential spend categories.",
-                f"Increase SIP by Rs {round(monthly_income * 0.05):,.0f}/month.",
+                (f"Increase SIP by up to Rs {min(round(monthly_income * 0.05), sip_cap):,.0f}/month."
+                 if sip_cap > 0 else "Hold new SIPs until your monthly budget has room."),
                 "Follow a needs-wants-savings monthly cap."
             ],
             "timeline": "Within 1 month"
@@ -137,7 +148,9 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
             "timeline": "12-18 months"
         })
 
-    if credit_score < 650:
+    if credit_score is None:
+        pass   # unknown stays unknown: no credit warning is invented
+    elif credit_score < 650:
         warnings.append({
             "title": "Low Credit Score",
             "severity": "critical",
@@ -181,7 +194,8 @@ def _generate_detailed_warnings(profile: dict, engine_result: dict) -> list:
             "impact": "Late starts can require much higher monthly amounts to reach the same target corpus.",
             "action_steps": [
                 "Start with a basic index-fund SIP.",
-                f"Set a starting SIP near Rs {round(monthly_income * 0.10):,.0f}/month.",
+                (f"Set a starting SIP of up to Rs {min(round(monthly_income * 0.10), sip_cap):,.0f}/month."
+                 if sip_cap > 0 else "Start a SIP only once your monthly budget has room."),
                 "Automate debit on salary date."
             ],
             "timeline": "This week"
@@ -215,7 +229,7 @@ def run_health_agent(profile: dict) -> dict:
     context = build_health_context(profile)
     monthly_income   = profile.get("monthly_income",   0)
     monthly_expenses = profile.get("monthly_expenses", 0)
-    credit_score     = profile.get("credit_score",     700)
+    credit_score     = profile.get("credit_score")        # None == unknown
     age              = profile.get("age",              30)
     goals            = profile.get("financial_goals",  [])
     employment       = profile.get("employment_type",  "salaried")
@@ -234,7 +248,7 @@ COMPONENT SCORES:
 - Emergency Fund : {comp_scores['emergency_fund']}/25  — current {metrics['emergency_months']:.1f} months — benchmark 6 months
 - Debt Ratio     : {comp_scores['debt_ratio']}/25      — current {metrics['dti_ratio']:.1f}% — benchmark below 36%
 - Investment Rate: {comp_scores['investment_rate']}/15  — current {metrics['investment_rate']:.1f}% — benchmark 20%+
-- Credit Score   : {comp_scores['credit_score']}/10    — current {credit_score} — benchmark 750+
+- Credit Score   : {('unknown (excluded from score)' if comp_scores['credit_score'] is None else str(comp_scores['credit_score']) + '/10')}    — current {credit_score if credit_score is not None else 'unknown'} — benchmark 750+
 
 RAW METRICS:
 - Monthly Surplus  : Rs {metrics['monthly_surplus']:,.0f}
@@ -309,7 +323,10 @@ def _parse_response(
         return result
 
     except json.JSONDecodeError:
-        return _fallback_response(profile, engine_result, improvements, budget)
+        _fb = _fallback_response(profile, engine_result, improvements, budget)
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(
@@ -319,7 +336,7 @@ def _fallback_response(
     budget:        dict
 ) -> dict:
     monthly_income = profile.get("monthly_income",   0)
-    credit_score   = profile.get("credit_score",     700)
+    credit_score   = profile.get("credit_score")          # None == unknown
 
     overall     = engine_result["overall_score"]
     grade       = engine_result["grade"]
@@ -331,7 +348,7 @@ def _fallback_response(
     if metrics["savings_rate"]    >= 20: strengths.append(f"Strong savings rate of {metrics['savings_rate']:.1f}%")
     if metrics["emergency_months"] >= 6: strengths.append(f"Emergency fund fully funded at {metrics['emergency_months']:.1f} months")
     if metrics["dti_ratio"]        < 20: strengths.append(f"Excellent debt management — DTI of {metrics['dti_ratio']:.1f}%")
-    if credit_score               >= 750: strengths.append(f"Strong credit score of {credit_score}")
+    if credit_score is not None and credit_score >= 750: strengths.append(f"Strong credit score of {credit_score}")
     if metrics["investment_rate"]  >= 15: strengths.append(f"Good investment rate of {metrics['investment_rate']:.1f}%")
 
     if not strengths:
@@ -341,20 +358,27 @@ def _fallback_response(
         ]
 
     priority_actions = []
-    if metrics["emergency_gap"] > 0:
+    shortfall = metrics.get("monthly_shortfall", 0)
+    if shortfall > 0:
+        priority_actions.append(
+            f"Expenses exceed income by Rs {shortfall:,.0f}/month — reduce spending or raise income "
+            "before starting any new investment"
+        )
+    if metrics["emergency_gap"] > 0 and shortfall <= 0:
         priority_actions.append(
             f"Build emergency fund — save Rs {round(metrics['emergency_gap']/12):,.0f}/month "
             f"in liquid fund until Rs {metrics['emergency_gap']:,.0f} gap is filled"
         )
-    if metrics["savings_rate"] < 20:
+    if metrics["savings_rate"] < 20 and shortfall <= 0:
         gap = max(0, round(monthly_income * 0.20) - round(monthly_income - profile.get("monthly_expenses", 0)))
         if gap > 0:
             priority_actions.append(f"Increase savings rate to 20% — reduce spending by Rs {gap:,.0f}/month")
-    if metrics["investment_rate"] < 15:
+    available = profile.get("available_monthly_contribution")
+    if metrics["investment_rate"] < 15 and available:
         priority_actions.append(
-            f"Start SIP of Rs {round(monthly_income * 0.15):,.0f}/month in Nifty 50 Index Fund + ELSS"
+            f"Start SIP of up to Rs {available:,.0f}/month (your estimated available amount) in a diversified index fund"
         )
-    if credit_score < 750:
+    if credit_score is not None and credit_score < 750:
         priority_actions.append("Improve credit score to 750+ — pay full credit card outstanding every month")
 
     if not priority_actions:

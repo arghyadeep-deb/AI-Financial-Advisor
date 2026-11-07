@@ -19,3 +19,9 @@ advisor.db
 # Tooling
 .pytest_cache/
 .mypy_cache/
+
+# Local backups and generated files
+backups/
+*.db
+*.sqlite
+.venv/

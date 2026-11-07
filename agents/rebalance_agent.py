@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import REBALANCE_AGENT_PROMPT
 from rag.retriever import get_portfolio_allocation
@@ -123,10 +123,13 @@ def _parse_response(raw, drift_analysis, needs_rebalancing,
             cleaned = "\n".join(lines)
         return json.loads(cleaned)
     except json.JSONDecodeError:
-        return _fallback_response(
+        _fb = _fallback_response(
             drift_analysis, needs_rebalancing, method,
             current_alloc, target_alloc, portfolio_value, total_sip, sip_plan
         )
+        if isinstance(_fb, dict):
+            _fb['parse_error'] = True   # parser fallback is a degraded result
+        return _fb
 
 
 def _fallback_response(drift_analysis, needs_rebalancing, method,

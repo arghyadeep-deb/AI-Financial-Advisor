@@ -1,71 +1,65 @@
+from datetime import datetime, timezone
+from typing import Optional
+
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
-from backend.core.database import get_db
+
 from backend.core.auth import decode_token
-from backend.models.models import User, FinancialProfile
+from backend.core.database import get_db
+from backend.models.models import AuthSession, FinancialProfile, User
 
-bearer = HTTPBearer()
+# auto_error=False so a missing header is a uniform 401 (not FastAPI's 403).
+bearer = HTTPBearer(auto_error=False)
+
+_UNAUTH = "Invalid or expired credentials. Please sign in again."
 
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer),
-    db:          Session = Depends(get_db)
-) -> User:
+def _unauthorized() -> HTTPException:
+    return HTTPException(status.HTTP_401_UNAUTHORIZED, _UNAUTH, headers={"WWW-Authenticate": "Bearer"})
 
-    payload = decode_token(credentials.credentials)
 
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token. Please login again."
-        )
+class AuthContext:
+    """The authenticated user plus the session that authenticated the call."""
+    def __init__(self, user: User, session_id: str):
+        self.user = user
+        self.session_id = session_id
 
-    user = db.query(User).filter(
-        User.id == int(payload.get("sub", 0))
-    ).first()
 
+def get_auth_context(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer),
+    db: Session = Depends(get_db),
+) -> AuthContext:
+    if credentials is None:
+        raise _unauthorized()
+    claims = decode_token(credentials.credentials)
+    if not claims:
+        raise _unauthorized()
+
+    session = db.get(AuthSession, claims["sid"])
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    if (session is None or session.revoked_at is not None or session.expires_at <= now
+            or str(session.user_id) != claims["sub"]):
+        raise _unauthorized()
+
+    user = db.get(User, int(claims["sub"]))
     if not user or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found."
-        )
+        raise _unauthorized()
+    return AuthContext(user, session.id)
 
-    return user
+
+def get_current_user(ctx: AuthContext = Depends(get_auth_context)) -> User:
+    return ctx.user
 
 
 def get_current_profile(
     current_user: User = Depends(get_current_user),
-    db:           Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> FinancialProfile:
-
-    profile = db.query(FinancialProfile).filter(
-        FinancialProfile.user_id == current_user.id
-    ).first()
-
+    profile = db.query(FinancialProfile).filter(FinancialProfile.user_id == current_user.id).first()
     if not profile:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Profile not found. Please complete your profile first."
+            detail="Profile not found. Please complete your profile first.",
         )
-
     return profile
-
-
-def profile_to_dict(profile: FinancialProfile) -> dict:
-    """Convert SQLAlchemy model to plain dict for agents."""
-    return {
-        "age":                  profile.age,
-        "employment_type":      profile.employment_type,
-        "monthly_income":       profile.monthly_income,
-        "monthly_expenses":     profile.monthly_expenses,
-        "existing_savings":     profile.existing_savings     or 0,
-        "existing_investments": profile.existing_investments or 0,
-        "existing_debts":       profile.existing_debts       or 0,
-        "risk_tolerance":       profile.risk_tolerance,
-        "investment_horizon":   profile.investment_horizon,
-        "financial_goals":      profile.financial_goals      or [],
-        "credit_score":         profile.credit_score         or 700,
-        "monthly_credit_spend": profile.monthly_credit_spend or 0,
-        "top_spend_categories": profile.top_spend_categories or []
-    }

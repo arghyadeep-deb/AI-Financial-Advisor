@@ -5,20 +5,28 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
-from langsmith import traceable
+from backend.core.telemetry import traceable
 
 load_dotenv()
 
-# ─── LangSmith Config ────────────────────────────────────────────────────────
+# ─── Tracing ─────────────────────────────────────────────────────────────────
+# Raw prompt/response tracing is never enabled here. backend.core.telemetry
+# forces payload-hiding flags and exports metadata only when explicitly
+# opted in (TELEMETRY_EXPORT_ENABLED=true plus an API key).
+import time
+import backend.core.telemetry  # noqa: F401  (configures environment on import)
+from backend.core.config import config as _cfg
 
-os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
-os.environ["LANGCHAIN_ENDPOINT"]   = os.getenv(
-    "LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com"
-)
-os.environ["LANGCHAIN_API_KEY"]  = os.getenv("LANGCHAIN_API_KEY", "")
-os.environ["LANGCHAIN_PROJECT"]  = os.getenv("LANGCHAIN_PROJECT", "AI-Financial-Advisor")
+LANGSMITH_ENABLED = backend.core.telemetry.export_enabled()
 
-LANGSMITH_ENABLED = bool(os.getenv("LANGCHAIN_API_KEY"))
+
+class ProviderUnavailable(Exception):
+    """All configured providers failed (or none are configured)."""
+
+
+class StreamInterrupted(Exception):
+    """A stream failed after some text was already delivered."""
+
 
 # ─── Load API Keys ────────────────────────────────────────────────────────────
 
@@ -66,8 +74,6 @@ if not GROQ_KEYS:
     print("[LLM] ⚠️  No Groq keys found in .env")
 if not GOOGLE_KEYS:
     print("[LLM] ⚠️  No Google keys found in .env")
-if LANGSMITH_ENABLED:
-    print(f"[LLM] ✓ LangSmith tracing enabled → project: {os.environ['LANGCHAIN_PROJECT']}")
 
 
 # ─── Groq Call ────────────────────────────────────────────────────────────────
@@ -101,24 +107,30 @@ def _call_groq(
     if agent_name == "chat_agent":
         keys = keys[:2]
 
+    deadline = time.monotonic() + _cfg.LLM_TIMEOUT_SECONDS * _cfg.LLM_MAX_ATTEMPTS
+    attempts = 0
     for key in keys:
         for model in GROQ_MODELS:
             if model in DISABLED_GROQ_MODELS:
                 continue
+            if attempts >= _cfg.LLM_MAX_ATTEMPTS or time.monotonic() > deadline:
+                raise ProviderUnavailable("Groq attempts exhausted")
+            attempts += 1
             try:
                 llm = ChatGroq(
                     api_key     = key,
                     model       = model,
                     max_tokens  = max_tokens,
                     temperature = 0.3,
-                    tags        = [agent_name, "groq", model]
+                    timeout     = _cfg.LLM_TIMEOUT_SECONDS,
+                    max_retries = 0,
                 )
                 messages = [
                     SystemMessage(content=system_prompt),
                     HumanMessage(content=user_message)
                 ]
                 response = llm.invoke(messages)
-                print(f"[LLM] ✓ Groq/{model} → {agent_name}")
+                print(f"[LLM] Groq/{model} ok -> {agent_name}")
                 return response.content
 
             except Exception as e:
@@ -137,7 +149,7 @@ def _call_groq(
                     print(f"[LLM] Groq error on {model}: {e}")
                     continue
 
-    raise Exception("All Groq keys and models exhausted")
+    raise ProviderUnavailable("All Groq keys and models exhausted")
 
 
 # ─── Gemini Call ──────────────────────────────────────────────────────────────
@@ -166,21 +178,26 @@ def _call_gemini(
     if agent_name == "chat_agent":
         keys = keys[:2]
 
+    attempts = 0
     for key in keys:
+        if attempts >= _cfg.LLM_MAX_ATTEMPTS:
+            break
+        attempts += 1
         try:
             llm = ChatGoogleGenerativeAI(
                 google_api_key    = key,
                 model             = "gemini-1.5-flash",
                 max_output_tokens = max_tokens,
                 temperature       = 0.3,
-                tags              = [agent_name, "gemini"]
+                timeout           = _cfg.LLM_TIMEOUT_SECONDS,
+                max_retries       = 0,
             )
             messages = [
                 SystemMessage(content=system_prompt),
                 HumanMessage(content=user_message)
             ]
             response = llm.invoke(messages)
-            print(f"[LLM] ✓ Gemini/gemini-1.5-flash → {agent_name}")
+            print(f"[LLM] Gemini ok -> {agent_name}")
             return response.content
 
         except Exception as e:
@@ -195,7 +212,7 @@ def _call_gemini(
                 print(f"[LLM] Gemini error: {e} — trying next key...")
                 continue
 
-    raise Exception("All Gemini keys exhausted")
+    raise ProviderUnavailable("All Gemini keys exhausted")
 
 
 # ─── Main LLM Router ─────────────────────────────────────────────────────────
@@ -259,10 +276,7 @@ def call_llm(
         except Exception as e:
             print(f"[LLM] ⚠️  Gemini also failed for {agent_name}: {e}")
 
-    raise Exception(
-        f"[LLM] All providers failed for agent: {agent_name}. "
-        f"Check your API keys in .env"
-    )
+    raise ProviderUnavailable(f"All providers failed for agent: {agent_name}")
 
 
 # ─── Streaming LLM ───────────────────────────────────────────────────────────
@@ -274,131 +288,62 @@ def stream_llm(
     agent_name:    str = "chat_agent"
 ) -> Generator[str, None, None]:
     """
-    Stream LLM response token by token.
+    Stream an LLM response chunk by chunk.
 
-    Yields string chunks as they arrive from the LLM.
-    Frontend renders each chunk immediately —
-    user sees reply being typed in real time.
-
-    Tries Groq streaming first then Gemini streaming.
-    Falls back to non-streaming call_llm if all streaming fails.
-
-    Note: @traceable is not used here because generators
-    and LangSmith tracing have async conflicts.
-    The individual LLM calls inside are still logged via tags.
+    Failover to another provider happens ONLY before the first chunk was
+    delivered, so the client never sees duplicated or spliced text.  When no
+    provider can start a stream ``ProviderUnavailable`` is raised and the
+    caller renders a deterministic fallback; if a stream breaks after text was
+    delivered ``StreamInterrupted`` is raised.  No financial advice is ever
+    synthesised here.
     """
+    messages = [SystemMessage(content=system_prompt), HumanMessage(content=user_message)]
+    delivered = False
+    attempts = 0
+    deadline = time.monotonic() + _cfg.LLM_TIMEOUT_SECONDS * _cfg.LLM_MAX_ATTEMPTS * 2
 
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=user_message)
-    ]
+    def _providers():
+        if GROQ_KEYS:
+            keys = GROQ_KEYS.copy()
+            random.shuffle(keys)
+            for key in keys:
+                for model in GROQ_MODELS:
+                    if model not in DISABLED_GROQ_MODELS:
+                        yield "groq", key, model
+        if GOOGLE_KEYS:
+            keys = GOOGLE_KEYS.copy()
+            random.shuffle(keys)
+            for key in keys:
+                yield "gemini", key, "gemini-1.5-flash"
 
-    # ── Try Groq Streaming ────────────────────────────────────────────────
-    if GROQ_KEYS:
-        keys = GROQ_KEYS.copy()
-        random.shuffle(keys)
-
-        if agent_name == "chat_agent":
-            keys = keys[:1]
-
-        for key in keys:
-            for model in GROQ_MODELS:
-                if model in DISABLED_GROQ_MODELS:
-                    continue
-                try:
-                    llm = ChatGroq(
-                        api_key     = key,
-                        model       = model,
-                        max_tokens  = max_tokens,
-                        temperature = 0.3,
-                        streaming   = True
-                    )
-                    print(f"[LLM] Streaming via Groq/{model} → {agent_name}")
-
-                    for chunk in llm.stream(messages):
-                        if chunk.content:
-                            yield chunk.content
-
-                    # Successfully streamed — return
-                    return
-
-                except Exception as e:
-                    err = str(e).lower()
-                    if _is_rate_limit_error(err):
-                        print(f"[LLM] Groq stream rate limit {model} — trying next...")
-                        continue
-                    elif _is_invalid_key_error(err):
-                        print(f"[LLM] Groq stream invalid key — trying next key...")
-                        break
-                    elif _is_unavailable_model_error(err):
-                        DISABLED_GROQ_MODELS.add(model)
-                        print(f"[LLM] Groq stream model unavailable {model} — skipping from now on")
-                        continue
-                    else:
-                        print(f"[LLM] Groq stream error {model}: {e} — trying next...")
-                        continue
-
-    # ── Try Gemini Streaming ──────────────────────────────────────────────
-    if GOOGLE_KEYS:
-        keys = GOOGLE_KEYS.copy()
-        random.shuffle(keys)
-
-        if agent_name == "chat_agent":
-            keys = keys[:1]
-
-        for key in keys:
-            try:
-                llm = ChatGoogleGenerativeAI(
-                    google_api_key    = key,
-                    model             = "gemini-1.5-flash",
-                    max_output_tokens = max_tokens,
-                    temperature       = 0.3,
-                    streaming         = True
-                )
-                print(f"[LLM] Streaming via Gemini → {agent_name}")
-
-                for chunk in llm.stream(messages):
-                    if chunk.content:
-                        yield chunk.content
-
-                # Successfully streamed — return
-                return
-
-            except Exception as e:
-                err = str(e).lower()
-                if _is_rate_limit_error(err):
-                    print(f"[LLM] Gemini stream quota exceeded — trying next key...")
-                    continue
-                else:
-                    print(f"[LLM] Gemini stream error: {e} — trying next key...")
-                    continue
-
-    # ── Last Resort: Non-streaming Fallback ───────────────────────────────
-    print(f"[LLM] ⚠️  Streaming unavailable for {agent_name} — falling back to non-streaming")
-
-    # Avoid double retry latency for conversational UX.
-    if agent_name == "chat_agent":
-        yield "I am facing high traffic on the model providers right now. Based on your latest profile, continue with your planned SIP and emergency fund contribution today, and try again shortly for a detailed breakdown."
-        return
-
-    try:
-        result = call_llm(
-            system_prompt = system_prompt,
-            user_message  = user_message,
-            max_tokens    = max_tokens,
-            agent_name    = agent_name
-        )
-        # Yield word by word to simulate streaming
-        words = result.split(" ")
-        for i, word in enumerate(words):
-            if i == 0:
-                yield word
+    per_provider = {"groq": 0, "gemini": 0}      # bounded budget per provider so failover stays reachable
+    for provider, key, model in _providers():
+        if per_provider[provider] >= _cfg.LLM_MAX_ATTEMPTS or time.monotonic() > deadline:
+            continue
+        per_provider[provider] += 1
+        attempts += 1
+        try:
+            if provider == "groq":
+                llm = ChatGroq(api_key=key, model=model, max_tokens=max_tokens, temperature=0.3,
+                               streaming=True, timeout=_cfg.LLM_TIMEOUT_SECONDS, max_retries=0)
             else:
-                yield " " + word
+                llm = ChatGoogleGenerativeAI(google_api_key=key, model=model, max_output_tokens=max_tokens,
+                                             temperature=0.3, streaming=True,
+                                             timeout=_cfg.LLM_TIMEOUT_SECONDS, max_retries=0)
+            for chunk in llm.stream(messages):
+                if chunk.content:
+                    delivered = True
+                    yield chunk.content
+            return
+        except Exception as e:
+            if delivered:
+                raise StreamInterrupted(type(e).__name__) from None
+            err = str(e).lower()
+            if provider == "groq" and _is_unavailable_model_error(err):
+                DISABLED_GROQ_MODELS.add(model)
+            continue            # nothing delivered yet: safe to try the next provider
 
-    except Exception as e:
-        print(f"[LLM] ⚠️  Non-streaming fallback also failed: {e}")
-        yield "I am having trouble connecting right now. Please try again in a moment."
+    raise ProviderUnavailable(f"No provider could start a stream for {agent_name}")
 
 
 # ─── LLM with History ─────────────────────────────────────────────────────────

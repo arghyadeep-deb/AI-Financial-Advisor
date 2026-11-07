@@ -1,5 +1,5 @@
 import json
-from langsmith import traceable
+from backend.core.telemetry import traceable
 from utils.llm_brain import call_llm
 from intelligence.system_prompts import SIMULATION_AGENT_PROMPT
 
@@ -31,8 +31,14 @@ def run_simulation_agent(
     total_sip         = investment_result.get("total_monthly_investment", 0)
     current_alloc     = investment_result.get("portfolio_allocation",     {})
 
-    current_monthly   = monthly_surplus * 0.5
-    optimized_monthly = total_sip if total_sip > 0 else monthly_surplus * 0.8
+    _avail = profile.get("available_monthly_contribution", "unset")
+    if _avail == "unset":                       # legacy callers without a canonical snapshot
+        current_monthly   = monthly_surplus * 0.5
+        optimized_monthly = total_sip if total_sip > 0 else monthly_surplus * 0.8
+    else:                                       # canonical affordability: 0/None means nothing to invest
+        _cap = max(0.0, float(_avail or 0))
+        current_monthly   = min(max(0.0, monthly_surplus * 0.5), _cap)
+        optimized_monthly = min(total_sip, _cap) if total_sip > 0 else _cap
 
     current_proj  = _calculate_all_projections(current_monthly,   8,  existing_invest, [5, 10, 20, years_to_retire])
     optimized_proj = _calculate_all_projections(optimized_monthly, 11, existing_invest, [5, 10, 20, years_to_retire])
@@ -207,5 +213,5 @@ def _parse_response(raw, current_proj, optimized_proj,
                 f"you could build Rs {diff_10yr:,.0f} more in 10 years and "
                 f"Rs {diff_20yr:,.0f} more in 20 years."
             ),
-            "parse_error": False
+            "parse_error": True   # parser fallback is a degraded result
         }

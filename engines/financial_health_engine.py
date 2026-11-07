@@ -41,7 +41,7 @@ class FinancialHealthEngine:
         existing_savings = profile.get("existing_savings",      0)
         existing_invest  = profile.get("existing_investments",  0)
         existing_debts   = profile.get("existing_debts",        0)
-        credit_score     = profile.get("credit_score",          650)
+        credit_score     = profile.get("credit_score")        # None == unknown (never defaulted)
         age              = profile.get("age",                   30)
 
         # ── Core Metrics ──────────────────────────────────────────────────
@@ -56,15 +56,15 @@ class FinancialHealthEngine:
         emergency_score  = self._score_emergency_fund(emergency_months)
         debt_score       = self._score_debt_ratio(dti_ratio)
         invest_score     = self._score_investment_rate(investment_rate)
-        credit_comp      = self._score_credit_score(credit_score)
+        credit_comp      = (self._score_credit_score(credit_score)
+                            if credit_score is not None else None)
 
-        overall_score    = (
-            savings_score  +
-            emergency_score +
-            debt_score      +
-            invest_score    +
-            credit_comp
-        )
+        # Unknown inputs are excluded, not guessed: the score is points earned
+        # over the points that can be assessed, and the basis is reported.
+        points           = savings_score + emergency_score + debt_score + invest_score + (credit_comp or 0)
+        available_points = 100 if credit_comp is not None else 90
+        excluded         = [] if credit_comp is not None else ["credit_score"]
+        overall_score    = points / available_points * 100
 
         grade            = self._get_grade(overall_score)
 
@@ -78,9 +78,16 @@ class FinancialHealthEngine:
         return {
             "overall_score":   round(overall_score, 1),
             "grade":           grade,
+            "score_basis": {
+                "points":           points,
+                "available_points": available_points,
+                "excluded":         excluded,
+                "partial":          bool(excluded),
+            },
 
             "raw_metrics": {
                 "monthly_surplus":   round(monthly_surplus,  2),
+                "monthly_shortfall": round(max(0, -monthly_surplus), 2),
                 "savings_rate":      round(savings_rate,     2),
                 "emergency_months":  round(emergency_months, 2),
                 "dti_ratio":         round(dti_ratio,        2),
@@ -129,9 +136,10 @@ class FinancialHealthEngine:
                 "credit_score": {
                     "score":     credit_comp,
                     "max":       10,
-                    "value":     str(credit_score),
+                    "value":     str(credit_score) if credit_score is not None else "unknown",
                     "benchmark": "750+",
-                    "status":    "good" if credit_score >= 750 else "needs_work"
+                    "status":    ("unknown" if credit_score is None
+                                  else "good" if credit_score >= 750 else "needs_work")
                 }
             },
 
@@ -273,9 +281,25 @@ class FinancialHealthEngine:
 
         monthly_income   = profile.get("monthly_income", 0)
         monthly_expenses = profile.get("monthly_expenses", 0)
+        shortfall        = metrics.get("monthly_shortfall", 0)
+        # Canonical affordable amount supplied by the analysis service; the
+        # sentinel means "not supplied" (direct engine callers / unit tests).
+        available        = profile.get("available_monthly_contribution", "unset")
+
+        if shortfall > 0:
+            suggestions.append({
+                "area":     "Monthly Deficit",
+                "current":  f"Expenses exceed income by Rs {shortfall:,.0f}",
+                "target":   "Income at or above expenses",
+                "action_steps": [
+                    f"Close the monthly gap of Rs {shortfall:,.0f} by reducing spending or raising income",
+                    "Review recurring subscriptions and large discretionary categories first",
+                    "Do not start new investments until the monthly gap is closed",
+                ]
+            })
 
         # ── Emergency Fund ────────────────────────────────────────────────
-        if metrics["emergency_months"] < 6:
+        if metrics["emergency_months"] < 6 and shortfall <= 0:
             gap     = metrics["emergency_gap"]
             monthly = round(gap / 12)
             suggestions.append({
@@ -290,7 +314,7 @@ class FinancialHealthEngine:
             })
 
         # ── Savings Rate ──────────────────────────────────────────────────
-        if metrics["savings_rate"] < 20:
+        if metrics["savings_rate"] < 20 and shortfall <= 0:
             target_saving  = round(monthly_income * 0.20)
             current_saving = round(monthly_income - monthly_expenses)
             gap            = max(0, target_saving - current_saving)
@@ -306,13 +330,15 @@ class FinancialHealthEngine:
             })
 
         # ── Investment Rate ───────────────────────────────────────────────
-        if metrics["investment_rate"] < 15:
+        can_invest = available == "unset" and shortfall <= 0 or (available != "unset" and bool(available))
+        sip_amount = round(monthly_income * 0.10) if available == "unset" else available
+        if metrics["investment_rate"] < 15 and can_invest:
             suggestions.append({
                 "area":     "Investment Rate",
                 "current":  f"{metrics['investment_rate']:.1f}%",
                 "target":   "20%+",
                 "action_steps": [
-                    f"Start Nifty 50 Index Fund SIP of Rs {round(monthly_income * 0.10):,.0f}/month",
+                    f"Start Nifty 50 Index Fund SIP of up to Rs {sip_amount:,.0f}/month",
                     "Max out PPF — Rs 1,50,000/year",
                     "Open ELSS SIP for 80C tax saving"
                 ]
