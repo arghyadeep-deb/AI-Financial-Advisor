@@ -73,7 +73,7 @@ export async function health(c) {
   const exp = f("w_expenses", "Monthly expenses (₹)", p.monthly_expenses);
   const sav = f("w_savings", "Savings (₹)", p.existing_savings);
   const debt = f("w_debts", "Total debt (₹)", p.existing_debts);
-  const pay = f("w_payment", "Monthly debt payments (₹, blank = not declared)", p.monthly_debt_payment);
+  const pay = f("w_payment", "Monthly debt payments (₹)", p.monthly_debt_payment);
 
   const msg = h("div", { "aria-live": "polite" });
   const out = h("div", { class: "stack" });
@@ -96,7 +96,11 @@ export async function health(c) {
     const sc = {}; const bad = [];
     for (const [el, k, req] of [[inc, "monthly_income", true], [exp, "monthly_expenses", true], [sav, "existing_savings", true], [debt, "existing_debts", true], [pay, "monthly_debt_payment", false]]) {
       const v = read(el);
-      if (v === "") { if (req) bad.push(k); continue; }
+      if (v === "") {
+        if (req) bad.push(k);
+        else if (p.monthly_debt_payment !== null && p.monthly_debt_payment !== undefined) bad.push("monthly_debt_payment (enter 0 if you have none; a what-if cannot clear a saved payment)");
+        continue;
+      }
       if (!MONEY_RE.test(v)) { bad.push(k); continue; }
       sc[k] = v;
     }

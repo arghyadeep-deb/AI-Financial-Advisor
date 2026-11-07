@@ -25,12 +25,14 @@ export async function chat(c) {
   async function loadThreads() {
     const r = await api("/threads");
     clear(list);
-    list.appendChild(h("button", { type: "button", text: "+ New chat", onClick: () => { threadId = null; clear(box); msg.replaceChildren(); loadThreads(); } }));
+    list.appendChild(h("button", { type: "button", text: "+ New chat", disabled: busy, onClick: () => { if (busy) return; threadId = null; pending = null; retry.classList.add("hidden"); clear(box); msg.replaceChildren(); loadThreads(); } }));
     const items = r.ok && Array.isArray(r.data) ? r.data : (r.ok && r.data && r.data.threads) || [];
-    items.forEach((t) => list.appendChild(h("button", { type: "button", "aria-current": t.id === threadId ? "true" : "false", text: t.title || "Chat " + t.id,
+    items.forEach((t) => list.appendChild(h("button", { type: "button", "aria-current": t.id === threadId ? "true" : "false", text: t.title || "Chat " + t.id, disabled: busy,
       onClick: () => openThread(t.id) })));
   }
   async function openThread(id) {
+    if (busy) return;
+    pending = null; retry.classList.add("hidden");
     const r = await api(`/threads/${id}/history`);
     if (!r.ok) { msg.replaceChildren(banner("bad", r.error)); return; }
     threadId = id; clear(box);
@@ -41,11 +43,13 @@ export async function chat(c) {
   async function submit(text, cid) {
     if (busy) return;
     busy = true; send.disabled = true; retry.classList.add("hidden"); msg.replaceChildren();
+    list.querySelectorAll("button").forEach((b) => { b.disabled = true; });   // no thread switching mid-reply
     const mine = bubble("user", text);
     const reply = bubble("assistant", "");
     const res = await streamChat({ message: text, threadId, clientMessageId: cid, onChunk: (t) => { reply.textContent += t; box.scrollTop = box.scrollHeight; } });
     busy = false; send.disabled = false;
     if (res.threadId) threadId = res.threadId;
+    list.querySelectorAll("button").forEach((b) => { b.disabled = false; });
     if (res.ok) {
       pending = null;
       if (!reply.textContent && res.reply) reply.textContent = res.reply;

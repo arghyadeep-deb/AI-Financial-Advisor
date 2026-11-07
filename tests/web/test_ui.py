@@ -224,3 +224,33 @@ def test_pages_have_no_inline_style_or_script_attributes(page, live_url, tracker
     bad = page.evaluate("document.querySelectorAll('[style], script:not([src]), [onclick]').length")
     assert bad == 0
     assert tracker["errors"] == []
+
+
+def test_what_if_cannot_silently_keep_a_cleared_debt_payment(page, live_url, tracker):
+    signup(page, live_url)
+    save_profile(page)                                                     # saves a declared payment of 0
+    page.get_by_role("link", name="Health").click()
+    page.fill("#w_payment", "")
+    page.get_by_role("button", name="Try this what-if").click()
+    expect(page.get_by_text("cannot clear a saved payment")).to_be_visible()
+    assert page.get_by_text("What-if result").count() == 0
+
+
+def test_chat_thread_buttons_are_disabled_while_a_reply_streams(page, live_url, tracker):
+    signup(page, live_url)
+    save_profile(page)
+    held = {}
+    page.route("**/chat/stream", lambda route: held.update(route=route))      # hold the request open
+    page.get_by_role("link", name="Advisor chat").click()
+    page.fill("#chat_in", "hello")
+    page.get_by_role("button", name="Send").click()
+    expect(page.get_by_role("button", name="+ New chat")).to_be_disabled()
+    for _ in range(50):
+        if "route" in held:
+            break
+        page.wait_for_timeout(100)
+    body = (f"data: {json.dumps({'thread_id': 1, 'chunk': 'ok'})}\n\n"
+            f"data: {json.dumps({'thread_id': 1, 'done': True, 'full_reply': 'ok', 'status': 'ok'})}\n\n")
+    held["route"].fulfill(status=200, content_type="text/event-stream", body=body)
+    expect(page.locator(".msg.assistant").first).to_contain_text("ok", timeout=10000)
+    expect(page.get_by_role("button", name="+ New chat")).to_be_enabled()
