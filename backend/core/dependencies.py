@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,7 @@ class AuthContext:
 
 
 def get_auth_context(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer),
     db: Session = Depends(get_db),
 ) -> AuthContext:
@@ -46,6 +47,15 @@ def get_auth_context(
     if not user or not user.is_active:
         raise _unauthorized()
     from backend.core.config import config
+    from backend.models.models import MfaCredential
+    credential = db.get(MfaCredential, user.id)
+    enrolled = bool(credential and credential.enabled)
+    if (config.MFA_REQUIRED or enrolled) and not session.mfa_verified:
+        # A policy-mandated unenrolled user has only an enrollment session.
+        # Enrolled users must complete the public single-use challenge instead.
+        setup_routes = {'/auth/mfa/status', '/auth/mfa/enroll/start', '/auth/mfa/enroll/confirm', '/auth/logout'}
+        if enrolled or request.url.path not in setup_routes:
+            raise _unauthorized()
     if config.SUPPRESSION_JOURNAL:
         from backend.services.privacy.lifecycle import configured_journal
         if configured_journal().contains(user.id):

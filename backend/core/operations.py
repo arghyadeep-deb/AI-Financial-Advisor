@@ -28,7 +28,7 @@ def heartbeat(db, worker):
 
 
 def reserve_global(db, resource, units, limit):
-    if resource != 'model_cost_paise' or type(units) is not int or type(limit) is not int or not 0 < units <= 10**13 or not 0 <= limit <= 10**13:
+    if resource not in {'model_cost_paise', 'mail'} or type(units) is not int or type(limit) is not int or not 0 < units <= 10**13 or not 0 <= limit <= 10**13:
         raise ValueError('Invalid global reservation')
     period = utcnow().date().isoformat()
     _row(db, resource, period)
@@ -36,4 +36,4 @@ def reserve_global(db, resource, units, limit):
         OperationalCounter.period == period, OperationalCounter.used <= limit - units).values(
         used=OperationalCounter.used + units, updated_at=utcnow())).rowcount
     if count != 1:
-        raise HTTPException(429, 'Global model budget exhausted.', headers={'Retry-After': '86400'})
+        raise HTTPException(429, 'Global resource budget exhausted.', headers={'Retry-After': '86400'})

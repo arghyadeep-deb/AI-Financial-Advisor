@@ -54,10 +54,24 @@ def register_database_store(name, models, purpose, before_purge=None):
 from backend.models.models import (AuthSession, PasswordResetToken, FinancialProfile,
     FinancialState, ProfileRevision, Analysis, Thread, Message, ConsentRecord)
 register_database_store("identity", [AuthSession, PasswordResetToken], "account security")
+from backend.models.models import MfaCredential, MfaChallenge, MfaRecoveryCode
+register_owned_store(OwnedStore('mfa', frozenset({'mfa_credentials', 'mfa_challenges', 'mfa_recovery_codes'}),
+    lambda db, owner: {'mfa': {'enrolled': bool((m := db.get(MfaCredential, owner)) and m.enabled),
+        'recovery_codes_remaining': db.query(MfaRecoveryCode).filter_by(user_id=owner, used_at=None).count()}},
+    lambda db, owner: [db.query(model).filter_by(user_id=owner).delete(synchronize_session=False)
+        for model in (MfaChallenge, MfaRecoveryCode, MfaCredential)],
+    'optional account MFA; authentication secrets/hashes never exported',
+    'pending setup 10 minutes; challenges 5 minutes; enrolled until disable or account purge'))
 register_database_store("finance", [Analysis, ProfileRevision, FinancialState, FinancialProfile], "deterministic advice")
 register_database_store("chat", [Message, Thread], "conversation history")
 register_database_store("consent", [ConsentRecord], "processing choices")
 from backend.models.models import WorkItem, NotificationPreference, DeliveryAttempt
+from backend.models.models import MailMessage
+register_owned_store(OwnedStore('mail', frozenset({'mail_messages'}),
+    lambda db, owner: {'mail_messages': [{'id': m.id, 'template_id': m.template_id,
+        'state': m.state, 'created_at': m.created_at} for m in db.query(MailMessage).filter_by(user_id=owner)]},
+    lambda db, owner: db.query(MailMessage).filter_by(user_id=owner).delete(synchronize_session=False),
+    'transactional mail; encrypted tokens excluded from exports', 'payload cleared on send/expiry; synthetic-only pending D03'))
 register_database_store("queue", [WorkItem], "bounded background work")
 register_database_store("notifications", [DeliveryAttempt, NotificationPreference], "in-app notices")
 from backend.models.models import QuotaUsage

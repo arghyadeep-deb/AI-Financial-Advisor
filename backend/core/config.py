@@ -39,6 +39,17 @@ class Config:
     SYNTHETIC_MANUAL_CASH_ENABLED = os.getenv('SYNTHETIC_MANUAL_CASH_ENABLED', 'false').lower() == 'true'
     SYNTHETIC_HOUSEHOLDS_ENABLED = os.getenv('SYNTHETIC_HOUSEHOLDS_ENABLED', 'false').lower() == 'true'
 
+    MAIL_PROVIDER = os.getenv('MAIL_PROVIDER', 'fake')
+    MAIL_LIVE_ENABLED = os.getenv('MAIL_LIVE_ENABLED', 'false').lower() == 'true'
+    RESEND_API_KEY = os.getenv('RESEND_API_KEY', '')
+    MAIL_FROM = os.getenv('MAIL_FROM', '')
+    MAIL_DAILY_LIMIT = _int('MAIL_DAILY_LIMIT', 100)
+    NOTIFICATION_EMAIL_ENABLED = os.getenv('NOTIFICATION_EMAIL_ENABLED', 'false').lower() == 'true'
+    MFA_REQUIRED = os.getenv('MFA_REQUIRED', 'false').lower() == 'true'
+    RECEIPT_SOURCE_LIMIT = _int('RECEIPT_SOURCE_LIMIT', 10)
+    RECEIPT_GLOBAL_LIMIT = _int('RECEIPT_GLOBAL_LIMIT', 1000)
+    RECEIPT_WINDOW_SECONDS = _int('RECEIPT_WINDOW_SECONDS', 900)
+
     # Offline controls. No implicit key, journal location, or real-data opt-in.
     ANALYSIS_DAILY_LIMIT = _int("ANALYSIS_DAILY_LIMIT", 100)
     CHAT_DAILY_LIMIT = _int("CHAT_DAILY_LIMIT", 200)
@@ -148,6 +159,12 @@ class Config:
         (tokens do not survive restart) and a warning is logged by the caller.
         """
         key = self.SECRET_KEY
+        if self.MAIL_PROVIDER not in {'fake', 'resend'} or not 0 <= self.MAIL_DAILY_LIMIT <= 100:
+            raise ConfigError('Invalid mail provider or daily cap')
+        if not (1 <= self.RECEIPT_SOURCE_LIMIT <= self.RECEIPT_GLOBAL_LIMIT <= 10**6 and 1 <= self.RECEIPT_WINDOW_SECONDS <= 86400):
+            raise ConfigError('Invalid deletion receipt throttle bounds')
+        if self.MAIL_LIVE_ENABLED and (self.MAIL_PROVIDER != 'resend' or not self.RESEND_API_KEY or not self.MAIL_FROM):
+            raise ConfigError('Live mail requires Resend credentials and sender')
         for value in (self.ANALYSIS_DAILY_LIMIT, self.CHAT_DAILY_LIMIT, self.UPLOAD_DAILY_LIMIT,
                       self.STORAGE_DAILY_BYTES, self.EXPORT_DAILY_LIMIT, self.SOURCE_STORAGE_LIMIT_BYTES,
                       self.MODEL_DAILY_COST_PAISE, self.MODEL_DAILY_TOKEN_LIMIT, self.GLOBAL_MODEL_DAILY_COST_PAISE):

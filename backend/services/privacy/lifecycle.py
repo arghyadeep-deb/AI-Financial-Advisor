@@ -19,6 +19,7 @@ class SuppressionJournal:
     def __init__(self, path):
         self.path = Path(path).resolve()
         with sqlite3.connect(self.path) as db:
+            db.execute('BEGIN IMMEDIATE')
             db.execute('CREATE TABLE IF NOT EXISTS suppression (user_id INTEGER PRIMARY KEY)')
             db.execute('CREATE TABLE IF NOT EXISTS deletion_events '
                        '(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, state TEXT NOT NULL, '
@@ -27,6 +28,8 @@ class SuppressionJournal:
             # outside the Alembic business database and every restore set.
             if 'metadata_json' not in {r[1] for r in db.execute('PRAGMA table_info(deletion_events)')}:
                 db.execute('ALTER TABLE deletion_events ADD COLUMN metadata_json TEXT')
+            from backend.services.privacy.journal_migrations import upgrade_receipt_lookup
+            upgrade_receipt_lookup(db)
 
     def suppress(self, owner):
         with sqlite3.connect(self.path) as db:
@@ -36,8 +39,9 @@ class SuppressionJournal:
         if state not in {'requested', 'access_blocked', 'purging', 'live_complete', 'failed_retryable', 'held', 'legal_hold', 'hold_released', 'receipt'}:
             raise ValueError('Unsupported deletion state')
         with sqlite3.connect(self.path) as db:
-            db.execute('INSERT INTO deletion_events(user_id,state,metadata_json) VALUES (?,?,?)',
-                       (owner, state, json.dumps(metadata) if metadata else None))
+            digest = metadata.get('digest') if state == 'receipt' and metadata else None
+            db.execute('INSERT INTO deletion_events(user_id,state,metadata_json,receipt_digest) VALUES (?,?,?,?)',
+                       (owner, state, json.dumps(metadata) if metadata else None, digest))
 
     def place_hold(self, owner, basis, expires_at, scope):
         """Restricted operator contract, no public hold-creation endpoint.
@@ -77,8 +81,10 @@ class SuppressionJournal:
         from fastapi import HTTPException
         digest = hashlib.sha256(token.encode()).hexdigest()
         with sqlite3.connect(self.path) as db:
-            rows = db.execute("SELECT user_id,metadata_json FROM deletion_events WHERE state='receipt'").fetchall()
-            owner = next((owner for owner, raw in rows if secrets.compare_digest(json.loads(raw)['digest'], digest)), None)
+            row = db.execute("SELECT user_id,receipt_digest FROM deletion_events WHERE receipt_digest=? AND state='receipt' LIMIT 1", (digest,)).fetchone()
+            # Constant-time comparison retained, including a dummy missing path.
+            equal = secrets.compare_digest(row[1] if row else '0' * 64, digest)
+            owner = row[0] if row and equal else None
             if owner is None:
                 raise HTTPException(404, 'Resource not found.')
             row = db.execute("SELECT state,created_at FROM deletion_events WHERE user_id=? AND state IN ('access_blocked','purging','live_complete','failed_retryable','held') ORDER BY id DESC LIMIT 1", (owner,)).fetchone()

@@ -1,6 +1,6 @@
-"""In-app only; event categories carry fixed safe copy, never balances or payloads.
+"""In-app first; event categories carry fixed safe copy, never balances or payloads.
 
-Critical security messages continue through the existing auth recovery contract.
+Optional verified email uses the shared mail outbox; critical recovery is separate.
 Quiet hours use Asia/Kolkata. Deferred events require an explicit later delivery call.
 """
 from datetime import timedelta
@@ -16,6 +16,13 @@ def preferences(db, owner):
     row = db.get(NotificationPreference, owner)
     return Preferences.model_validate({k: getattr(row, k) for k in Preferences.model_fields}) if row else Preferences()
 
+
+def delivery_state(pref, category):
+    hour = (utcnow() + timedelta(hours=5, minutes=30)).hour
+    start, end = pref.quiet_start, pref.quiet_end
+    quiet = start is not None and (start <= hour < end if start < end else hour >= start or hour < end)
+    return 'suppressed' if not pref.enabled or category not in pref.categories else 'deferred' if quiet else 'delivered'
+
 def deliver(db, owner, event_key, category):
     if category not in COPY or not 1 <= len(event_key) <= 100:
         raise ValueError("Unsupported notification")
@@ -28,17 +35,72 @@ def deliver(db, owner, event_key, category):
     if row and row.state in {"delivered", "suppressed"}:
         return row
     pref = preferences(db, owner)
-    hour = (utcnow() + timedelta(hours=5, minutes=30)).hour
-    start, end = pref.quiet_start, pref.quiet_end
-    quiet = start is not None and (start <= hour < end if start < end else hour >= start or hour < end)
-    state = "suppressed" if not pref.enabled or category not in pref.categories else "deferred" if quiet else "delivered"
+    state = delivery_state(pref, category)
     if row is None:
         row = DeliveryAttempt(id=str(uuid4()), user_id=owner, event_key=event_key, category=category, state=state)
         db.add(row)
     else:
         row.state = state
     db.flush()
+    # Channel verification is server-owned; public preferences cannot assert it.
+    from backend.core.config import config
+    from backend.models.models import NotificationPreference
+    import hashlib
+    channel = db.get(NotificationPreference, owner)
+    if state == 'delivered' and config.NOTIFICATION_EMAIL_ENABLED and channel and channel.email_enabled and channel.verified_email_hash == hashlib.sha256(user.email.encode()).hexdigest():
+        from backend.services import mail_service
+        mail_service.enqueue(db, owner, row.id, category, {}, utcnow() + timedelta(days=7), event_key)
     return row
+
+
+def event_deadline(db, owner, category, event_key, default_deadline):
+    """Recheck the same current domain evidence before an external delivery."""
+    if category != 'reminder' or ':' not in (event_key or ''):
+        return default_deadline
+    if event_key.startswith('p:'):
+        # Household protection renewal reminder (lane J): recheck the current book and opt-in.
+        from backend.services import household_service
+        from backend.finance.ledger import lock_owner as _lock
+        from backend.core.config import config
+        from datetime import datetime as _dt, time as _t
+        if not config.SYNTHETIC_HOUSEHOLDS_ENABLED or config.is_production_like:
+            return None
+        _lock(db, owner, bump=False)
+        _, identity, ordinal = event_key.split(':')
+        book = household_service.latest(db, owner, 'protection')
+        if not book or book.id != identity:
+            return None
+        policy = book.data['policies'][int(ordinal)]
+        if not policy['reminder_opt_in'] or policy['archived'] or policy['renewal_date'] is None:
+            return None
+        deadline = _dt.combine(_dt.fromisoformat(policy['renewal_date']).date(), _t(3, 30)) + timedelta(days=7)
+        return deadline if utcnow() < deadline else None
+    from backend.services import planning_service as planning
+    from backend.finance.ledger import lock_owner
+    from datetime import datetime, time
+    lock_owner(db, owner, bump=False)
+    identity, revision = event_key.rsplit(':', 1)
+    kind = 'goal' if identity.startswith('goal:') else 'obligation'
+    identity = identity.removeprefix('goal:') if kind == 'goal' else identity
+    try:
+        item = planning.get(db, owner, kind, identity)
+    except HTTPException as exc:
+        if exc.status_code == 404:
+            return None
+        raise
+    data = item.data
+    if str(item.revision) != revision or not data.get('reminder_opt_in', False) or data.get('paused', False) or data['archived']:
+        return None
+    if kind == 'goal' and data['allocated_paise'] >= data['target_paise']:
+        return None
+    paid = sum(-planning.owned(db, planning.LedgerEntry, owner, s.data['entry_id']).amount_paise
+        for s in planning.current(db, owner, 'settlement') if kind == 'obligation' and
+        s.data['obligation_id'] == identity and planning.settlement_valid(db, owner, s))
+    if kind == 'obligation' and paid >= data['amount_paise']:
+        return None
+    due = datetime.combine(datetime.fromisoformat(data['target_date'] if kind == 'goal' else data['due_date']).date(), time(3, 30))
+    deadline = due + timedelta(days=7)
+    return deadline if utcnow() < deadline else None
 
 
 def schedule(db, owner, event_key, category, when):
@@ -63,55 +125,9 @@ def run_scheduled(db, job_id, fence):
         raise ValueError('Unsupported work')
     _, category, event_key = row.event_key.split(':', 2)
     def publish(db, owner):
-        deadline = row.created_at + timedelta(days=7)
-        if category == 'reminder' and event_key.startswith('p:'):
-            from backend.services import household_service
-            from backend.finance.ledger import lock_owner
-            from backend.core.config import config
-            if not config.SYNTHETIC_HOUSEHOLDS_ENABLED or config.is_production_like:
-                return
-            lock_owner(db, owner, bump=False)
-            _, identity, ordinal = event_key.split(':')
-            book = household_service.latest(db, owner, 'protection')
-            if not book or book.id != identity:
-                return
-            policy = book.data['policies'][int(ordinal)]
-            if not policy['reminder_opt_in'] or policy['archived'] or policy['renewal_date'] is None:
-                return
-            from datetime import datetime, time
-            deadline = datetime.combine(datetime.fromisoformat(policy['renewal_date']).date(), time(3, 30)) + timedelta(days=7)
-            if utcnow() >= deadline:
-                return
-        elif category == 'reminder' and ':' in event_key:
-            from backend.services import planning_service
-            from backend.finance.ledger import lock_owner
-            lock_owner(db, owner, bump=False)
-            identity, revision = event_key.rsplit(':', 1)
-            kind = 'goal' if identity.startswith('goal:') else 'obligation'
-            if kind == 'goal':
-                identity = identity.removeprefix('goal:')
-            try:
-                obligation = planning_service.get(db, owner, kind, identity)
-            except HTTPException as exc:
-                # A deleted resource never authorizes a reminder.
-                if exc.status_code == 404:
-                    return
-                raise
-            data = obligation.data
-            if str(obligation.revision) != revision or not data.get('reminder_opt_in', False) or data.get('paused', False) or data['archived']:
-                return
-            if kind == 'goal' and data['allocated_paise'] >= data['target_paise']:
-                return
-            paid = sum(-planning_service.owned(db, planning_service.LedgerEntry, owner, s.data['entry_id']).amount_paise
-                       for s in planning_service.current(db, owner, 'settlement') if
-                       kind == 'obligation' and s.data['obligation_id'] == identity and planning_service.settlement_valid(db, owner, s))
-            if kind == 'obligation' and paid >= data['amount_paise']:
-                return
-            from datetime import datetime, time
-            due = datetime.combine(datetime.fromisoformat(data['target_date'] if kind == 'goal' else data['due_date']).date(), time(3, 30))
-            deadline = due + timedelta(days=7)
-            if utcnow() >= deadline:
-                return  # an old deadline never becomes a fresh reminder on restart
+        deadline = event_deadline(db, owner, category, event_key, row.created_at + timedelta(days=7))
+        if deadline is None:
+            return
         notice = deliver(db, owner, event_key, category)
         if notice.state == 'deferred':
             if utcnow() >= deadline:
