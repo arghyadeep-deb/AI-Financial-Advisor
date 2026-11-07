@@ -199,3 +199,36 @@ class AuthService:
         self.revoke_user_sessions(user.id, "password_reset")
         throttle.record_success(self.db, user.email)
         self.db.commit()
+
+    def list_sessions(self, user_id: int) -> list[AuthSession]:
+        return self.db.query(AuthSession).filter(AuthSession.user_id == user_id).order_by(AuthSession.created_at.desc()).all()
+
+    def revoke_session(self, user_id: int, session_id: str) -> None:
+        row = self.db.query(AuthSession).filter_by(id=session_id, user_id=user_id).first()
+        if row is None:
+            raise HTTPException(404, "Session not found.")
+        if row.revoked_at is None:
+            row.revoked_at, row.revoked_reason = _now(), "user_revoked"
+        self.db.commit()
+
+    def reauthenticate(self, user: User, password: str) -> None:
+        key = "reauth:" + str(user.id)
+        locked = throttle.seconds_locked(self.db, key)
+        if locked:
+            raise HTTPException(429, "Try again later.", headers={"Retry-After": str(locked)})
+        verify = authlib.verify_legacy if user.password_scheme == authlib.SCHEME_LEGACY else authlib.verify_argon2
+        if not verify(password, user.hashed_password):
+            throttle.record_failure(self.db, key)
+            raise HTTPException(401, GENERIC_LOGIN_ERROR)
+        throttle.record_success(self.db, key)
+
+    def change_password(self, user: User, password: str, new_password: str) -> None:
+        self.reauthenticate(user, password)
+        validate_new_password(new_password, user.email)
+        user.hashed_password = authlib.hash_password(new_password)
+        user.password_scheme = authlib.SCHEME_ARGON2
+        user.password_changed_at = _now()
+        self.db.execute(update(PasswordResetToken).where(
+            PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None)).values(used_at=_now()))
+        self.revoke_user_sessions(user.id, "password_change")
+        self.db.commit()

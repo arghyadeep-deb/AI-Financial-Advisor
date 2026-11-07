@@ -202,3 +202,56 @@ class Message(Base):
     created_at = Column(DateTime, default=utcnow)
 
     thread = relationship("Thread", back_populates="messages")
+
+class ConsentRecord(Base):
+    """Append-only choices; latest id is authoritative, including withdrawal."""
+    __tablename__ = "consent_records"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    purpose = Column(String(40), nullable=False)
+    granted = Column(Boolean, nullable=False)
+    notice_version = Column(String(40), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+class WorkItem(Base):
+    """Transactional outbox and leased work in one row; metadata only."""
+    __tablename__ = "work_items"
+    __table_args__ = (UniqueConstraint("user_id", "event_key", name="uq_work_owner_event"),)
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    event_key = Column(String(100), nullable=False)
+    kind = Column(String(40), nullable=False)
+    consent_purpose = Column(String(40), nullable=True)
+    state = Column(String(20), nullable=False, default="queued")
+    fence = Column(Integer, nullable=False, default=0)
+    attempts = Column(Integer, nullable=False, default=0)
+    available_at = Column(DateTime, nullable=False, default=utcnow)
+    lease_until = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+class NotificationPreference(Base):
+    __tablename__ = "notification_preferences"
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    enabled = Column(Boolean, nullable=False, default=True)
+    categories = Column(JSON, nullable=False, default=lambda: ["report_ready", "reminder"])
+    quiet_start = Column(Integer, nullable=True)
+    quiet_end = Column(Integer, nullable=True)
+
+class DeliveryAttempt(Base):
+    __tablename__ = "delivery_attempts"
+    __table_args__ = (UniqueConstraint("user_id", "event_key", name="uq_delivery_owner_event"),)
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    event_key = Column(String(100), nullable=False)
+    category = Column(String(40), nullable=False)
+    state = Column(String(20), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+class QuotaUsage(Base):
+    __tablename__ = "quota_usage"
+    __table_args__ = (UniqueConstraint("user_id", "resource", "period", name="uq_quota_bucket"),)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    resource = Column(String(40), nullable=False)
+    period = Column(String(10), nullable=False)
+    used = Column(BigInteger, nullable=False, default=0)

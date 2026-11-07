@@ -88,3 +88,4 @@ app.include_router(thread_router)
 @app.get("/")
 def root():
     return {"message": "AI Financial Advisor API is running"}
+app.include_router(__import__("backend.controllers.platform_controller", fromlist=["router"]).router)
