@@ -17,6 +17,9 @@ import { chat } from "./views/chat.js";
 import { settings } from "./views/settings.js";
 import { statements } from "./views/statements.js";
 import { monthly } from "./views/monthly.js";
+import { household } from "./views/household.js";
+import { notifications } from "./views/notifications.js";
+import { planning } from "./views/planning.js";
 import { demo } from "./views/demo.js";
 
 const ROUTES = {
@@ -33,6 +36,9 @@ const ROUTES = {
   profile: { view: profile, label: "Profile", icon: "user", foot: true },
   chat: { view: chat, label: "Ask the advisor", icon: "chat" },
   statements: { view: statements, icon: "file", label: "Statements" },
+  household: { view: household, icon: "user", label: "Household preview" },
+  reminders: { view: notifications, icon: "file", label: "Reminders" },
+  planning: { view: planning, icon: "bars", label: "Plan" },
   monthly: { view: monthly, icon: "bars", label: "Monthly report" },
   settings: { view: settings, label: "Settings", icon: "sliders", foot: true },
 };
