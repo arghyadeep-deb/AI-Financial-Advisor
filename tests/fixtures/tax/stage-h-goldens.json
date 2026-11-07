@@ -1,13 +1,41 @@
 {
-  "label": "Invented sample, unreviewed by tax professional; not statutory tax",
-  "version": "stage-h-independent-arithmetic-v1",
+  "label": "HISTORICAL independent calculation, NOT tax-professional reviewed",
+  "arithmetic": "Old 12L salary: 11.5L taxable =>12500+100000+45000=157500 +4%=163800. New: 11.25L taxable =>20000+30000+18750=68750 +4%=71500. Old 7.75L salary:7.25L taxable =>12500+45000=57500 +4%=59800. All smaller listed salaries receive full rebate.",
   "cases": [
-    {"salary_paise": 0, "old_tax_paise": 0, "new_tax_paise": 0},
-    {"salary_paise": 100000, "old_tax_paise": 0, "new_tax_paise": 0},
-    {"salary_paise": 105000, "old_tax_paise": 0, "new_tax_paise": 0},
-    {"salary_paise": 110000, "old_tax_paise": 758, "new_tax_paise": 0},
-    {"salary_paise": 205000, "old_tax_paise": 15150, "new_tax_paise": 9595},
-    {"salary_paise": 210000, "old_tax_paise": 16160, "new_tax_paise": 10100},
-    {"salary_paise": 210001, "old_tax_paise": 16160, "new_tax_paise": 10100}
+    {
+      "salary_paise": 0,
+      "old_tax_paise": 0,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 1,
+      "old_tax_paise": 0,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 5000000,
+      "old_tax_paise": 0,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 7500000,
+      "old_tax_paise": 0,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 55000000,
+      "old_tax_paise": 0,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 77500000,
+      "old_tax_paise": 5980000,
+      "new_tax_paise": 0
+    },
+    {
+      "salary_paise": 120000000,
+      "old_tax_paise": 16380000,
+      "new_tax_paise": 7150000
+    }
   ]
 }

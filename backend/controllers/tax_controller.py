@@ -7,7 +7,7 @@ from backend.models.models import User
 from backend.schemas.tax import CaseWrite, ReviewWrite, DraftWrite
 from backend.services import tax_service as tax
 
-router = APIRouter(prefix='/tax', tags=['tax-sample'])
+router = APIRouter(prefix='/tax', tags=['tax-historical-draft'])
 
 
 @router.post('/cases')
@@ -50,5 +50,12 @@ def read_draft(identity: str, user: User = Depends(get_current_user), db: Sessio
 def export(identity: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     content = tax.export(db, user.id, identity)
     return Response(content, media_type='application/json', headers={
-        'Content-Disposition': 'attachment; filename="sample-tax-DRAFT.json"',
+        'Content-Disposition': 'attachment; filename="historical-AY2025-26-DRAFT.json"',
+        'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})
+
+
+@router.get('/drafts/{identity}/export.pdf')
+def export_pdf(identity: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return Response(tax.export(db, user.id, identity, pdf=True), media_type='application/pdf', headers={
+        'Content-Disposition': 'attachment; filename="historical-AY2025-26-DRAFT.pdf"',
         'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})
