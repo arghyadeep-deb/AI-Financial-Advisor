@@ -1,0 +1,26 @@
+"""Offline fixture loader. Never supplies a production-approved registry."""
+from datetime import date
+from hashlib import sha256
+from pathlib import Path
+
+from backend.knowledge.registry import Registry, SourceVersion
+from engines.allocation.contracts import AssumptionPack
+
+
+def synthetic_fixture() -> tuple[AssumptionPack, Registry]:
+    text = (Path(__file__).resolve().parents[2] / "knowledge_base/allocation/synthetic-v1.json").read_text(encoding="utf-8")
+    digest = sha256(text.encode()).hexdigest()
+    import json
+    data = json.loads(text)
+    data["source_hash"] = digest
+    pack = AssumptionPack.model_validate_json(json.dumps(data))
+    source = SourceVersion(source_id=pack.source_id, version=1, title="Synthetic allocation fixture ONLY",
+                           url="https://example.test/allocation", jurisdiction="IN", licence="synthetic test fixture",
+                           reviewer=pack.owner, approved=True, published=date(2026, 1, 1), fetched=date(2026, 1, 1),
+                           effective=pack.effective, expires=pack.expires, topic="allocation", text=text,
+                           content_hash=digest)
+    return pack, Registry((source,), frozenset({"example.test"}))
+
+
+def production_registry() -> Registry:
+    return Registry((), frozenset())
