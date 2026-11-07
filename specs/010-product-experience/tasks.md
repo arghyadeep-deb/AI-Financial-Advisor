@@ -6,7 +6,7 @@
   - Done when: Every enabled feature maps to a screen and all failure/stale states.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1002** Build onboarding and isolated demo. Location: `frontend/`. Requirements: F010-FR01, F010-FR04.
+- [x] **T1002** Build onboarding and isolated demo. Location: `frontend/`. Requirements: F010-FR01, F010-FR04.
   - Done when: Demo cannot mix with real account; supported formats and privacy visible before upload.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

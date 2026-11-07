@@ -359,3 +359,132 @@ def test_reduced_motion_shows_final_numbers_immediately(page, live_url, tracker)
     run_analysis(page)
     assert _metrics(page)[0] == "87"                                      # no counting up when the user asks for less motion
     assert not tracker["errors"], tracker["errors"]
+
+
+# ---- core journeys: monthly report, mapped CSV import, manual credit score --------------------------------------
+@pytest.fixture()
+def synthetic(monkeypatch, tmp_path):
+    from backend.core.config import config
+    from cryptography.fernet import Fernet
+    monkeypatch.setattr(config, 'SYNTHETIC_STATEMENTS_ENABLED', True)
+    monkeypatch.setattr(config, 'PRIVATE_STORAGE_ROOT', str(tmp_path / 'private'))
+    monkeypatch.setattr(config, 'STORAGE_ACTIVE_KEY', 'v1')
+    monkeypatch.setattr(config, 'STORAGE_KEYS_JSON', json.dumps({'v1': Fernet.generate_key().decode()}))
+    return tmp_path
+
+
+def add_account(page, live_url):
+    page.goto(f"{live_url}/app/#/statements")
+    expect(page.get_by_role("heading", name="Statements")).to_be_visible()
+    page.fill("#acct_label", "Sample account")
+    page.fill("#acct_token", "SYNTH_A")
+    page.get_by_role("button", name="Add account").click()
+    expect(page.locator("#mp_acct")).to_be_visible()
+
+
+def test_monthly_report_shows_checked_totals_and_does_not_invent_investable_money(page, live_url, tracker, db_engine, synthetic):
+    from pathlib import Path
+    from sqlalchemy.orm import Session
+    from backend.workers import statements as worker
+    signup(page, live_url)
+    add_account(page, live_url)
+    page.set_input_files("#up_file", str(Path("tests/fixtures/statements/supported.csv").resolve()))
+    page.get_by_role("button", name="Upload", exact=True).click()
+    expect(page.get_by_text("Waiting to be read")).to_be_visible()
+    with Session(db_engine) as db:
+        worker.run_once(db)
+    page.get_by_role("button", name="Refresh status").click()
+    page.get_by_role("button", name="Confirm import").click()
+    expect(page.get_by_text("Imported", exact=True)).to_be_visible()
+    page.goto(f"{live_url}/app/#/monthly")
+    expect(page.get_by_role("heading", name="Monthly report")).to_be_visible()
+    page.fill("#mr_month", "2026-01")
+    page.get_by_role("button", name="Create report").click()
+    expect(page.get_by_text("Report for 2026-01")).to_be_visible()
+    expect(page.get_by_text("₹45,000.00").first).to_be_visible()                       # money in
+    expect(page.get_by_text("Spending was higher than money in")).to_be_visible()
+    expect(page.get_by_text("The gap is ₹10,000.00")).to_be_visible()
+    assert not page.get_by_text("You can invest").count()
+    expect(page.get_by_role("cell", name="Synthetic salary")).to_be_visible()
+    expect(page.get_by_text("Net worth is not shown")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]
+
+
+def write_csv(tmp_path, name, text):
+    path = tmp_path / name
+    path.write_text(text, encoding="utf-8")
+    return str(path)
+
+
+def test_mapped_csv_preview_problems_block_import_then_confirm_works(page, live_url, tracker, synthetic):
+    signup(page, live_url)
+    add_account(page, live_url)
+    bad = write_csv(synthetic, "bad.csv", "Date,Narration,Amount\n01/10/2025,Rent,abc\n02/10/2025,=HYPERLINK(1),500.00\n")
+    page.set_input_files("#mp_file", bad)
+    page.get_by_role("button", name="Preview").click()
+    expect(page.get_by_text("Fix these before importing")).to_be_visible()
+    expect(page.get_by_text("The amount is not a valid number")).to_be_visible()
+    assert not page.get_by_role("button", name="Import").count()
+    good = write_csv(synthetic, "good.csv", "Date,Narration,Amount\n01/10/2025,Salary,\"1,00,000.50\"\n02/10/2025,=HYPERLINK(1),-2500.25\n")
+    page.set_input_files("#mp_file", good)
+    page.get_by_role("button", name="Preview").click()
+    expect(page.get_by_text("Text starting with = + - or @ was made safe.")).to_be_visible()
+    expect(page.get_by_role("cell", name="₹1,00,000.50")).to_be_visible()
+    expect(page.get_by_role("cell", name="'=HYPERLINK(1)")).to_be_visible()            # neutralised, shown as plain text
+    page.get_by_role("button", name="Import 2 rows for review").click()
+    expect(page.get_by_text("Imported. Review the rows")).to_be_visible()
+    expect(page.get_by_text("Waiting to be read")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_scanned_or_image_file_gets_clear_message_not_an_upload(page, live_url, tracker, synthetic):
+    signup(page, live_url)
+    add_account(page, live_url)
+    page.set_input_files("#mp_file", write_csv(synthetic, "scan.png", "not really an image"))
+    expect(page.get_by_text("Scanned files, photos and PDFs are not supported yet")).to_be_visible()
+    assert not page.locator("#mp_fmt").count()
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_manual_credit_score_is_dated_unverified_and_unknown_stays_unknown(page, live_url, tracker):
+    signup(page, live_url)
+    save_profile(page)
+    page.goto(f"{live_url}/app/#/credit")
+    expect(page.get_by_text("No credit score on record. We never guess one.")).to_be_visible()
+    page.fill("#ms_score", "750")
+    page.fill("#ms_label", "My bank app")
+    page.get_by_role("button", name="Save entry").click()
+    expect(page.get_by_text("Your entry: 750")).to_be_visible()
+    expect(page.get_by_text("User-reported and unverified.").first).to_be_visible()
+    page.fill("#ms_score", "950")
+    page.get_by_role("button", name="Save entry").click()
+    expect(page.get_by_text("Enter a score from 300 to 900")).to_be_visible()
+    page.check("#ms_unknown")
+    page.get_by_role("button", name="Save entry").click()
+    expect(page.get_by_text("No credit score on record. We never guess one.")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_demo_is_labelled_sample_makes_no_requests_and_is_reachable_signed_out(page, live_url, tracker):
+    requests = []
+    page.on("request", lambda r: requests.append(r.url) if "/app/" not in r.url else None)
+    page.goto(f"{live_url}/app/#/")
+    page.get_by_role("link", name="See a sample").click()
+    expect(page.get_by_role("heading", name="Sample report")).to_be_visible()
+    expect(page.get_by_text("Sample data, not yours.")).to_be_visible()
+    expect(page.get_by_text("Sample salary")).to_be_visible()
+    assert requests == [], requests                                   # cannot mix with a real account: no API calls at all
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_first_run_checklist_and_privacy_notice_before_upload(page, live_url, tracker, synthetic):
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/dashboard")
+    expect(page.get_by_text("Getting started")).to_be_visible()
+    expect(page.get_by_role("link", name="Tell us about your money")).to_be_visible()
+    expect(page.get_by_role("link", name="Add a bank statement and confirm it")).to_be_visible()
+    page.goto(f"{live_url}/app/#/statements")
+    expect(page.get_by_text("Before you upload")).to_be_visible()
+    expect(page.get_by_text("never sent to an AI model")).to_be_visible()
+    expect(page.get_by_text("PDFs, photos and scanned pages")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]

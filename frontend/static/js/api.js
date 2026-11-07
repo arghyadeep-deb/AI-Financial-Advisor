@@ -103,3 +103,12 @@ export async function streamChat({ message, threadId, clientMessageId, onChunk, 
   }
   return out;
 }
+
+// Authenticated file download (the token never leaves this module). Returns a Blob or null.
+export async function fetchBlob(path) {
+  try {
+    const res = await fetch(BASE + path, { headers: token ? { Authorization: "Bearer " + token } : {} });
+    if (res.status === 401) { session.clear(); return null; }
+    return res.ok ? await res.blob() : null;
+  } catch (e) { return null; }
+}

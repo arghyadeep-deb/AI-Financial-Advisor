@@ -1,15 +1,10 @@
-import { h, clear, uid } from "../dom.js";
+import { h, clear, uid, paise } from "../dom.js";
 import { api } from "../api.js";
 import { banner, card, pageHead } from "../components.js";
 import { emptyState } from "../illustrations.js";
+import { mappedCard } from "./mapped-import.js";
 
-// Amounts from the server are signed integer paise.  Format with integer maths only (no float rounding).
-function rupees(p) {
-  if (p === null || p === undefined) return "unknown";
-  const neg = p < 0, a = Math.abs(p);
-  const r = Math.floor(a / 100), q = String(a % 100).padStart(2, "0");
-  return (neg ? "-" : "") + "₹" + r.toLocaleString("en-IN") + "." + q;
-}
+const rupees = paise;
 const STATE = {
   queued: "Waiting to be read", needs_review: "Needs your review", completed: "Imported", cancelled: "Cancelled",
   quarantined: "Stopped for safety", reversed: "Undone", failed: "Failed",
@@ -57,7 +52,7 @@ function uploadCard(accounts, onChange) {
     if (d.ok) { msg.appendChild(banner("ok", "Uploaded. It is being read; this page shows its status below.")); onChange(); }
     else msg.appendChild(banner("bad", d.error));
   });
-  return card("Upload a statement", h("p", { class: "muted", text: "Only the documented sample format is supported for now. PDF and scanned files are not supported." }), msg, form);
+  return card("Upload a statement", h("p", { class: "muted", text: "Only the documented sample format works here. For any other bank, use the CSV option below. PDFs, photos and scanned files are not supported yet." }), msg, form);
 }
 
 async function reviewPanel(job, onChange) {
@@ -114,7 +109,7 @@ async function importsCard(onChange) {
   for (const job of r.data) {
     const head = h("div", { class: "row" }, h("strong", { text: (job.start_date || "?") + " to " + (job.end_date || "?") }), " ",
       h("span", { class: "pill", text: STATE[job.state] || job.state }),
-      job.error_code ? h("span", { class: "muted", text: " (" + job.error_code + ")" }) : null);
+      job.error_code ? h("span", { class: "muted", text: " " + (job.error_message || "(" + job.error_code + ")") }) : null);
     const body = job.state === "needs_review" ? await reviewPanel(job, onChange) : null;
     items.push(h("div", { class: "stack" }, head, body));
   }
@@ -132,9 +127,17 @@ export async function statements(c) {
       return;
     }
     c.appendChild(banner("info", "Nothing is added to your records until you confirm it. This is a limited preview: sample format only, no PDF."));
+    c.appendChild(card("Before you upload",
+      h("ul", { class: "list" },
+        h("li", { text: "Accepted: CSV or plain-text files. Not accepted yet: PDFs, photos and scanned pages (nothing is read by OCR)." }),
+        h("li", { text: "Your file is stored encrypted and kept for " + (fmt.data.source_retention_days || "a limited number of") + " days, then removed." }),
+        h("li", { text: "File contents are never sent to an AI model or any outside service." }),
+        h("li", { text: "You can export or delete your data any time from Settings." }))));
     const acc = await accountsCard(render);
     c.appendChild(acc.node);
     c.appendChild(uploadCard(acc.rows, render));
+    const mapped = mappedCard(acc.rows, render);
+    if (mapped) c.appendChild(mapped);
     c.appendChild(await importsCard(render));
   }
   await render();

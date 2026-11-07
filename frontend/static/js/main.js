@@ -16,9 +16,12 @@ import { profile } from "./views/profile.js";
 import { chat } from "./views/chat.js";
 import { settings } from "./views/settings.js";
 import { statements } from "./views/statements.js";
+import { monthly } from "./views/monthly.js";
+import { demo } from "./views/demo.js";
 
 const ROUTES = {
   "": { view: landing, public: true },
+  demo: { view: demo, public: true },
   login: { view: (c) => authView(c, "login"), public: true },
   signup: { view: (c) => authView(c, "signup"), public: true },
   dashboard: { view: dashboard, label: "Dashboard", icon: "grid" },
@@ -30,6 +33,7 @@ const ROUTES = {
   profile: { view: profile, label: "Profile", icon: "user", foot: true },
   chat: { view: chat, label: "Ask the advisor", icon: "chat" },
   statements: { view: statements, icon: "file", label: "Statements" },
+  monthly: { view: monthly, icon: "bars", label: "Monthly report" },
   settings: { view: settings, label: "Settings", icon: "sliders", foot: true },
 };
 

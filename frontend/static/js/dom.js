@@ -69,3 +69,10 @@ export function uid() {
   crypto.getRandomValues(a);
   return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
 }
+
+// Signed integer paise -> "₹1,234.50" with integer maths only (never floats). null/undefined -> "unknown".
+export function paise(p) {
+  if (p === null || p === undefined || !Number.isInteger(p)) return "unknown";
+  const a = Math.abs(p);
+  return (p < 0 ? "-" : "") + "₹" + Math.floor(a / 100).toLocaleString("en-IN") + "." + String(a % 100).padStart(2, "0");
+}

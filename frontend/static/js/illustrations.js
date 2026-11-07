@@ -63,8 +63,8 @@ const ART = {
 };
 
 // Friendly empty state: picture, short title, one helpful sentence, optional action node.
-export function emptyState(kind, title, text, action) {
+export function emptyState(kind, title, text, action, level = 3) {
   const s = root(title);
   (ART[kind] || ART.chart)(s);
-  return h("div", { class: "empty" }, s, h("h3", { text: title }), h("p", { class: "muted", text }), action || null);
+  return h("div", { class: "empty" }, s, h("h" + level, { text: title }), h("p", { class: "muted", text }), action || null);
 }
