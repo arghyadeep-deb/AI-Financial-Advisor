@@ -144,3 +144,12 @@ Not in the UI on purpose: export/delete (not enabled by the backend), PDF report
 
 Still open for the owner: accept Stage A; review/merge branches (order: frontend-html, then integration); push so CI can run (T112);
 mail provider for password reset; provider/legal choices for 005, 011, 013, 014; T215/T220/G2 remain unapproved.
+
+## Lane D merged (2026-11-07)
+
+`codex/stage-d` (9d2a6af) merged into `integration`: planning backend (revisioned budgets, confirmed bills, goals, debt
+scenarios), ledger snapshots, report/acceptance work, migration 0110 (single Alembic head).
+Verified by the orchestrator: lane tests `pytest tests --ignore=tests/web` -> 366 passed, 8 skipped;
+integrated suite `pytest tests` on `integration` -> 384 passed, 8 skipped (includes 18 browser tests).
+Task status stays as reported in specs/progress-lane-stage-d.md: 006 T0601-T0605 done (offline backend); T0606/T0607 and
+002 T211-T214/T219 partial. No UI for budgets/goals/debt yet (frontend on hold at the owner's request).
