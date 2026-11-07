@@ -16,6 +16,14 @@ from tests.test_stage_c_statements import synthetic_config, setup, imported, pub
 from tests.test_stage_c_security import seed_entry
 from tests.test_stage_c_platform import auth
 
+from zoneinfo import ZoneInfo
+from datetime import datetime as _dt
+
+
+def ist_today():
+    """The app computes 'today' in India time; tests must too, or they fail between 18:30 and 24:00 UTC."""
+    return _dt.now(ZoneInfo('Asia/Kolkata')).date()
+
 
 def write(contract, data, revision=0, key=None):
     return contract(expected_revision=revision, idempotency_key=key or str(uuid4()), reason='Synthetic acceptance', data=data)
@@ -124,7 +132,7 @@ def test_FIN10_receivable_own_share_and_received_not_income(db_engine):
 
 
 def future(db, owner, report_id, **extra):
-    return dict(report_id=report_id, expected_planning_vector=store.vector(db, owner.id), evidence_date=date.today(),
+    return dict(report_id=report_id, expected_planning_vector=store.vector(db, owner.id), evidence_date=ist_today(),
         income_paise=6500000, spending_paise=5500000, eligible_liquid_paise=2000000,
         reserve_funding_paise=300000, assumptions_confirmed=True, obligations_complete=True, **extra)
 
@@ -141,7 +149,7 @@ def test_FIN14_future_capacity_deduplicates_obligations_and_liquid_minimum(db_en
     with Session(db_engine) as db:
         owner, account = setup(db)
         obligation = store.write(db, owner.id, 'obligation', write(p.ObligationWrite,
-            {'label': 'Principal payment', 'amount_paise': 400000, 'due_date': date.today()}))
+            {'label': 'Principal payment', 'amount_paise': 400000, 'due_date': ist_today()}))
         current = positive_report(db, owner, account)
         cap = calc.capacity(db, owner.id, p.Capacity(**future(db, owner, current['id'])))
         assert (cap['flow_capacity_paise'], cap['available_paise'], cap['liquid_capacity_paise']) == (300000, 300000, 1300000)
@@ -155,17 +163,17 @@ def test_FIN14_future_capacity_deduplicates_obligations_and_liquid_minimum(db_en
         assert current['snapshot']['metrics']['eligible_contribution_paise'] is None
         for priority in (1, 2):
             store.write(db, owner.id, 'goal', write(p.GoalWrite, {'label': 'Synthetic goal',
-                'target_paise': 3600000, 'target_date': date.today().replace(year=date.today().year+1),
+                'target_paise': 3600000, 'target_date': ist_today().replace(year=ist_today().year+1),
                 'priority': priority, 'funding_account_id': account.id}))
         current = report(db, owner, account)
-        planned = calc.goal_plan(db, owner.id, p.GoalPlan(**future(db, owner, current['id']), as_of=date.today()))
+        planned = calc.goal_plan(db, owner.id, p.GoalPlan(**future(db, owner, current['id']), as_of=ist_today()))
         assert [g['suggested_monthly_paise'] for g in planned['goals']] == [300000, 0]
         assert sum(g['suggested_monthly_paise'] for g in planned['goals']) == planned['capacity']['available_paise']
         bill = store.write(db, owner.id, 'obligation', write(p.ObligationWrite,
-            {'label': 'Loan minimum', 'amount_paise': 51000, 'due_date': date.today()}))
+            {'label': 'Loan minimum', 'amount_paise': 51000, 'due_date': ist_today()}))
         store.write(db, owner.id, 'debt', write(p.DebtWrite, {'label': 'Synthetic loan', 'obligation_id': bill['id'],
             'principal_paise': 100000, 'minimum_payment_paise': 51000, 'annual_rate_bps': 1200,
-            'term_months': 12, 'evidence_date': date.today()}))
+            'term_months': 12, 'evidence_date': ist_today()}))
         current = report(db, owner, account)
         scenario_request = p.DebtScenario(**future(db, owner, current['id']), strategy='avalanche',
             extra_payment_paise=100000, idempotency_key='positive-debt-scenario')
@@ -509,7 +517,7 @@ def test_goal_debt_and_settlement_api_ownership_and_capacity(client):
     bill = create('obligations', {'label': 'Loan minimum', 'amount_paise': 51000, 'due_date': '2026-01-05'})
     goal = create('goals', {'label': 'Reserve goal', 'target_paise': 120000, 'target_date': '2027-01-01', 'funding_account_id': account['id']})
     debt = create('debts', {'label': 'Declared loan', 'obligation_id': bill['id'], 'principal_paise': 100000,
-        'minimum_payment_paise': 51000, 'annual_rate_bps': 1200, 'term_months': 12, 'evidence_date': date.today().isoformat()})
+        'minimum_payment_paise': 51000, 'annual_rate_bps': 1200, 'term_months': 12, 'evidence_date': ist_today().isoformat()})
     with client.session_factory() as db:
         from backend.models.models import User, StatementAccount
         owner = db.query(User).filter_by(id=1).one()
@@ -524,7 +532,7 @@ def test_goal_debt_and_settlement_api_ownership_and_capacity(client):
             'entry_id': small.id, 'expected_entry_revision': small.revision})
         current = report(db, owner, account_row)
         assumptions = future(db, owner, current['id'])
-        assumptions['evidence_date'] = date.today().isoformat()
+        assumptions['evidence_date'] = ist_today().isoformat()
     for path, row in [('goals', goal), ('debts', debt), ('receivables', receivable), ('obligation-settlements', settlement)]:
         assert client.get('/'+path+'/'+row['id'], headers=b).status_code == 404
         assert client.put('/'+path+'/'+row['id'], headers=b, json=dict(expected_revision=1, idempotency_key=str(uuid4()), reason='Foreign attempt', data=row['data'])).status_code == 404
