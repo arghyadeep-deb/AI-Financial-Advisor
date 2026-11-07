@@ -180,7 +180,7 @@ def test_model_text_is_rendered_as_text_never_markup(page, live_url, tracker):
         route.fulfill(status=200, content_type="text/event-stream", body=frames)
 
     page.route("**/chat/stream", fulfill)
-    page.get_by_role("link", name="Advisor chat").click()
+    page.get_by_role("link", name="Ask the advisor").click()
     page.fill("#chat_in", "hello")
     page.get_by_role("button", name="Send").click()
     expect(page.locator(".msg.assistant").first).to_contain_text("<img src=x")
@@ -241,7 +241,7 @@ def test_chat_thread_buttons_are_disabled_while_a_reply_streams(page, live_url, 
     save_profile(page)
     held = {}
     page.route("**/chat/stream", lambda route: held.update(route=route))      # hold the request open
-    page.get_by_role("link", name="Advisor chat").click()
+    page.get_by_role("link", name="Ask the advisor").click()
     page.fill("#chat_in", "hello")
     page.get_by_role("button", name="Send").click()
     expect(page.get_by_role("button", name="+ New chat")).to_be_disabled()

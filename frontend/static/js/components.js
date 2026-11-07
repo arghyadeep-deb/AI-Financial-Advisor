@@ -17,7 +17,7 @@ export function card(title, ...children) {
 }
 
 export function pageHead(title, sub) {
-  return h("div", { class: "stack" },
+  return h("div", { class: "stack page-head" },
     h("h1", { text: title }), sub ? h("p", { class: "muted", text: sub }) : null);
 }
 
