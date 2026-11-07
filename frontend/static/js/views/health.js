@@ -23,7 +23,7 @@ export function renderHealth(hl, target) {
     target.appendChild(card("Score breakdown", h("div", { class: "score-rows" }, comps.map(([k, c]) => {
       const unknown = c.value === "unknown" || c.score === null || c.score === undefined;
       const pct = !unknown && c.max ? (c.score / c.max) * 100 : 0;
-      const tone = unknown ? "" : pct < 40 ? "bad" : pct < 70 ? "warn" : "ok";
+      const tone = unknown ? "neutral" : pct < 40 ? "bad" : pct < 70 ? "warn" : "ok";
       const status = unknown ? "Not provided" : pct < 40 ? "Needs work" : pct < 70 ? "Getting there" : "On track";
       return h("div", { class: "score-row" },
         h("div", { class: "score-top" },
