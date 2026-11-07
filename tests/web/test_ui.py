@@ -279,3 +279,42 @@ def test_settings_sessions_password_consent_and_preferences(page, live_url, trac
     page.click("button[type=submit]")
     expect(page.get_by_role("heading", name="Dashboard")).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
+
+
+def test_statement_upload_review_and_confirm(page, live_url, tracker, db_engine, monkeypatch, tmp_path):
+    from backend.core.config import config
+    from cryptography.fernet import Fernet
+    monkeypatch.setattr(config, 'SYNTHETIC_STATEMENTS_ENABLED', True)
+    monkeypatch.setattr(config, 'PRIVATE_STORAGE_ROOT', str(tmp_path / 'private'))
+    monkeypatch.setattr(config, 'STORAGE_ACTIVE_KEY', 'v1')
+    monkeypatch.setattr(config, 'STORAGE_KEYS_JSON', json.dumps({'v1': Fernet.generate_key().decode()}))
+    from pathlib import Path
+    from sqlalchemy.orm import Session
+
+    from backend.workers import statements as worker
+
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/statements")
+    expect(page.get_by_role("heading", name="Statements")).to_be_visible()
+    page.fill("#acct_label", "Sample account")
+    page.fill("#acct_token", "SYNTH_A")
+    page.get_by_role("button", name="Add account").click()
+    page.set_input_files("#up_file", str(Path("tests/fixtures/statements/supported.csv").resolve()))
+    page.get_by_role("button", name="Upload", exact=True).click()
+    expect(page.get_by_text("Waiting to be read")).to_be_visible()
+    with Session(db_engine) as db:                      # the operator worker; not a public API
+        worker.run_once(db)
+    page.get_by_role("button", name="Refresh status").click()
+    expect(page.get_by_text("Needs your review")).to_be_visible()
+    expect(page.get_by_text("Synthetic salary")).to_be_visible()
+    expect(page.get_by_text("₹45,000.00")).to_be_visible()
+    page.get_by_role("button", name="Confirm import").click()
+    expect(page.get_by_text("Imported", exact=True)).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_statements_page_says_unavailable_when_feature_is_off(page, live_url, tracker):
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/statements")
+    expect(page.get_by_text("Statement upload is not available yet")).to_be_visible()
+    assert not page.locator("#up_file").count()

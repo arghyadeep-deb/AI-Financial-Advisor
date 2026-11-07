@@ -33,13 +33,15 @@ export function errorText(data, status) {
   return "Request failed.";
 }
 
-export async function api(path, { method = "GET", body, auth = true, signal } = {}) {
+export async function api(path, { method = "GET", body, raw, contentType, auth = true, signal } = {}) {
   const headers = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (raw !== undefined) headers["Content-Type"] = contentType || "application/octet-stream";   // raw file bytes
+  else if (body !== undefined) headers["Content-Type"] = "application/json";
   if (auth && token) headers.Authorization = "Bearer " + token;
   let res;
   try {
-    res = await fetch(BASE + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal });
+    const payload = raw !== undefined ? raw : (body === undefined ? undefined : JSON.stringify(body));
+    res = await fetch(BASE + path, { method, headers, body: payload, signal });
   } catch (e) {
     return { ok: false, status: 0, data: null, error: "Cannot reach the server. Check your connection." };
   }

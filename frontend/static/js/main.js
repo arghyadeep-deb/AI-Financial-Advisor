@@ -13,6 +13,7 @@ import { reports } from "./views/reports.js";
 import { profile } from "./views/profile.js";
 import { chat } from "./views/chat.js";
 import { settings } from "./views/settings.js";
+import { statements } from "./views/statements.js";
 
 const ROUTES = {
   "": { view: landing, public: true },
@@ -26,6 +27,7 @@ const ROUTES = {
   reports: { view: reports, label: "Reports" },
   profile: { view: profile, label: "Profile" },
   chat: { view: chat, label: "Advisor chat" },
+  statements: { view: statements, label: "Statements" },
   settings: { view: settings, label: "Settings" },
 };
 
