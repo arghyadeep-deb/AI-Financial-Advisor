@@ -12,6 +12,7 @@ import { credit } from "./views/credit.js";
 import { reports } from "./views/reports.js";
 import { profile } from "./views/profile.js";
 import { chat } from "./views/chat.js";
+import { settings } from "./views/settings.js";
 
 const ROUTES = {
   "": { view: landing, public: true },
@@ -25,6 +26,7 @@ const ROUTES = {
   reports: { view: reports, label: "Reports" },
   profile: { view: profile, label: "Profile" },
   chat: { view: chat, label: "Advisor chat" },
+  settings: { view: settings, label: "Settings" },
 };
 
 const main = document.getElementById("main");

@@ -254,3 +254,28 @@ def test_chat_thread_buttons_are_disabled_while_a_reply_streams(page, live_url, 
     held["route"].fulfill(status=200, content_type="text/event-stream", body=body)
     expect(page.locator(".msg.assistant").first).to_contain_text("ok", timeout=10000)
     expect(page.get_by_role("button", name="+ New chat")).to_be_enabled()
+
+
+def test_settings_sessions_password_consent_and_preferences(page, live_url, tracker):
+    email = signup(page, live_url)
+    page.goto(f"{live_url}/app/#/settings")
+    expect(page.get_by_role("heading", name="Settings")).to_be_visible()
+    expect(page.get_by_text("(this device)")).to_be_visible()
+    # consent choice is recorded
+    page.get_by_role("button", name="Allow").first.click()
+    expect(page.get_by_text("allowed.")).to_be_visible()
+    # notification preferences round-trip
+    page.check("#pref_on")
+    page.get_by_role("button", name="Save notification settings").click()
+    expect(page.get_by_text("Saved.", exact=True)).to_be_visible()
+    # password change signs everyone out
+    page.fill("#pw_cur", PASSWORD)
+    page.fill("#pw_new", "Uitest-Changed-9912!")
+    page.get_by_role("button", name="Change password").click()
+    expect(page).to_have_url(__import__("re").compile(r"#/(login)?$"))
+    page.goto(f"{live_url}/app/#/login")
+    page.fill("#email", email)
+    page.fill("#password", "Uitest-Changed-9912!")
+    page.click("button[type=submit]")
+    expect(page.get_by_role("heading", name="Dashboard")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]
