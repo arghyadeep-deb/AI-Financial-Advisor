@@ -90,7 +90,7 @@ export async function monthly(c) {
   if (!accounts.ok || !vector.ok) { c.appendChild(banner("bad", accounts.error || vector.error)); return; }
   if (!accounts.data.length) {
     c.appendChild(emptyState("chart", "No accounts yet", "Add an account and confirm a statement first.",
-      h("a", { class: "btn primary", href: "#/statements", text: "Go to statements" })));
+      h("a", { class: "btn primary", href: "#/statements", text: "Go to statements" }), 2));
     return;
   }
   const out = h("div", { class: "stack" });
@@ -124,6 +124,6 @@ export async function monthly(c) {
       b.addEventListener("click", () => showReport(r, out));
       return h("li", {}, b);
     }))));
-  } else out.appendChild(emptyState("chart", "No report yet", "Choose a month above and create your first report."));
+  } else out.appendChild(emptyState("chart", "No report yet", "Choose a month above and create your first report.", null, 2));
   c.appendChild(disclaimer());
 }

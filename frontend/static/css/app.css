@@ -278,4 +278,5 @@ body:not(.shell) .page>section.hero{margin-top:0}
 .auth-split .art p{margin:16px 0 0;color:var(--accent-strong);font-family:var(--display);font-size:1.3rem;line-height:1.25}
 @media (max-width:860px){.auth-split{grid-template-columns:1fr;gap:24px}.auth-split .art{display:none}}
 .auth-split .auth-box{margin:0;max-width:none}
-.preview .grid.c2{grid-template-columns:1fr 1fr}
+.preview .grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tile-value{font-size:clamp(1.5rem,7vw,2.2rem);overflow-wrap:anywhere}

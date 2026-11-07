@@ -11,7 +11,7 @@ export async function chat(c) {
 
   const list = h("div", { class: "threads", role: "list" });
   const box = h("div", { class: "messages", role: "log", "aria-live": "polite", "aria-label": "Conversation" });
-  box.appendChild(emptyState("chat", "Ask about your numbers", "Try: Why is my health score 87? or What if I cut expenses by 5,000?"));
+  box.appendChild(emptyState("chat", "Ask about your numbers", "Try: Why is my health score 87? or What if I cut expenses by 5,000?", null, 2));
   const msg = h("div", { "aria-live": "polite" });
   const input = h("textarea", { id: "chat_in", placeholder: "Ask a question...", "aria-label": "Your message", maxlength: 4000, rows: 2 });
   const send = h("button", { class: "btn primary", type: "button", text: "Send" });
