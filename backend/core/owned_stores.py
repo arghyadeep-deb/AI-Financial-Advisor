@@ -60,3 +60,5 @@ register_database_store("queue", [WorkItem], "bounded background work")
 register_database_store("notifications", [DeliveryAttempt, NotificationPreference], "in-app notices")
 from backend.models.models import QuotaUsage
 register_database_store("quotas", [QuotaUsage], "resource accounting")
+from backend.models.models import AllocationPlan
+register_database_store("allocation", [AllocationPlan], "hypothetical allocation scenarios (feature 007, gated off)")
