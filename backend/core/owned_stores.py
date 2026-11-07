@@ -155,3 +155,6 @@ register_owned_store(OwnedStore('operations', frozenset({'operational_counters'}
     lambda db, owner: {}, lambda db, owner: None,
     'aggregate cost admission and worker liveness; no owner identifiers',
     'daily counters retained 7 days; current fixed worker timestamps overwritten'))
+
+from backend.models.models import ManualCreditEntry
+register_database_store("manual_credit", [ManualCreditEntry], "user-reported dated credit score (unverified)")

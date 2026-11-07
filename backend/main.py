@@ -97,6 +97,7 @@ app.include_router(__import__("backend.controllers.portfolio_controller", fromli
 app.include_router(__import__("backend.controllers.tax_controller", fromlist=["router"]).router)
 app.include_router(__import__("backend.controllers.household_controller", fromlist=["router"]).router)
 app.include_router(__import__("backend.controllers.transaction_controller", fromlist=["router"]).router)
+app.include_router(__import__("backend.controllers.pilot_controller", fromlist=["router"]).router)
 
 
 # ── Web UI: plain HTML/CSS/JS served from frontend/static (no build step) ────

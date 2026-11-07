@@ -427,7 +427,7 @@ def test_shared_FIN14_capacity_and_goals_are_not_reimplemented(db_engine, monkey
         store.write(db, owner.id, 'suitability', SuitabilityWrite(expected_revision=0, idempotency_key=uuid4().hex,
             reason='Confirmed', data=answers()))
         planning.write(db, owner.id, 'obligation', write(p.ObligationWrite,
-            {'label': 'Principal payment', 'amount_paise': 400000, 'due_date': date.today()}))
+            {'label': 'Principal payment', 'amount_paise': 400000, 'due_date': DAY}))
         report = positive_report(db, owner, account)
         monkeypatch.setenv('ALLOCATION_SANDBOX_ENABLED', 'true')
         vector = planning.vector(db, owner.id)
@@ -442,7 +442,7 @@ def test_shared_FIN14_capacity_and_goals_are_not_reimplemented(db_engine, monkey
         assert not result['stale']
         # Reserve all remaining capacity for an already confirmed goal, leaving none for allocation.
         planning.write(db, owner.id, 'goal', write(p.GoalWrite, {'label':'Goal', 'target_paise':3600000,
-            'target_date': date.today().replace(year=date.today().year+1), 'funding_account_id': account.id}))
+            'target_date': DAY.replace(year=DAY.year+1), 'funding_account_id': account.id}))
         report = make_report(db, owner, account)
         cap = p.GoalPlan(**future(db, owner, report['id']), as_of=DAY)
         result = allocation.create_owned_scenario(db, owner.id, scenario(expected_planning_vector=planning.vector(db, owner.id), planning_capacity=cap))
