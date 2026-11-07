@@ -1,0 +1,17 @@
+# Stage L - free-pilot import, manual credit entry, billing flag
+
+Implemented by Claude after the Codex usage limit. Migration 0220 (down_revision 0202). Synthetic-only gate unchanged: all import endpoints need `SYNTHETIC_STATEMENTS_ENABLED` and are refused in production-like environments. No real bank layout, no OCR, no provider code.
+
+## Items
+
+1. **T1406 selected layout verification: PARTIAL.** Only the fictional `synthetic-inr-v1` layout exists and is verified by existing tests. No real bank layout is encoded; the bank list is the owner's pending decision. A mapped-CSV route exists for any bank's CSV (item 2).
+2. **Mapped CSV import (014): done for the pilot scope.** `backend/finance/importers/mapped.py`, `POST /statement-accounts/{id}/mapped-preview` and `/mapped-uploads` (`backend/controllers/pilot_controller.py`). The user maps columns by index (date + explicit date format, description, optional reference, signed amount or debit/credit pair, delimiter, header row). Strict paise parsing (max 2 decimals, no exponents, no rounding), explicit date formats (never guessed, no future dates), duplicate references are errors, identical rows are warnings, formula-like text (`= + - @`) is neutralised with a leading apostrophe, control characters stripped. Preview validates every row and stores nothing; upload needs `confirm: true` and `expected_rows` equal to the previewed count, then converts to the canonical synthetic text and enters the existing sandboxed parser, review and ledger path (categories start as `unknown`, balances unverified). Owner-scoped (other users get 404). **Not done / PENDING:** saved per-user mapping templates (the client resends the mapping each time); real-bank templates; real-data release gates.
+3. **Scanned/image/PDF files: done.** Uploads of images or PDFs (by content type or magic bytes) get a clear "not supported yet, export a CSV, nothing was sent to any outside service" message (415/422); PDFs that reach the parser are quarantined and the import status now carries `error_message` for every known error code. OCR stays deferred.
+4. **005 manual dated credit entry + disabled interface: done for the manual path.** `POST/GET /credit/manual` (table `manual_credit_entries`, registered in `owned_stores` for export/purge): score 300-900 or unknown (null stays unknown), optional free-text label, as-of date (not future), source always `user_reported`, status `current` / `stale` (>90 days) / `unknown`, labelled unverified. `backend/integrations/credit_bureau.py` defines the adapter interface and a disabled implementation; `GET /credit/manual` reports provider status `disabled`. **PENDING (owner/provider):** account-aggregator and bureau providers, consent flow, any live data. The other nine 005 tasks are deferred.
+5. **013 billing: done as a flag.** `BILLING_MODE=free_pilot` is the only accepted value (startup refuses anything else); `GET /billing/entitlement` returns plan `free_pilot`, billing `disabled`, paid billing `deferred`. No provider code, no payment taken. The other five 013 tasks are deferred.
+
+Also fixed: `tests/test_stage_e.py::test_shared_FIN14...` mixed the fixed `DAY` (2026-11-07) with `date.today()` and failed once the calendar rolled over; it now uses `DAY` throughout.
+
+## Tests
+
+`python -m pytest tests/test_stage_l.py -q -p no:cacheprovider -W ignore` -> 25 passed. Full suite excluding tests/web: **882 passed, 10 skipped** (7m55s).

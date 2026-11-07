@@ -35,6 +35,7 @@ def _int(name: str, default: int) -> int:
 
 
 class Config:
+    BILLING_MODE = os.getenv("BILLING_MODE", "free_pilot").strip().lower()   # paid billing is deferred
     TAX_SANDBOX_ENABLED = os.getenv("TAX_SANDBOX_ENABLED", "false").strip().lower() == "true"
     SYNTHETIC_MANUAL_CASH_ENABLED = os.getenv('SYNTHETIC_MANUAL_CASH_ENABLED', 'false').lower() == 'true'
     SYNTHETIC_HOUSEHOLDS_ENABLED = os.getenv('SYNTHETIC_HOUSEHOLDS_ENABLED', 'false').lower() == 'true'
@@ -176,6 +177,8 @@ class Config:
                 and 1 <= self.EXPORT_TTL_SECONDS <= 3600 and 1 <= self.STATEMENT_MAX_BYTES <= 10*1024*1024
                 and 1 <= self.STATEMENT_MAX_ROWS <= 10000 and 1 <= self.STATEMENT_TIMEOUT_SECONDS <= 30):
             raise ConfigError("Invalid retention or parser bounds")
+        if self.BILLING_MODE != "free_pilot":
+            raise ConfigError("Only BILLING_MODE=free_pilot is supported; paid billing is deferred")
         if self.is_production_like and self.SYNTHETIC_STATEMENTS_ENABLED:
             raise ConfigError("Synthetic statements cannot be enabled in production-like environments")
         weak = key.strip().lower() in _PLACEHOLDER_SECRETS or len(key) < MIN_SECRET_LENGTH

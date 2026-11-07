@@ -39,8 +39,11 @@ def scope_vector(user: User = Depends(get_current_user), db: Session = Depends(g
 async def upload(account_id: str, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     service.owned(db, StatementAccount, user.id, account_id)
     service.enabled()
-    if request.headers.get('content-type', '').split(';')[0] not in {'text/csv', 'text/plain'}:
-        raise HTTPException(415, 'Only the documented synthetic CSV/text format is supported.')
+    kind = request.headers.get('content-type', '').split(';')[0].strip().lower()
+    if kind.startswith('image/') or kind in {'application/pdf'}:
+        raise HTTPException(415, service.ERROR_MESSAGES_UNSUPPORTED)
+    if kind not in {'text/csv', 'text/plain'}:
+        raise HTTPException(415, 'Only CSV/text files are supported.')
     data = bytearray()
     async for chunk in request.stream():
         if len(data) + len(chunk) > config.STATEMENT_MAX_BYTES:

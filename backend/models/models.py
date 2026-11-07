@@ -564,3 +564,15 @@ class TaxRevision(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'case_id', 'kind', 'revision', name='uq_tax_revision'),
         UniqueConstraint('user_id', 'operation_key', name='uq_tax_operation'))
+
+
+class ManualCreditEntry(Base):
+    """User-reported credit score with an as-of date. Never fetched, never verified."""
+    __tablename__ = 'manual_credit_entries'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    score = Column(Integer, nullable=True)            # None = the user does not know it; stays unknown
+    bureau_label = Column(String(40), nullable=True)  # free text label, not a verified bureau
+    as_of = Column(DateTime, nullable=False)
+    source = Column(String(20), nullable=False, default='user_reported')
+    created_at = Column(DateTime, nullable=False, default=utcnow)

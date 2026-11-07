@@ -12,6 +12,10 @@ from backend.models.models import (StatementAccount, StatementDocument, Statemen
 from backend.workers import queue
 
 
+ERROR_MESSAGES_UNSUPPORTED = ('Scanned documents and photos are not supported yet. Export a CSV from your bank instead. '
+                             'Nothing was sent to any outside service.')
+
+
 def enabled():
     if not config.SYNTHETIC_STATEMENTS_ENABLED or config.is_production_like:
         raise HTTPException(503, 'Synthetic statement imports are disabled. Real bank data is unsupported.')
@@ -48,6 +52,9 @@ def upload(db, owner, account_id, content):
         raise HTTPException(422, 'Cash accounts accept manual evidence only.')
     if not content or len(content) > config.STATEMENT_MAX_BYTES:
         raise HTTPException(413, 'Empty or oversized statement.')
+    from backend.finance.importers.mapped import MAGIC
+    if any(content.startswith(m) for m in MAGIC if m != b'%PDF'):
+        raise HTTPException(422, ERROR_MESSAGES_UNSUPPORTED)
     digest = sha256(content).hexdigest()
     existing = db.query(StatementDocument).filter_by(user_id=owner, account_id=account.id, digest=digest).first()
     if existing:
@@ -143,9 +150,12 @@ def process_claimed(db, work_id, fence, *, scanner_available=True):
 
 
 def describe(job):
-    return {key: getattr(job, key) for key in ('id', 'account_id', 'document_id', 'work_id', 'generation',
+    from backend.finance.importers.registry import ERROR_MESSAGES
+    out = {key: getattr(job, key) for key in ('id', 'account_id', 'document_id', 'work_id', 'generation',
         'revision', 'state', 'checkpoint', 'parser_version', 'error_code', 'start_date', 'end_date',
         'opening_paise', 'closing_paise', 'difference_paise', 'business_commit_id')}
+    out['error_message'] = ERROR_MESSAGES.get(job.error_code)
+    return out
 
 
 def generation_comparison(db, owner, identity):
