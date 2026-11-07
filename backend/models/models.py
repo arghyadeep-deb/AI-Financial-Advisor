@@ -576,3 +576,69 @@ class ManualCreditEntry(Base):
     as_of = Column(DateTime, nullable=False)
     source = Column(String(20), nullable=False, default='user_reported')
     created_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class IntegrationConsent(Base):
+    """Consent for one provider/account. Revision changes on every grant, revoke or scope change."""
+    __tablename__ = 'integration_consents'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    provider = Column(String(40), nullable=False)
+    account_id = Column(String(36), nullable=False)
+    scopes = Column(JSON, nullable=False, default=list)
+    state = Column(String(12), nullable=False, default='active')   # active | revoked
+    revision = Column(Integer, nullable=False, default=1)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    revoked_at = Column(DateTime, nullable=True)
+
+
+class IntegrationEvent(Base):
+    """One provider transaction id, seen once per user. Replays and overlaps are dropped here."""
+    __tablename__ = 'integration_events'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    provider = Column(String(40), nullable=False)
+    event_id = Column(String(80), nullable=False)
+    consent_id = Column(String(36), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (UniqueConstraint('user_id', 'provider', 'event_id', name='uq_integration_event'),)
+
+
+class IntegrationOperation(Base):
+    """An external action with its own idempotency key. `unknown` is reconciled, never resubmitted."""
+    __tablename__ = 'integration_operations'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    consent_id = Column(String(36), nullable=False)
+    kind = Column(String(40), nullable=False)
+    idempotency_key = Column(String(64), nullable=False)
+    state = Column(String(12), nullable=False, default='submitting')  # submitting|submitted|unknown|confirmed|failed
+    attempts = Column(Integer, nullable=False, default=0)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    updated_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (UniqueConstraint('user_id', 'idempotency_key', name='uq_integration_operation_key'),)
+
+
+class SupportGrant(Base):
+    """User-issued, time-limited permission for support to read ONE of their source documents."""
+    __tablename__ = 'support_grants'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    document_id = Column(String(36), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    revoked_at = Column(DateTime, nullable=True)
+    used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class SupportAccessLog(Base):
+    """Every support lookup or read. user_id is the data owner when known, so the owner can see it."""
+    __tablename__ = 'support_access_log'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True, index=True)
+    operator = Column(String(80), nullable=False)
+    action = Column(String(30), nullable=False)
+    target = Column(String(80), nullable=False)
+    reason = Column(String(200), nullable=False)
+    outcome = Column(String(20), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
