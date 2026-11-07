@@ -1,39 +1,34 @@
-# Synthetic allocation v1
+# Deterministic allocation sandbox (D05)
 
-Contracts precede consumers: suitability answers, assumption pack, constraints,
-holdings and result are strict frozen Pydantic contracts. The caller supplies a
-canonical owned FinanceSnapshot and explicit eligible liquid cash after commitments
-and reserves; budget is the lesser of that cash and canonical contribution.
-Profile-aggregate snapshots remain declared scenarios, never verified liquidity.
+The allocator consumes the shared owned FinanceSnapshot, versioned suitability,
+registered assumption pack and exact constraints. It conserves every paise using
+ceil minima, floor maxima, targets and stable cash/debt/equity/gold residual order.
+It never executes, selects named products or optimizes invented expected returns.
 
-The source registry must resolve the exact pack version/hash, authorize its owner,
-and validate effective/expiry dates. The parsed source must match every pack field.
-The only supplied pack is synthetic. Production source catalog is empty.
+Real recommendation calls refuse with `assumptions not validated`. Synthetic
+calculation requires an explicit synthetic_test argument and APP_ENV=test. Invented
+market/risk/cost numbers live exclusively in labelled test fixtures. Production
+registry is empty. Public eligibility remains hard-false independently of parameter
+validation, environment flags or model prose. Parameter validation and the separate
+public-advice decision are PENDING; no reviewer is appointed.
 
-The allocator assigns rounded-up minima, then rounded-down targets, then remaining
-capacity, always in cash/debt/equity order. Every paise is conserved within bounds;
-no shorting/leverage. Default cash minimum is 10%. Low/moderate/high stated capacity
-caps equity at 10/40/60%; a horizon or essential goal under 36 months, or unstable
-income, caps it at zero. These are conservative synthetic v1 policy assumptions,
-not validated investment guidance. Contradictory high tolerance blocks calculation
-before these caps; it is never silently converted into high capacity.
+The policy register supplies configurable defaults (cash floor 1000 bps; near-term
+horizon 36 months), labelled unvalidated_prototype. Scenario overrides are reported
+separately from original registered defaults. These are not universal suitability
+rules. Both suitability and the solver consume the configured near-term boundary.
 
-Cost comparison retains holdings and uses new contributions first. Annual fees
-are synthetic estimates rounded up once. Sales have unknown transaction cost,
-exit load and tax without a supported disposal pack; no net improvement is claimed.
-The baseline retains current holdings and adds all new cash to cash. Stress applies
-bounded one-year class shocks; delayed-income new contribution is zero. A volatility
-model, dated backtests and independent held-out release evaluation are absent.
+Every class has unknown liquidity unless dated instrument/restriction/settlement
+and source evidence provides a duration. Unknown or expired evidence fails a
+liquidity deadline; without a deadline, a synthetic allocation makes no claim that
+its holdings are liquid. Cash floor denotes class weight only, not verified cash
+availability. Declared eligible cash still cannot exceed shared contribution capacity.
 
-AllocationPlan stores all inputs and deterministic outputs. SQL UPDATE triggers
-protect saved evidence in migrated SQLite/PostgreSQL databases. New calculations
-append records. Reads compare profile, supplied suitability/holdings/assumption
-revisions and current source authorization/expiry, returning a separate stale flag.
-These internal service inputs must come from owned upstream services; those domain
-stores, revision fencing and privacy lifecycle integration remain unfinished.
+Costs/stress remain synthetic comparisons. Sales costs and taxes are unknown;
+net improvement is blocked. Source/policy changes and expiry mark immutable plans
+stale while preserving original inputs/results. Existing privacy export/purge
+hooks cover the existing AllocationPlan store; the file-backed global register has
+no personal data and introduces no table. Model output is discarded by output_guard.
 
-`output_guard.guard_allocation` drops all model output. No model narrative or model
-amount is displayed, and no public eligibility can be supplied by a model. Public
-proposals always return gated. Existing named-product flag reader is reused; it
-cannot enable allocation publication. No allocation router, chat tool, export,
-frontend flow, external market source, execution adapter or public proposal exists.
+Authenticated GET /allocation-assumptions exposes the prototype register. Existing
+scenario/plan routes remain default-off; test-only synthetic calculation does not
+authorize public advice, external integrations, execution or a frontend release.

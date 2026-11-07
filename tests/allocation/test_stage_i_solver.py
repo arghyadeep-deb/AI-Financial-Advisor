@@ -11,7 +11,7 @@ from tests.allocation.test_allocation import DAY, answers, snapshot
 def run(*, budget=10000, suitability=None, constraints=None, snap=None):
     pack, registry = synthetic_fixture('v2')
     return allocate(snap or snapshot(), suitability or answers(), pack,
-        constraints or Constraints(eligible_liquid_paise=budget), registry, owner_id=1, as_of=DAY)
+        constraints or Constraints(eligible_liquid_paise=budget), registry, owner_id=1, as_of=DAY, synthetic_test=True)
 
 
 def test_four_class_independent_golden():
@@ -47,7 +47,8 @@ def test_tolerance_and_near_term_risk_limits():
     amounts = {h.asset: h.value_paise for h in result.amounts}
     assert amounts['equity'] == amounts['gold'] == 0
     liquid = run(constraints=Constraints(eligible_liquid_paise=10000, maximum_liquidity_days=0))
-    assert {h.asset: h.value_paise for h in liquid.amounts} == dict(cash=10000, debt=0, equity=0, gold=0)
+    assert liquid.status == 'infeasible' and not liquid.amounts
+    assert all(n is None for n in liquid.liquidity_days.values())
 
 
 def test_impossible_bounds_deficit_missing_and_wrong_owner():

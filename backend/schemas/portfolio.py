@@ -1,4 +1,5 @@
 """Owner-confirmed full-book observations; never inferred from bank movements."""
+from backend.finance.allocation_assumptions import policy_value
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Literal
@@ -99,7 +100,8 @@ class AllocationScenario(Operation):
     eligible_liquid_paise: Money | None = None
     planning_capacity: GoalPlan | None = None
     excluded_assets: list[Asset] = Field(default_factory=list, max_length=4)
-    liquidity_floor_bps: StrictInt = Field(default=1000, ge=0, le=10000)
+    liquidity_floor_bps: StrictInt = Field(default_factory=lambda: policy_value("cash_floor_bps"), ge=0, le=10000)
+    near_term_months: StrictInt = Field(default_factory=lambda: policy_value("near_term_months"), ge=1, le=1200)
     maximum_liquidity_days: StrictInt | None = Field(default=None, ge=0, le=3650)
 
     @field_validator('assumptions_accepted', mode='before')

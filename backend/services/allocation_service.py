@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from backend.core.feature_flags import allocation_public_eligible
 from backend.finance.suitability import Suitability
+from backend.finance.allocation_assumptions import load_register
 from backend.knowledge.registry import Registry
 from backend.models.models import AllocationPlan, FinancialProfile
 from backend.services.output_guard import guard_allocation
@@ -31,14 +32,14 @@ def _profile(db: Session, owner_id: int) -> FinancialProfile:
 def create_scenario(db: Session, *, owner_id: int, expected_revision: int, suitability: Suitability,
                     pack: AssumptionPack, constraints: Constraints, registry: Registry, as_of: date,
                     holdings: tuple[Holding, ...] | None = None, holdings_revision: str | None = None,
-                    model_output=None) -> dict:
+                    model_output=None, synthetic_test: bool = False) -> dict:
     profile = _profile(db, owner_id)
     if profile.revision != expected_revision:
         raise HTTPException(409, "Profile changed; recompute scenario")
     if holdings is not None and not holdings_revision:
         raise HTTPException(422, "Holdings revision required")
     snapshot = snapshot_for(profile)
-    result = allocate(snapshot, suitability, pack, constraints, registry, owner_id=owner_id, as_of=as_of)
+    result = allocate(snapshot, suitability, pack, constraints, registry, owner_id=owner_id, as_of=as_of, synthetic_test=synthetic_test)
     payload = guard_allocation({"allocation": result.model_dump(mode="json"),
                                "comparison": compare(result, holdings, pack),
                                "stress": stress(result, pack)}, model_output)
@@ -52,6 +53,7 @@ def create_scenario(db: Session, *, owner_id: int, expected_revision: int, suita
                                             "suitability": suitability.model_dump(mode="json"),
                                             "assumptions": pack.model_dump(mode="json"),
                                             "constraints": constraints.model_dump(mode="json"),
+                                            "policy_register": load_register().model_dump(mode="json"),
                                             "holdings_revision": holdings_revision,
                                             "holdings": None if holdings is None else [h.model_dump() for h in holdings],
                                             "as_of": as_of.isoformat()}, result=payload)
@@ -67,19 +69,26 @@ def read_plan(db: Session, *, owner_id: int, plan_id: str, registry: Registry, a
     if record is None:
         raise HTTPException(404, "Allocation plan not found")
     profile = _profile(db, owner_id)
-    pack = AssumptionPack.model_validate_json(json.dumps(record.input_snapshot["assumptions"]))
+    try:
+        pack = AssumptionPack.model_validate_json(json.dumps(record.input_snapshot["assumptions"]))
+    except ValueError:
+        return {"id": record.id, "stale": True, "inputs": record.input_snapshot,
+                "stale_reasons": ["Legacy assumptions require D05 revalidation"],
+                **guard_allocation(record.result)}
     stale = (profile.revision != record.profile_revision
              or suitability_revision != record.suitability_revision
              or holdings_revision != record.input_snapshot["holdings_revision"]
              or assumption_version != pack.version
-             or not evidence_current(pack, registry, owner_id, as_of))
+             or not evidence_current(pack, registry, owner_id, as_of)
+             or record.input_snapshot.get('policy_register') != load_register().model_dump(mode='json')
+             or not all(a.current(as_of) for a in load_register().assumptions))
     return {"id": record.id, "stale": stale, "inputs": record.input_snapshot,
             **guard_allocation(record.result)}
 
 
 def propose(*args, **kwargs) -> dict:
     if not allocation_public_eligible():
-        return {"status": "gated", "reasons": ["D05 and independent release evidence unresolved"]}
+        return {"status": "gated", "reasons": ["assumptions not validated", "Parameter validation and public-advice eligibility PENDING; no reviewer appointed"]}
     raise RuntimeError("public allocation has no approved implementation")
 
 
@@ -166,12 +175,12 @@ def create_owned_scenario(db, owner, payload):
     try:
         pack, registry = synthetic_fixture('v2')
     except (OSError, ValueError) as exc:
-        raise HTTPException(503, 'Synthetic assumptions unavailable; retry after operator review.') from exc
+        raise HTTPException(503, 'assumptions not validated; synthetic assumptions unavailable; operator review required.') from exc
     suitability = Suitability.model_validate_json(json.dumps(answers.data))
     constraints = Constraints(eligible_liquid_paise=payload.eligible_liquid_paise,
         excluded=tuple(payload.excluded_assets), liquidity_floor_bps=payload.liquidity_floor_bps,
-        maximum_liquidity_days=payload.maximum_liquidity_days)
-    result = allocate(finance, suitability, pack, constraints, registry, owner_id=owner, as_of=day)
+        maximum_liquidity_days=payload.maximum_liquidity_days, near_term_months=payload.near_term_months)
+    result = allocate(finance, suitability, pack, constraints, registry, owner_id=owner, as_of=day, synthetic_test=True)
     observed = portfolio.valuation_data(book.data, day)
     complete = (observed['total_value_paise'] is not None and not observed['stale'] and
                 observed['inventory_complete_declared'] and not any(
@@ -187,7 +196,8 @@ def create_owned_scenario(db, owner, payload):
     inputs = {'request': request, 'finance': finance.to_dict(), 'suitability': answers.data,
         'holdings': book.data, 'holdings_revision': book.revision, 'planning_vector': planning,
         'assumptions': pack.model_dump(mode='json'), 'as_of': day.isoformat(),
-        'constraints': constraints.model_dump(mode='json'), 'holdings_coverage': observed['coverage'],
+        'constraints': constraints.model_dump(mode='json'),
+        'policy_register': load_register().model_dump(mode='json'), 'holdings_coverage': observed['coverage'],
         'planning_capacity': capacity_view, 'portfolio_rule_version': observed['rule_version']}
     row = AllocationPlan(id=str(uuid4()), user_id=owner, profile_revision=profile.revision,
         suitability_revision=answers.revision, input_snapshot=inputs, result=output)
@@ -209,7 +219,10 @@ def read_owned_plan(db, owner, identity):
         return {'id': row.id, 'status': 'needs_review', 'stale': True, 'public_eligible': False}
     def envelope(reasons):
         return {'id': row.id, 'status': 'hypothetical', 'stale': bool(reasons), 'stale_reasons': reasons,
-                'inputs': row.input_snapshot, **row.result, 'public_eligible': False, 'named_products_eligible': False}
+                'inputs': row.input_snapshot, **guard_allocation(row.result),
+                'recommendation_status': 'assumptions not validated',
+                'liquidity_notice': 'Historical receipts require revalidation; unknown liquidity is never liquid.',
+                'public_eligible': False, 'named_products_eligible': False}
     try:
         profile, holdings, answers, finance, planning = _owned_inputs(db, owner)
     except HTTPException as exc:
@@ -222,7 +235,13 @@ def read_owned_plan(db, owner, identity):
     except (OSError, ValueError):
         return envelope(['assumptions_unavailable'])
     reasons = []
-    for changed, label in ((profile.revision != row.profile_revision, 'profile_changed'),
+    try:
+        policy = load_register()
+    except (OSError, ValueError):
+        return envelope(['prototype_policy_unavailable'])
+    for changed, label in ((row.input_snapshot.get('policy_register') != policy.model_dump(mode='json')
+            or not all(a.current(day) for a in policy.assumptions), 'prototype_policy_changed_or_expired'),
+            (profile.revision != row.profile_revision, 'profile_changed'),
             (holdings.revision != row.input_snapshot['holdings_revision'], 'holdings_changed'),
             (answers.revision != row.suitability_revision, 'suitability_changed'),
             (planning != row.input_snapshot['planning_vector'], 'planning_changed'),

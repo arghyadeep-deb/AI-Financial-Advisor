@@ -49,13 +49,18 @@ def test_owned_four_class_scenario_review_and_projection_separation(client, monk
     assert client.post('/allocation-scenarios', headers=owner, json=request).status_code == 404
     monkeypatch.setenv('ALLOCATION_SANDBOX_ENABLED', 'true')
     request.update(excluded_assets=['equity', 'gold'], maximum_liquidity_days=0)
+    unavailable = client.post('/allocation-scenarios', headers=owner, json=request).json()
+    assert unavailable['allocation']['status'] == 'infeasible'
+    assert not unavailable['allocation']['amounts']
+    assert set(unavailable['allocation']['liquidity_days'].values()) == {None}
+    request.update(idempotency_key=uuid4().hex, maximum_liquidity_days=None)
     response = client.post('/allocation-scenarios', headers=owner, json=request)
     assert response.status_code == 200, response.text
     plan = response.json()
     assert plan['inputs']['assumptions']['universe_version'] == 'inr-classes.synthetic.v2'
     assert plan['allocation']['status'] == 'feasible'
     amounts = {h['asset']: h['value_paise'] for h in plan['allocation']['amounts']}
-    assert amounts == dict(cash=450000, debt=0, equity=0, gold=0)
+    assert amounts == dict(cash=315000, debt=135000, equity=0, gold=0)
     assert plan['comparison']['current_value_paise'] == 100000
     assert plan['rebalance']['current_paise']['gold'] == 100000
     assert plan['rebalance']['tax_cost_paise'] is plan['rebalance']['net_improvement'] is None

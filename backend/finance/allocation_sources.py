@@ -1,5 +1,6 @@
 """Offline fixture loader. Never supplies a production-approved registry."""
 from datetime import date
+import os
 from hashlib import sha256
 from pathlib import Path
 
@@ -8,9 +9,11 @@ from engines.allocation.contracts import AssumptionPack
 
 
 def synthetic_fixture(version: str = 'v1') -> tuple[AssumptionPack, Registry]:
+    if os.getenv('APP_ENV') != 'test':
+        raise ValueError('Synthetic assumptions are test fixtures only; assumptions not validated')
     if version not in {'v1', 'v2'}:
         raise ValueError('Unsupported illustrative pack version')
-    text = (Path(__file__).resolve().parents[2] / f"knowledge_base/allocation/synthetic-{version}.json").read_text(encoding="utf-8")
+    text = (Path(__file__).resolve().parents[2] / f"tests/fixtures/allocation/synthetic-{version}.json").read_text(encoding="utf-8")
     digest = sha256(text.encode()).hexdigest()
     import json
     data = json.loads(text)

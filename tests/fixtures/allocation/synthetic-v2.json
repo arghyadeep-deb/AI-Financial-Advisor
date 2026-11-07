@@ -1,0 +1,650 @@
+{
+  "version": "allocation.illustrative.v2",
+  "universe_version": "inr-classes.synthetic.v2",
+  "assumption_label": "illustrative_not_a_forecast",
+  "source_id": "allocation-illustrative-v2",
+  "source_version": 1,
+  "effective": "2026-11-07",
+  "expires": "2027-01-01",
+  "owner": "synthetic-test-author-no-validator-appointed",
+  "assets": [
+    {
+      "asset": "cash",
+      "minimum_bps": 0,
+      "target_bps": 2000,
+      "maximum_bps": 10000,
+      "adverse_return_bps": 0,
+      "favourable_return_bps": 200,
+      "annual_fee_bps": 0,
+      "liquidity_days": null,
+      "illustrative_return_bps": 100,
+      "illustrative_volatility_bps": 0
+    },
+    {
+      "asset": "debt",
+      "minimum_bps": 0,
+      "target_bps": 3000,
+      "maximum_bps": 8000,
+      "adverse_return_bps": -1000,
+      "favourable_return_bps": 800,
+      "annual_fee_bps": 100,
+      "liquidity_days": null,
+      "illustrative_return_bps": 500,
+      "illustrative_volatility_bps": 600
+    },
+    {
+      "asset": "equity",
+      "minimum_bps": 0,
+      "target_bps": 4000,
+      "maximum_bps": 6000,
+      "adverse_return_bps": -4000,
+      "favourable_return_bps": 2500,
+      "annual_fee_bps": 200,
+      "liquidity_days": null,
+      "illustrative_return_bps": 900,
+      "illustrative_volatility_bps": 2000
+    },
+    {
+      "asset": "gold",
+      "minimum_bps": 0,
+      "target_bps": 1000,
+      "maximum_bps": 2000,
+      "adverse_return_bps": -2500,
+      "favourable_return_bps": 2000,
+      "annual_fee_bps": 150,
+      "liquidity_days": null,
+      "illustrative_return_bps": 600,
+      "illustrative_volatility_bps": 1500
+    }
+  ],
+  "status": "synthetic_test",
+  "risk_limits": [
+    {
+      "asset": "equity",
+      "low": 1000,
+      "moderate": 4000,
+      "high": 6000
+    },
+    {
+      "asset": "gold",
+      "low": 0,
+      "moderate": 1000,
+      "high": 2000
+    }
+  ],
+  "register": {
+    "version": "allocation-tests.v2",
+    "assumptions": [
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.minimum_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.target_bps",
+        "value": 2000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.maximum_bps",
+        "value": 10000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.adverse_return_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.favourable_return_bps",
+        "value": 200
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.annual_fee_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.illustrative_return_bps",
+        "value": 100
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "cash.illustrative_volatility_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.minimum_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.target_bps",
+        "value": 3000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.maximum_bps",
+        "value": 8000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.adverse_return_bps",
+        "value": -1000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.favourable_return_bps",
+        "value": 800
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.annual_fee_bps",
+        "value": 100
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.illustrative_return_bps",
+        "value": 500
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "debt.illustrative_volatility_bps",
+        "value": 600
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.minimum_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.target_bps",
+        "value": 4000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.maximum_bps",
+        "value": 6000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.adverse_return_bps",
+        "value": -4000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.favourable_return_bps",
+        "value": 2500
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.annual_fee_bps",
+        "value": 200
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.illustrative_return_bps",
+        "value": 900
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "equity.illustrative_volatility_bps",
+        "value": 2000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.minimum_bps",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.target_bps",
+        "value": 1000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.maximum_bps",
+        "value": 2000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.adverse_return_bps",
+        "value": -2500
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.favourable_return_bps",
+        "value": 2000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.annual_fee_bps",
+        "value": 150
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.illustrative_return_bps",
+        "value": 600
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "gold.illustrative_volatility_bps",
+        "value": 1500
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.equity.low",
+        "value": 1000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.equity.moderate",
+        "value": 4000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.equity.high",
+        "value": 6000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.gold.low",
+        "value": 0
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.gold.moderate",
+        "value": 1000
+      },
+      {
+        "version": 1,
+        "source": {
+          "name": "Invented deterministic test fixture",
+          "url": "https://example.test/allocation",
+          "publisher": "Synthetic test author"
+        },
+        "as_of": "2026-11-07",
+        "expires": "2027-01-01",
+        "methodology": "Invented scalar for deterministic constraint/arithmetic testing only; no historical or predictive basis.",
+        "uncertainty": "Synthetic; no confidence interval or real-world validity.",
+        "status": "synthetic_test",
+        "id": "risk.gold.high",
+        "value": 2000
+      }
+    ]
+  }
+}
