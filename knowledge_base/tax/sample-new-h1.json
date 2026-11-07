@@ -1,0 +1,30 @@
+{
+  "version": "sample.salary.new.h1",
+  "synthetic_only": true,
+  "production_approved": false,
+  "period": "SAMPLE-2026",
+  "regime": "sample",
+  "effective": "2026-01-01",
+  "expires": "2027-01-01",
+  "reviewed_on": "2025-12-31",
+  "owner": "offline-fixture-maintainer",
+  "source": "invented-test-parameters; not legislation",
+  "currency": "INR",
+  "standard_deduction_paise": 10000,
+  "supplement_bps": 100,
+  "rounding": "aggregate-half-up-paise",
+  "slabs": [
+    {
+      "upper_paise": 100000,
+      "rate_bps": 0
+    },
+    {
+      "upper_paise": 200000,
+      "rate_bps": 1000
+    },
+    {
+      "upper_paise": 1000000,
+      "rate_bps": 2000
+    }
+  ]
+}
