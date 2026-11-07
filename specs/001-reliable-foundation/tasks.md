@@ -4,7 +4,7 @@ Prerequisites are the [spec](spec.md), [plan](plan.md), and [review checklist](.
 
 ## Setup and prerequisites
 
-- [ ] T101 Pin and verify dependencies in `backend_requirements.txt` and `frontend/requirements.txt` or one reproducible lock workflow. Document fresh install and test commands in `README.md`.
+- [ ] T101 Pin and verify dependencies in `backend_requirements.txt` (and `requirements-dev.txt`; `frontend/requirements.txt` was removed with Streamlit) or one reproducible lock workflow. Document fresh install and test commands in `README.md`.
 - [ ] T102 [P] Write synthetic baseline reproductions for deficit, stale report, ignored inputs, unknown credit, portfolio overwrite, and provider failure in `tests/`.
 - [ ] T103 Add migrations, test PostgreSQL wiring, and document existing SQLite backup/import in `backend/core/database.py` and `migrations/`.
 
@@ -13,7 +13,7 @@ Prerequisites are the [spec](spec.md), [plan](plan.md), and [review checklist](.
 - [ ] T104 [US1] Add exact money representation and a profile revision boundary in `backend/models/`, `backend/schemas/`, and `backend/services/profile_service.py`.
 - [ ] T105 [US1] Add affordability, missing-data, and observed-versus-projected rules in `engines/` and `backend/services/analysis_service.py`.
 - [ ] T106 [US1] Validate and version agent output and analysis status in `agents/` and `backend/services/analysis_service.py`.
-- [ ] T107 [US1] Wire edited values and stale states in `frontend/app.py`. Prove the three normal form paths with browser checks.
+- [ ] T107 [US1] Wire edited values and stale states in `frontend/static/` (originally `frontend/app.py`, replaced by plain HTML/CSS/JS). Prove the three normal form paths with browser checks.
 
 ## US2 Account safety
 

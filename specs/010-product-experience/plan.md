@@ -3,7 +3,7 @@
 Planning only. Read [spec](spec.md), [tasks](tasks.md), [architecture](../architecture.md), [constitution](../constitution.md) and [release gates](../release-gates.md). Build prerequisites and release subsets: [implementation order](../implementation-order.md).
 
 ## Data and service contract
-NotificationPreference, DeliveryAttempt and FeedbackItem. `GET/PATCH /preferences`, `GET /notifications`, `POST /feedback`. Use event IDs for dedupe. Before rewriting the frontend framework, record a decision comparing Streamlit acceptance gaps, accessibility, effort and migration risk; preserve working APIs and browser entry points during any transition.
+NotificationPreference, DeliveryAttempt and FeedbackItem. `GET/PATCH /preferences`, `GET /notifications`, `POST /feedback`. Use event IDs for dedupe. The Streamlit UI was replaced by plain HTML/CSS/JS (`frontend/static`, owner decision 2026-11-07); keep APIs stable and add screens as ES modules under `js/views/`.
 
 ## Implementation sequence
 1. Resolve only this feature's prerequisite decisions and pin its schema/API examples.

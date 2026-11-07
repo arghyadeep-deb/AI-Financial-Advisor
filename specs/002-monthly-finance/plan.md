@@ -4,7 +4,7 @@ Read [spec](spec.md), [data model](data-model.md), [API contract](contracts/impo
 
 ## Technical context
 
-FastAPI, Streamlit, PostgreSQL, private object storage, one background worker, and a pinned compatible LangGraph/checkpointer stack. Reuse the SQLAlchemy project boundaries. Use a PostgreSQL-backed job queue or another documented durable worker strategy with an atomic claim, bounded retries, and idempotency. For the pilot use a deterministic text parser plus synthetic fixtures. Keep the request handler responsive by returning a job reference after storage succeeds. Set file/page/row/timeout limits based on fixture benchmarking and expose these limits in UI.
+FastAPI, the HTML/CSS/JS web app, PostgreSQL, private object storage, one background worker, and a pinned compatible LangGraph/checkpointer stack. Reuse the SQLAlchemy project boundaries. Use a PostgreSQL-backed job queue or another documented durable worker strategy with an atomic claim, bounded retries, and idempotency. For the pilot use a deterministic text parser plus synthetic fixtures. Keep the request handler responsive by returning a job reference after storage succeeds. Set file/page/row/timeout limits based on fixture benchmarking and expose these limits in UI.
 
 ## Design and constitution check
 

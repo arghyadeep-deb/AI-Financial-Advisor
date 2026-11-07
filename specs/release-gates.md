@@ -23,7 +23,7 @@ Build prerequisites and the exact R1 budget/UX/parser subsets are defined in [im
 | D05 | Allocation scope and permission | Hypothetical asset-class scenarios first; public personalization disabled | G4 for 007 |
 | D06 | Provider eligibility, licensed market data and consent | Mock adapters; manual/import paths remain usable | Each live adapter |
 | D07 | Monetary AI/storage budget and capacity | Proposed 009 load limits; actual price caps chosen after benchmark | G2 |
-| D08 | UI framework | Retain Streamlit until measured acceptance gaps justify change | Start 010 |
+| D08 | UI framework | Plain HTML/CSS/JS in `frontend/static`, served by the API at `/app` (owner decision 2026-11-07; Streamlit removed) | Start 010 |
 | D09 | Notifications and languages | In-app English first; optional verified channels and evaluated Hindi/Hinglish | Each channel/locale |
 | D10 | Paid tiers and support model | No payments in pilot | Start 013 billing |
 | D11 | Research/knowledge distribution and licenses | Official educational sources first; research features gated | G4 for 012 |

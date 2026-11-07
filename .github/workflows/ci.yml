@@ -29,15 +29,15 @@ jobs:
           cache: pip
           cache-dependency-path: |
             backend_requirements.txt
-            frontend/requirements.txt
             requirements-dev.txt
       - run: pip install -r requirements-dev.txt
+      - run: python -m playwright install --with-deps chromium
       - name: Tests (mocked providers, isolated databases)
         run: python -m pytest tests -q --timeout=180
       - name: Dependency audit
         run: |
           pip install pip-audit
-          pip-audit -r backend_requirements.txt -r frontend/requirements.txt
+          pip-audit -r backend_requirements.txt
       - name: Secret scan (tracked files)
         run: |
           if git grep -nE "(sk-[A-Za-z0-9]{20,}|gsk_[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30,}|lsv2_[A-Za-z0-9_]{20,}|-----BEGIN (RSA |EC )?PRIVATE KEY-----)" -- . ':!.github'; then

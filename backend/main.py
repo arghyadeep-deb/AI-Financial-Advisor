@@ -88,3 +88,27 @@ app.include_router(thread_router)
 @app.get("/")
 def root():
     return {"message": "AI Financial Advisor API is running"}
+
+
+# ── Web UI: plain HTML/CSS/JS served from frontend/static (no build step) ────
+from fastapi import Request                                # noqa: E402
+from fastapi.staticfiles import StaticFiles               # noqa: E402
+
+_STATIC_DIR = os.path.join(ROOT_DIR, "frontend", "static")
+_UI_CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+           "connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+
+
+@app.middleware("http")
+async def ui_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path == "/app" or request.url.path.startswith("/app/"):
+        response.headers["Content-Security-Policy"] = _UI_CSP     # scoped: Swagger/ReDoc keep working
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
+if os.path.isdir(_STATIC_DIR):
+    app.mount("/app", StaticFiles(directory=_STATIC_DIR, html=True), name="web-ui")

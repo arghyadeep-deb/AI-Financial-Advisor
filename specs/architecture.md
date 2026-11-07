@@ -1,7 +1,7 @@
 # Product architecture and cross-feature contracts
 
 ## Components
-Keep the existing FastAPI/Python application and PostgreSQL as the durable business store. Add private object storage and a durable background worker. Keep Streamlit for the first pilot; evaluate a separate frontend only against 010 acceptance criteria. No microservice rewrite is required. Financial services are deterministic and reusable from API, worker and chat. LangGraph coordinates long-running steps and user review. LangSmith is optional observability/experimentation and never authoritative storage.
+Keep the existing FastAPI/Python application and PostgreSQL as the durable business store. Add private object storage and a durable background worker. The frontend is plain HTML/CSS/JS in `frontend/static`, served by the API at `/app` under a strict CSP (owner decision 2026-11-07). No microservice rewrite is required. Financial services are deterministic and reusable from API, worker and chat. LangGraph coordinates long-running steps and user review. LangSmith is optional observability/experimentation and never authoritative storage.
 
 ## Shared records
 Use owner IDs and opaque resource IDs on every record. Shared records: User, Session, ProfileRevision, Account, Document, ImportJob, LedgerTransaction/Evidence, ReportSnapshot, ConsentRecord, AuditEvent, Goal, Budget, Obligation, HoldingObservation, ValuationSnapshot, TaxCase, PlanSnapshot, HouseholdGrant, Notification and DeletionJob. Individual feature contracts add details. Every schema migration defines legacy behavior, nullable unknowns and rollback/forward recovery.

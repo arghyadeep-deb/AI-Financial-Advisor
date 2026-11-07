@@ -1,6 +1,6 @@
 # AI Financial Advisor
 
-[![Frontend](https://img.shields.io/badge/Frontend-Streamlit-success?logo=streamlit)](https://ai-financial-advisor-summarizer.streamlit.app)
+![Frontend](https://img.shields.io/badge/Frontend-HTML%20%7C%20CSS%20%7C%20JS-success)
 [![Backend](https://img.shields.io/badge/Backend-Render-blue?logo=render)](https://ai-financial-advisor-1-fac2.onrender.com)
 [![API Docs](https://img.shields.io/badge/API-Docs-orange?logo=fastapi)](https://ai-financial-advisor-1-fac2.onrender.com/docs)
 [![Health](https://img.shields.io/badge/Health-Check-brightgreen)](https://ai-financial-advisor-1-fac2.onrender.com/health)
@@ -44,18 +44,18 @@ The codebase follows a layered architecture with clear separation of concerns:
 
 ## Live Deployment Links
 
-### Frontend (Streamlit App)
-- **URL:** https://ai-financial-advisor-summarizer.streamlit.app  
-- Use this for end-user interaction with the advisor UI.
+### Frontend (plain HTML/CSS/JS)
+- Lives in `frontend/static/` and is served by the API itself at `/app` (no build step, no separate frontend server).
+- The old hosted Streamlit app was replaced; it is no longer maintained.
 
 ### Backend (Render Deployment)
 - **Base API URL:** https://ai-financial-advisor-1-fac2.onrender.com  
 - This is the production backend host used by frontend/API clients.
 
-### Start frontend
-```bash
-streamlit run frontend/app.py
-```
+### Open the web app
+Start the API (`uvicorn backend.main:app`) and open `http://127.0.0.1:8000/app/`. The login token is kept in memory only, so a page reload asks you to log in again.
+
+Browser tests: `pip install -r requirements-dev.txt && python -m playwright install chromium && python -m pytest tests/web -q`.
 
 ### Database migrations
 The schema is managed by Alembic (`alembic.ini`, `migrations/`). The API checks or applies migrations at startup
@@ -86,10 +86,9 @@ Uses isolated temporary databases and mocked providers - no network, no real key
 
 If you only want to use the deployed app (no local setup):
 
-1. Open frontend:  
-   https://ai-financial-advisor-summarizer.streamlit.app
+1. Open the web app at `<backend URL>/app/`.
 
-2. If frontend appears slow on first load, wait a few seconds (Render/Streamlit free-tier cold starts may occur).
+2. If frontend appears slow on first load, wait a few seconds (Render free-tier cold starts may occur).
 
 3. Verify backend status (optional):  
    https://ai-financial-advisor-1-fac2.onrender.com/health
@@ -133,8 +132,8 @@ Services (business logic orchestration)
 - **Validation:** Pydantic schemas  
 - **Database:** SQLite  
 - **Architecture:** Layered API + Agentic Intelligence  
-- **Dependency Management:** `backend_requirements.txt`, `frontend/requirements.txt`, `requirements-dev.txt`  
-- **Deployment:** Render (Backend), Streamlit Cloud (Frontend)
+- **Dependency Management:** `backend_requirements.txt`, `requirements-dev.txt`  
+- **Deployment:** Render (API + static web app)
 
 ---
 
@@ -294,7 +293,7 @@ uvicorn backend.main:app --reload
 - Swagger: `http://127.0.0.1:8000/docs`
 - ReDoc: `http://127.0.0.1:8000/redoc`
 
-> Frontend exists in `frontend/`. Run command depends on its entry file (e.g., Streamlit or other UI framework setup in that folder).
+> The web UI is in `frontend/static/` and is served at `/app/`.
 
 ---
 
@@ -328,8 +327,7 @@ For exact paths and payloads, check route decorators and schemas in:
 
 ## Deployment Notes for Users & Developers
 
-- Use the **hosted frontend** for normal usage:
-  - https://ai-financial-advisor-summarizer.streamlit.app
+- The web app is served by the backend at `/app/`.
 
 - Use the **hosted backend** for programmatic/API access:
   - https://ai-financial-advisor-1-fac2.onrender.com
@@ -365,7 +363,7 @@ For exact paths and payloads, check route decorators and schemas in:
 
 ## 🗺️ Roadmap
 
-- [x] Core platform live (FastAPI backend, Streamlit frontend, multi-agent architecture)
+- [x] Core platform live (FastAPI backend, HTML/CSS/JS web app, multi-agent architecture)
 - [ ] Better API docs with clear request/response examples
 - [ ] Enhanced explainability for every recommendation
 - [ ] Smarter personalization using memory + thread context

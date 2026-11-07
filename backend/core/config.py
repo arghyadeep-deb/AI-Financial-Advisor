@@ -105,7 +105,7 @@ class Config:
     # ── API ───────────────────────────────────────────────────────────────
     API_HOST = os.getenv("API_HOST", "127.0.0.1")
     API_PORT = _int("API_PORT", 8000)
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8501")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8000")
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", FRONTEND_URL).split(",") if o.strip()]
 
     # ── helpers ───────────────────────────────────────────────────────────
