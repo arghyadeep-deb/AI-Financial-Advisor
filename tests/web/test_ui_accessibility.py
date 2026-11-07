@@ -11,7 +11,7 @@ from tests.web.test_ui import live_url, signup, synthetic, tracker  # noqa: E402
 
 PUBLIC = ["", "login", "signup", "demo"]
 SIGNED_IN = ["dashboard", "health", "portfolio", "stocks", "credit", "reports", "profile", "chat",
-             "statements", "monthly", "settings"]
+             "statements", "monthly", "settings", "planning", "reminders", "household"]
 WIDTHS = [(360, 740), (768, 1024), (1440, 900)]
 
 NAMELESS = """() => [...document.querySelectorAll('input, select, textarea')].filter(e => {
@@ -56,14 +56,43 @@ def test_public_screens(page, live_url, tracker, route, width, height):
 
 
 @pytest.mark.parametrize("width,height", WIDTHS)
-def test_signed_in_screens(page, live_url, tracker, synthetic, width, height):
+def test_signed_in_screens(page, live_url, tracker, synthetic, monkeypatch, width, height):
+    from backend.core.config import config
+    monkeypatch.setattr(config, 'SYNTHETIC_HOUSEHOLDS_ENABLED', True)
     page.set_viewport_size({"width": width, "height": height})
     signup(page, live_url)
+    # Capability and missing-inventory share the same 404: initialize a synthetic book explicitly.
+    response = page.request.post(live_url + '/networth', headers={'Authorization': 'Bearer ' + tracker['token']},
+        data={'expected_revision': 0, 'idempotency_key': 'accessibility-inventory', 'reason': 'Synthetic accessibility fixture',
+              'data': {'observations': []}})
+    assert response.status == 200
     for route in SIGNED_IN:
         page.goto(f"{live_url}/app/#/{route}")
         expect(page.locator("main h1").first).to_be_visible()
         check_screen(page, f"/{route} @{width}")
     assert not tracker["errors"], tracker["errors"]
+
+
+@pytest.mark.parametrize("width,height", WIDTHS)
+def test_new_screens_expanded_forms_and_long_evidence(page, live_url, tracker, monkeypatch, width, height):
+    from backend.core.config import config
+    monkeypatch.setattr(config, 'SYNTHETIC_HOUSEHOLDS_ENABLED', True)
+    page.set_viewport_size({'width': width, 'height': height})
+    signup(page, live_url)
+    response = page.request.post(live_url + '/networth', headers={'Authorization': 'Bearer ' + tracker['token']},
+        data={'expected_revision': 0, 'idempotency_key': 'expanded-inventory', 'reason': 'Synthetic evidence',
+              'data': {'observations': [{'reference': 'synthetic_' + 'a' * 60, 'kind': 'asset', 'value_paise': 10001,
+                                        'share_percent': '33.333333333333333333', 'valued_on': '2020-01-01'}]}})
+    assert response.status == 200
+    for route in ['planning', 'reminders', 'household']:
+        page.goto(f'{live_url}/app/#/{route}')
+        expect(page.locator('main h1')).to_be_visible()
+        page.wait_for_timeout(400)
+        for detail in page.locator('main details').all():
+            detail.evaluate('(e) => e.open = true')
+        check_screen(page, f'expanded /{route} @{width}')
+        assert page.locator('main [style], main [onclick], main script').count() == 0
+    assert not tracker['errors'], tracker['errors']
 
 
 def test_skip_link_is_reachable_visible_on_focus_and_moves_focus_to_main(page, live_url):

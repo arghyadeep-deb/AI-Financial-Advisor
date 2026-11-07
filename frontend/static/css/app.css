@@ -47,6 +47,9 @@ main{outline:none;min-width:0}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .muted{color:var(--muted)}
 .small{font-size:.875rem}
+.finance-evidence{overflow-wrap:anywhere}
+.finance-evidence .field{min-width:0}
+.finance-evidence [hidden]{display:none!important}
 .center{text-align:center}
 .right{text-align:right}
 .hidden{display:none!important}
