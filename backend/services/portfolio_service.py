@@ -1,6 +1,7 @@
 """Single owned observation boundary. No price feed, inference or orders."""
 import csv
 import io
+import json
 from datetime import date, datetime
 from decimal import Decimal
 from uuid import uuid4
@@ -30,8 +31,12 @@ def get(db, owner, kind, revision=None):
 
 
 def describe(row):
-    return {'id': row.id, 'kind': row.kind, 'revision': row.revision,
-            'data': row.data, 'created_at': row.created_at.isoformat()}
+    result = {'id': row.id, 'kind': row.kind, 'revision': row.revision,
+              'data': row.data, 'created_at': row.created_at.isoformat()}
+    if row.kind == 'suitability':
+        from backend.finance.suitability import Suitability
+        result['assessment'] = row.request.get('suitability_assessment') or Suitability.model_validate_json(json.dumps(row.data)).assessment()
+    return result
 
 
 @atomic
@@ -41,7 +46,7 @@ def write(db, owner, kind, payload):
     request = {'kind': kind, **payload.model_dump(mode='json')}
     prior = db.query(PortfolioRevision).filter_by(user_id=owner, operation_key=payload.idempotency_key).first()
     if prior:
-        if prior.request != request:
+        if {k: v for k, v in prior.request.items() if k != 'suitability_assessment'} != request:
             raise HTTPException(409, 'Idempotency key reused with different input.')
         db.rollback()
         return describe(prior)
@@ -58,6 +63,7 @@ def write(db, owner, kind, payload):
     elif kind == 'suitability':
         if data['revision'] != revision + 1:
             raise HTTPException(422, 'Answer revision must equal the next stored revision.')
+        request['suitability_assessment'] = payload.data.assessment()
     else:
         raise ValueError('Unsupported portfolio document')
     row = PortfolioRevision(id=str(uuid4()), user_id=owner, kind=kind, revision=revision+1,

@@ -500,7 +500,7 @@ def test_missing_current_inputs_or_assumptions_preserve_history(db_engine, monke
             patch.setattr(portfolio_engine, 'RULES', replace(portfolio_engine.RULES, version='synthetic-next-version'))
             assert 'portfolio_rules_changed' in allocation.read_owned_plan(db, 1, result['id'])['stale_reasons']
         with monkeypatch.context() as patch:
-            patch.setattr(allocation_sources, 'synthetic_fixture', lambda: (_ for _ in ()).throw(ValueError('invalid pack')))
+            patch.setattr(allocation_sources, 'synthetic_fixture', lambda *args: (_ for _ in ()).throw(ValueError('invalid pack')))
             old = allocation.read_owned_plan(db, 1, result['id'])
             assert old['stale_reasons'] == ['assumptions_unavailable']
             assert old['inputs'] == result['inputs']

@@ -1,0 +1,16 @@
+{
+  "version": "allocation.illustrative.v2",
+  "universe_version": "inr-classes.synthetic.v2",
+  "assumption_label": "illustrative_not_a_forecast",
+  "source_id": "allocation-illustrative-v2",
+  "source_version": 1,
+  "effective": "2026-11-07",
+  "expires": "2027-01-01",
+  "owner": "offline-fixture-reviewer-awaiting-owner-approval",
+  "assets": [
+    {"asset": "cash", "minimum_bps": 1000, "target_bps": 2000, "maximum_bps": 10000, "adverse_return_bps": 0, "favourable_return_bps": 200, "annual_fee_bps": 0, "liquidity_days": 0, "illustrative_return_bps": 100, "illustrative_volatility_bps": 0},
+    {"asset": "debt", "minimum_bps": 0, "target_bps": 3000, "maximum_bps": 8000, "adverse_return_bps": -1000, "favourable_return_bps": 800, "annual_fee_bps": 100, "liquidity_days": 7, "illustrative_return_bps": 500, "illustrative_volatility_bps": 600},
+    {"asset": "equity", "minimum_bps": 0, "target_bps": 4000, "maximum_bps": 6000, "adverse_return_bps": -4000, "favourable_return_bps": 2500, "annual_fee_bps": 200, "liquidity_days": 7, "illustrative_return_bps": 900, "illustrative_volatility_bps": 2000},
+    {"asset": "gold", "minimum_bps": 0, "target_bps": 1000, "maximum_bps": 2000, "adverse_return_bps": -2500, "favourable_return_bps": 2000, "annual_fee_bps": 150, "liquidity_days": 7, "illustrative_return_bps": 600, "illustrative_volatility_bps": 1500}
+  ]
+}
