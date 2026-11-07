@@ -318,3 +318,18 @@ def test_statements_page_says_unavailable_when_feature_is_off(page, live_url, tr
     page.goto(f"{live_url}/app/#/statements")
     expect(page.get_by_text("Statement upload is not available yet")).to_be_visible()
     assert not page.locator("#up_file").count()
+
+
+def test_theme_toggle_switches_persists_and_changes_colours(page, live_url, tracker):
+    page.emulate_media(color_scheme="light")
+    page.goto(f"{live_url}/app/#/")
+    bg = lambda: page.evaluate("getComputedStyle(document.body).backgroundColor")
+    light_bg = bg()
+    page.get_by_role("button", name="Switch to dark mode").click()
+    assert page.evaluate("document.documentElement.getAttribute('data-theme')") == "dark"
+    assert bg() != light_bg
+    page.reload()                                              # the choice survives a reload, applied before first paint
+    assert page.evaluate("document.documentElement.getAttribute('data-theme')") == "dark"
+    page.get_by_role("button", name="Switch to light mode").click()
+    assert bg() == light_bg
+    assert not tracker["errors"], tracker["errors"]

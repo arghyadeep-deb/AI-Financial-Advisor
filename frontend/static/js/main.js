@@ -2,6 +2,7 @@
 import { h, clear, svg } from "./dom.js";
 import { api, session } from "./api.js";
 import { state, resetState } from "./state.js";
+import { currentTheme, toggleTheme } from "./theme.js";
 import { landing } from "./views/landing.js";
 import { authView } from "./views/auth.js";
 import { dashboard } from "./views/dashboard.js";
@@ -51,6 +52,8 @@ const ICONS = {
   bars: [["path", { d: "M5 20V10M12 20V4M19 20v-7" }]],
   file: [["path", { d: "M6 3h9l4 4v14H6z" }], ["path", { d: "M9 12h7M9 16h7" }]],
   chat: [["path", { d: "M4 5h16v11H9l-5 4z" }]],
+  moon: [["path", { d: "M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" }]],
+  sun: [["circle", { cx: 12, cy: 12, r: 4 }], ["path", { d: "M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" }]],
   user: [["circle", { cx: 12, cy: 8, r: 4 }], ["path", { d: "M4 21c1-4 4-6 8-6s7 2 8 6" }]],
   sliders: [["path", { d: "M4 7h10M18 7h2M4 17h2M10 17h10" }], ["circle", { cx: 16, cy: 7, r: 2 }], ["circle", { cx: 8, cy: 17, r: 2 }]],
 };
@@ -62,6 +65,19 @@ function icon(name) {
   return el;
 }
 
+function themeButton() {
+  const btn = h("button", { class: "theme-btn", type: "button" });
+  const paint = () => {
+    const dark = currentTheme() === "dark";
+    clear(btn);
+    btn.append(icon(dark ? "sun" : "moon"), dark ? "Light mode" : "Dark mode");
+    btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  };
+  btn.addEventListener("click", () => { toggleTheme(); paint(); });
+  paint();
+  return btn;
+}
+
 function renderNav(route) {
   clear(navRoot);
   document.body.classList.toggle("shell", session.active);
@@ -70,6 +86,7 @@ function renderNav(route) {
       h("a", { class: "brand", href: "#/", text: "Advisor" }),
       h("div", { class: "nav-links" }),
       h("div", { class: "nav-user" },
+        themeButton(),
         h("a", { class: "btn ghost", href: "#/login", text: "Log in" }),
         h("a", { class: "btn primary", href: "#/signup", text: "Create account" })))));
     return;
@@ -85,7 +102,7 @@ function renderNav(route) {
   navRoot.appendChild(h("aside", { class: "side" },
     h("a", { class: "brand", href: "#/dashboard", text: "Advisor" }),
     h("nav", { class: "side-nav", "aria-label": "Main" }, main_),
-    h("div", { class: "side-foot" }, foot,
+    h("div", { class: "side-foot" }, themeButton(), foot,
       h("div", { class: "who" }, h("span", { class: "avatar", "aria-hidden": "true", text: initials }),
         h("div", {}, h("div", { class: "who-name", text: name }), out)))));
 }

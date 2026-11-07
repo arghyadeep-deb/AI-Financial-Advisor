@@ -16,6 +16,12 @@
     --shadow:none;
   }
 }
+:root[data-theme="dark"]{
+    --bg:#0E1512;--surface:#16201B;--ink:#EAF0EC;--ink-2:#C5D0C9;--muted:#9BA9A1;--line:#25332C;--line-strong:#35463D;
+    --accent:#3FB68B;--accent-ink:#062016;--accent-soft:#183428;--accent-strong:#7FDDB8;
+    --warn-bg:#33270F;--warn-ink:#F3C77C;--bad-bg:#3A1714;--bad-ink:#FFB3AA;--ok-bg:#183428;--ok-ink:#9BE0C0;--info-bg:#17264A;--info-ink:#AEC5FF;
+    --shadow:none;
+}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -180,6 +186,7 @@ summary{cursor:pointer;font-weight:600;min-height:32px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
 .s0{--c:#0E6B4F}.s1{--c:#2F5FC4}.s2{--c:#B7791F}.s3{--c:#8E3B73}.s4{--c:#6B4BB8}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .s0{--c:#3FB68B}:root:not([data-theme="light"]) .s1{--c:#7AA2F7}:root:not([data-theme="light"]) .s2{--c:#E0A743}:root:not([data-theme="light"]) .s3{--c:#D27BB2}}
+:root[data-theme="dark"] .s0{--c:#3FB68B}:root[data-theme="dark"] .s1{--c:#7AA2F7}:root[data-theme="dark"] .s2{--c:#E0A743}:root[data-theme="dark"] .s3{--c:#D27BB2}
 .legend i{background:var(--c)}
 .chart .stk{stroke:var(--c);fill:none}
 .chart .fil{fill:var(--c);stroke:none}
@@ -215,3 +222,8 @@ body:not(.shell) .page>section.hero{margin-top:0}
 .donut-wrap .chart{width:190px;max-width:190px;flex:none}
 .legend.col{flex-direction:column;flex-wrap:nowrap;gap:12px;list-style:none;margin:0;padding:0;flex:1 1 150px;font-size:.95rem}
 .legend.col li{display:flex;justify-content:space-between;gap:12px}
+
+/* theme toggle */
+.theme-btn{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border:0;background:none;border-radius:var(--radius-sm);color:var(--ink-2);font:inherit;font-weight:500;cursor:pointer;width:100%;text-align:left}
+.theme-btn:hover{background:var(--accent-soft);color:var(--accent-strong)}
+.nav .theme-btn{width:auto;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong)}
