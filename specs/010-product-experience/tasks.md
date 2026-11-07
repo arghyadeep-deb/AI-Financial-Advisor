@@ -2,7 +2,7 @@
 
 **Planning backlog only.** Build prerequisites and pilot subsets follow [implementation order](../implementation-order.md). Read [spec](spec.md) and [plan](plan.md). Use dependency stages, not numerical task order. A task may cover several requirements; the implementation handoff must complete the requirement-to-test matrix for all requirements.
 
-- [ ] **T1001** Create screen/state inventory and flows. Location: `docs/ux/`. Requirements: F010-FR01, F010-FR02.
+- [x] **T1001** Create screen/state inventory and flows. Location: `docs/ux/`. Requirements: F010-FR01, F010-FR02.
   - Done when: Every enabled feature maps to a screen and all failure/stale states.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
