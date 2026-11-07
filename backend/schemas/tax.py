@@ -1,4 +1,4 @@
-"""Synthetic tax-review contracts. No PAN, real forms, paths or model text."""
+"""Structured manual historical tax inputs. Document parsing is not implemented."""
 from typing import Literal
 from pydantic import Field, StrictBool, StrictInt
 from backend.schemas.statements import Contract, Operation
@@ -7,7 +7,7 @@ from backend.schemas.planning import Money
 
 class TaxSource(Contract):
     source_id: str = Field(pattern=r'^[A-Za-z0-9_-]{1,64}$')
-    layout: Literal['synthetic-salary-v1']
+    layout: Literal['manual-salary-v1', 'synthetic-salary-v1']
     identity_ref: str = Field(pattern=r'^fictional-[A-Za-z0-9_-]{1,40}$')
     financial_year: str = Field(max_length=16)
     salary_paise: Money
@@ -23,6 +23,11 @@ class TaxInputs(Contract):
     identity_ref: str = Field(pattern=r'^fictional-[A-Za-z0-9_-]{1,40}$')
     other_income: list[str] = Field(default_factory=list, max_length=20)
     deductions_claimed: StrictBool = False
+    age_at_year_end: StrictInt | None = Field(default=None, ge=0, le=120)
+    allowances_paise: dict[str, Money] = Field(default_factory=dict, max_length=20)
+    deductions_paise: dict[str, Money] = Field(default_factory=dict, max_length=20)
+    senior_self_or_spouse: StrictBool = False
+    senior_parent: StrictBool = False
     sources: list[TaxSource] = Field(min_length=1, max_length=10)
 
 

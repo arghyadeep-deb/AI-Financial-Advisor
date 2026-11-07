@@ -119,7 +119,7 @@ def review(db, owner, case_id, payload):
 
 
 @atomic
-@traceable(name='tax_sample_draft')
+@traceable(name='tax_historical_draft')
 def draft(db, owner, case_id, payload):
     gate()
     lock_owner(db, owner, bump=False)
@@ -134,8 +134,8 @@ def draft(db, owner, case_id, payload):
         result = comparison.compare(TaxInputs.model_validate(case.data['inputs']),
             reviewed.data if reviewed else None, revision=case.revision, as_of=today())
     except (ValueError, OSError):
-        return {'status': 'needs_review', 'reasons': ['sample_pack_unavailable'], 'persisted': False}
-    if result['status'] != 'sample_draft':
+        return {'status': 'needs_review', 'reasons': ['historical_pack_unavailable'], 'persisted': False}
+    if result['status'] != 'historical_draft':
         return {**result, 'persisted': False}
     before = latest(db, owner, case_id, 'draft', False)
     saved = store(db, owner, case_id, 'draft', before.revision + 1 if before else 1, request,
@@ -156,11 +156,9 @@ def read_draft(db, owner, identity):
         reasons.append('review_revision_changed')
     try:
         pair = comparison.packs()
-        from engines.tax.sample_packs import pack_digest
+        from engines.tax.historical import pack_digest
         if {k: pack_digest(p) for k, p in pair.items()} != row.data['pack_vector']:
             reasons.append('rule_pack_changed')
-        if any(not p.effective <= today() < p.expires for p in pair.values()):
-            reasons.append('rule_pack_not_current')
     except (ValueError, OSError):
         reasons.append('rule_pack_unavailable')
     return {**describe(row), 'stale': bool(reasons), 'stale_reasons': reasons}
@@ -168,13 +166,20 @@ def read_draft(db, owner, identity):
 
 @atomic
 @traceable(name='tax_draft_export')
-def export(db, owner, identity):
+def export(db, owner, identity, *, pdf=False):
     import json
     from hashlib import sha256
     draft = read_draft(db, owner, identity)
     reserve(db, owner, 'exports', 1, config.EXPORT_DAILY_LIMIT)
+    if pdf:
+        from backend.finance.tax.pdf import render
+        if draft['data'].get('status') != 'historical_draft':
+            raise HTTPException(422, 'Historical PDF unavailable for legacy sample drafts; JSON remains available.')
+        content = render(draft)
+        db.commit()
+        return content
     snapshot = json.dumps(draft['data'], sort_keys=True, separators=(',', ':'), ensure_ascii=False)
-    result = {'format': 'synthetic-tax-review-pack-v1', 'label': comparison.LABEL,
+    result = {'format': 'historical-tax-review-pack-v2', 'label': comparison.LABEL,
         'official_acknowledgment': False, **draft,
         'snapshot_sha256': sha256(snapshot.encode('utf-8')).hexdigest()}
     db.commit()

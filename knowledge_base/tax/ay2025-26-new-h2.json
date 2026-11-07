@@ -1,0 +1,125 @@
+{
+  "version": "ay2025-26.new.h2.v1",
+  "regime": "new",
+  "financial_year": "2024-25",
+  "assessment_year": "2025-26",
+  "historical": true,
+  "production_approved": false,
+  "independent_tax_review": "PENDING",
+  "transcribed_on": "2026-11-07",
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://www.incometaxindia.gov.in/w/tax-rates"
+    },
+    {
+      "id": "S2",
+      "url": "https://www.incometaxindia.gov.in/w/deductions/allowances-allowed-to-a-salaried-employee"
+    },
+    {
+      "id": "S3",
+      "url": "https://www.incometax.gov.in/iec/foportal/help/new-tax-vs-old-tax-regime-faqs"
+    }
+  ],
+  "source_register": "docs/tax/official-rules-ay2025-26.md",
+  "currency": "INR",
+  "standard_deduction_paise": 7500000,
+  "rebate": {
+    "section": "87A",
+    "threshold_paise": 70000000,
+    "cap_paise": 2500000,
+    "marginal_relief": true,
+    "sources": [
+      "S1",
+      "S3"
+    ]
+  },
+  "cess_bps": 400,
+  "rounding": {
+    "version": "ss288A-288B.v1",
+    "sections": [
+      "288A",
+      "288B"
+    ],
+    "status": "unverified_against_act_text",
+    "method": "discard fractional rupees, then nearest INR 10; INR 5 rounds upward; income before slabs, final liability and refund after withholding"
+  },
+  "deduction_caps_paise": {
+    "80C": 15000000,
+    "80CCD(1B)": 5000000,
+    "80D_self": 2500000,
+    "80D_self_senior": 5000000,
+    "80D_parents": 2500000,
+    "80D_parents_senior": 5000000,
+    "80D_preventive_within_80D": 500000,
+    "80TTA_unsupported_other_income": 1000000,
+    "80TTB_unsupported_other_income": 5000000
+  },
+  "deduction_sources": [
+    "S2"
+  ],
+  "unsupported": [
+    "other income",
+    "non-resident",
+    "multiple employers",
+    "minor",
+    "HRA/LTC exemption",
+    "home loan",
+    "professional tax (state cap unverified)",
+    "employer NPS",
+    "perquisites",
+    "arrears relief",
+    "80TTA/80TTB (other income)",
+    "Form16/AIS/26AS parsing",
+    "other financial years"
+  ],
+  "slabs_by_age": {
+    "all": [
+      [
+        30000000,
+        0
+      ],
+      [
+        70000000,
+        500
+      ],
+      [
+        100000000,
+        1000
+      ],
+      [
+        120000000,
+        1500
+      ],
+      [
+        150000000,
+        2000
+      ],
+      [
+        null,
+        3000
+      ]
+    ]
+  },
+  "surcharge": [
+    [
+      500000000,
+      1000
+    ],
+    [
+      1000000000,
+      1500
+    ],
+    [
+      2000000000,
+      2500
+    ]
+  ],
+  "slab_sources": [
+    "S1"
+  ],
+  "surcharge_marginal_relief": true,
+  "surcharge_sources": [
+    "S1"
+  ]
+}

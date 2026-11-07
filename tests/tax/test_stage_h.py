@@ -8,7 +8,7 @@ from backend.schemas.tax import TaxInputs
 
 def inputs(**changes):
     return {**dict(financial_year='2024-25', assessment_year='2025-26', individual=True,
-        resident=True, employer_count=1, identity_ref='fictional-person', sources=[dict(
+        resident=True, employer_count=1, age_at_year_end=35, identity_ref='fictional-person', sources=[dict(
         source_id='salary-A', layout='synthetic-salary-v1', identity_ref='fictional-person',
         financial_year='2024-25', salary_paise=210000, withholding_paise=10000)]), **changes}
 
@@ -30,7 +30,7 @@ def test_scope_has_two_dated_hashed_sample_packs():
     from engines.tax.comparison import packs
     pair = packs()
     assert set(pair) == {'old', 'new'}
-    assert all(p.synthetic_only and not p.production_approved for p in pair.values())
+    assert all(p.historical and not p.production_approved for p in pair.values())
     assert pair['old'].version != pair['new'].version
 
 
@@ -96,7 +96,7 @@ def test_owned_review_replay_conflicts_and_originals(client, monkeypatch):
     assert reviewed['data']['fields']['salary_paise'] == 310000
     assert client.post(f'/tax/cases/{cid}/reviews', headers=a, json=r).json() == reviewed
     assert client.get('/tax/reviews/' + reviewed['id'], headers=b).status_code == 404
-    assert client.get(f'/tax/cases/{cid}', headers=a).json()['data']['inputs'] == request['data'] | {'other_income': [], 'deductions_claimed': False}
+    assert client.get(f'/tax/cases/{cid}', headers=a).json()['data']['inputs'] == TaxInputs.model_validate(request['data']).model_dump(mode='json')
     request['reason'] = 'Different request'
     assert client.post('/tax/cases', headers=a, json=request).status_code == 409
     monkeypatch.setattr(config, 'APP_ENV', 'production')
@@ -116,12 +116,11 @@ def compared(data=None, **kwargs):
     (c['salary_paise'], c['old_tax_paise'], c['new_tax_paise']) for c in json.loads(
         (Path(__file__).parents[1] / 'fixtures/tax/stage-h-goldens.json').read_text())['cases']])
 def test_independent_sample_regime_boundaries(salary, old, new):
-    # Old: deduct 5000; next 100000 at 15%, remainder 20%; supplement 1%.
-    # New: deduct 10000; next 100000 at 10%, remainder 20%; supplement 1%.
+    # Independent historical hand calculations in fixture; NOT tax-professional reviewed.
     data = inputs()
     data['sources'][0]['salary_paise'] = salary
     result = compared(data)
-    assert result['status'] == 'sample_draft'
+    assert result['status'] == 'historical_draft'
     assert result['regimes']['old']['tax_paise'] == old
     assert result['regimes']['new']['tax_paise'] == new
     assert result['difference_old_minus_new_paise'] == old - new
@@ -134,16 +133,17 @@ def test_independent_sample_regime_boundaries(salary, old, new):
     dict(deductions_claimed=True)])
 def test_scope_stops_before_draft(change):
     result = compared(inputs(**change))
-    assert result['status'] == 'unsupported' and result['regimes'] is None
+    assert result['status'] == 'unsupported'
+    assert result['regimes'] is None or all(r['tax_paise'] is None for r in result['regimes'].values())
 
 
 def test_expiry_scope_and_incomplete_withholding():
     from datetime import date
-    assert compared(as_of=date(2027, 1, 1))['status'] == 'needs_review'
-    assert compared(as_of=date(2025, 12, 31))['status'] == 'needs_review'
+    assert compared(as_of=date(2027, 1, 1))['status'] == 'historical_draft'
+    assert compared(as_of=date(2025, 12, 31))['status'] == 'historical_draft'
     data = inputs()
     data['sources'][0]['salary_paise'] = 1010001
-    assert compared(data)['status'] == 'unsupported'  # new taxable exceeds final bound
+    assert compared(data)['status'] == 'historical_draft'  # statutory final slab is unbounded
     data['sources'][0]['withholding_paise'] = None
     assert compared(data)['status'] == 'needs_review'
 
@@ -177,7 +177,7 @@ def test_draft_export_consistency_stale_and_private_evidence(client, monkeypatch
     response = client.post(path, headers=a, json=req)
     assert response.status_code == 200, response.text
     draft = response.json()
-    assert not draft['stale'] and draft['data']['status'] == 'sample_draft'
+    assert not draft['stale'] and draft['data']['status'] == 'historical_draft'
     assert client.post(path, headers=a, json=req).json() == draft
     did = draft['id']
     exported = client.get(f'/tax/drafts/{did}/export', headers=a)
@@ -188,8 +188,8 @@ def test_draft_export_consistency_stale_and_private_evidence(client, monkeypatch
     assert 'DRAFT' in payload['label'] and not payload['official_acknowledgment']
     assert exported.headers['cache-control'] == 'no-store'
     assert payload['data']['evidence']['income']['source_id'] == 'salary-A'
-    assert payload['data']['regimes']['old']['balance_payable_paise'] == 6160
-    assert payload['data']['regimes']['new']['balance_payable_paise'] == 100
+    assert payload['data']['regimes']['old']['balance_payable_paise'] == 0
+    assert payload['data']['regimes']['new']['balance_payable_paise'] == 0
     for target in [did, 'missing']:
         for suffix in ['', '/export']:
             r = client.get(f'/tax/drafts/{target}{suffix}', headers=b)
@@ -212,7 +212,7 @@ def test_draft_export_consistency_stale_and_private_evidence(client, monkeypatch
     expired = client.get(f'/tax/drafts/{did}/export', headers=a).json()
     assert expired['data'] == draft['data']
     assert expired['snapshot_sha256'] == payload['snapshot_sha256']
-    assert 'rule_pack_not_current' in expired['stale_reasons']
+    assert 'rule_pack_not_current' not in expired['stale_reasons']  # historical year is not today's year
 
 
 @pytest.mark.parametrize('field,value,reason', [('identity_ref', 'fictional-other', 'identity'),
@@ -262,7 +262,7 @@ def test_pack_changes_unavailable_and_quota_refusals(client, monkeypatch):
         m.setattr(comparison, 'packs', lambda: (_ for _ in ()).throw(ValueError('private-error-sentinel')))
         assert client.get('/tax/drafts/' + draft['id'], headers=a).json()['stale_reasons'] == ['rule_pack_unavailable']
         blocked = client.post(path, headers=a, json=operation(1)).json()
-        assert blocked == {'status': 'needs_review', 'reasons': ['sample_pack_unavailable'], 'persisted': False}
+        assert blocked == {'status': 'needs_review', 'reasons': ['historical_pack_unavailable'], 'persisted': False}
     monkeypatch.setattr(config, 'EXPORT_DAILY_LIMIT', 0)
     assert client.get('/tax/drafts/' + draft['id'] + '/export', headers=a).status_code == 429
     monkeypatch.setattr(config, 'ANALYSIS_DAILY_LIMIT', 0)
@@ -339,3 +339,33 @@ def test_tax_privacy_delete_restore_and_metadata(db_engine, tmp_path, monkeypatc
         with pytest.raises(Exception) as exc:
             tax.write_case(db, owner.id, CaseWrite(**operation(data=inputs())))
         assert exc.value.status_code == 409
+
+
+def test_pdf_draft_is_valid_deterministic_owned_and_labelled(client, monkeypatch):
+    """PDF review draft: valid structure, same bytes twice, labels present, owner-only, stale carried."""
+    import re
+    from tests.api.test_tenancy import signup
+    a, cid, review = ready(client, monkeypatch)
+    b = signup(client)
+    draft = client.post(f'/tax/cases/{cid}/drafts', headers=a, json=operation(1)).json()
+    did = draft['id']
+    first = client.get(f'/tax/drafts/{did}/export.pdf', headers=a)
+    assert first.status_code == 200 and first.headers['content-type'] == 'application/pdf'
+    pdf = first.content
+    assert pdf.startswith(b'%PDF-1.4') and pdf.rstrip().endswith(b'%%EOF')
+    # xref offsets point at the right objects
+    xref = int(re.search(rb'startxref\n(\d+)\n', pdf).group(1))
+    assert pdf[xref:xref + 4] == b'xref'
+    entries = re.findall(rb'(\d{10}) 00000 n ', pdf)
+    assert entries and all(pdf[int(o):].split(b'\n', 1)[0].endswith(b' obj') for o in entries)
+    text = pdf.decode('latin-1')
+    for needle in ['HISTORICAL TAX REVIEW DRAFT', 'FY2024-25 / AY2025-26', 'not filed',
+                   'not reviewed by a tax professional', 'OLD REGIME', 'NEW REGIME', 'Rule pack id/version',
+                   'Form16 / AIS / 26AS parsing: PENDING', 'STALE: NO']:
+        assert needle in text, needle
+    assert 'Positive difference means' in text or 'No regime comparison' in text
+    # deterministic: identical bytes, no timestamps
+    assert client.get(f'/tax/drafts/{did}/export.pdf', headers=a).content == pdf
+    # another account cannot read it, same 404 as a missing draft
+    assert client.get(f'/tax/drafts/{did}/export.pdf', headers=b).status_code == \
+        client.get('/tax/drafts/missing/export.pdf', headers=b).status_code == 404
