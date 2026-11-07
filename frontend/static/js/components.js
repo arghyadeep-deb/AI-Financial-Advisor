@@ -63,6 +63,15 @@ export function nothingToInvestNote() {
     "Your current numbers leave no money to invest, so no allocation, projection or card recommendation is shown. Close the gap first, then re-run the analysis.");
 }
 
+// First-run checklist. `steps` = [{label, done, href}]. Hidden once everything is done.
+export function startChecklist(steps) {
+  if (steps.every((s) => s.done)) return null;
+  const next = steps.find((s) => !s.done);
+  return card("Getting started", h("ol", { class: "list" }, steps.map((s) => h("li", {},
+    s.done ? h("span", { class: "pill ok", text: "Done" }) : s === next ? h("span", { class: "pill warn", text: "Next" }) : h("span", { class: "pill neutral", text: "Later" }),
+    " ", h("a", { href: s.href, text: s.label })))));
+}
+
 export function disclaimer() {
   return h("p", { class: "muted small", text: "Educational estimates from the information you entered. Not licensed investment, tax or credit advice." });
 }

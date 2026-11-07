@@ -463,3 +463,28 @@ def test_manual_credit_score_is_dated_unverified_and_unknown_stays_unknown(page,
     page.get_by_role("button", name="Save entry").click()
     expect(page.get_by_text("No credit score on record. We never guess one.")).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
+
+
+def test_demo_is_labelled_sample_makes_no_requests_and_is_reachable_signed_out(page, live_url, tracker):
+    requests = []
+    page.on("request", lambda r: requests.append(r.url) if "/app/" not in r.url else None)
+    page.goto(f"{live_url}/app/#/")
+    page.get_by_role("link", name="See a sample").click()
+    expect(page.get_by_role("heading", name="Sample report")).to_be_visible()
+    expect(page.get_by_text("Sample data, not yours.")).to_be_visible()
+    expect(page.get_by_text("Sample salary")).to_be_visible()
+    assert requests == [], requests                                   # cannot mix with a real account: no API calls at all
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_first_run_checklist_and_privacy_notice_before_upload(page, live_url, tracker, synthetic):
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/dashboard")
+    expect(page.get_by_text("Getting started")).to_be_visible()
+    expect(page.get_by_role("link", name="Tell us about your money")).to_be_visible()
+    expect(page.get_by_role("link", name="Add a bank statement and confirm it")).to_be_visible()
+    page.goto(f"{live_url}/app/#/statements")
+    expect(page.get_by_text("Before you upload")).to_be_visible()
+    expect(page.get_by_text("never sent to an AI model")).to_be_visible()
+    expect(page.get_by_text("PDFs, photos and scanned pages")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]

@@ -1,12 +1,26 @@
 import { h, money, num, clear } from "../dom.js";
 import { state, loadProfile, loadLast, section, runAnalysis } from "../state.js";
-import { banner, metric, card, pageHead, list, runStatus, nothingToInvest, nothingToInvestNote, busyButton, disclaimer } from "../components.js";
+import { banner, metric, card, pageHead, list, runStatus, nothingToInvest, nothingToInvestNote, busyButton, disclaimer, startChecklist } from "../components.js";
+import { api } from "../api.js";
 import { donut, lines } from "../charts.js";
 import { emptyState } from "../illustrations.js";
 
 export async function dashboard(c) {
   const [profile, last] = await Promise.all([loadProfile(true), loadLast(true)]);
   c.appendChild(pageHead("Dashboard", state.user ? "Hello, " + state.user.name + "." : null));
+  const fmt = await api("/statement-formats");
+  const imports = fmt.ok && fmt.data && fmt.data.enabled ? await api("/statement-imports") : null;
+  const steps = [
+    { label: "Tell us about your money", done: !!profile, href: "#/profile" },
+    { label: "Run your first analysis", done: !!last.found, href: "#/dashboard" },
+  ];
+  if (imports && imports.ok) {
+    steps.push({ label: "Add a bank statement and confirm it", done: imports.data.some((j) => j.state === "completed"), href: "#/statements" });
+    const made = await api("/monthly-reports");
+    steps.push({ label: "Create your first monthly report", done: made.ok && made.data.length > 0, href: "#/monthly" });
+  }
+  const checklist = startChecklist(steps);
+  if (checklist) c.appendChild(checklist);
 
   if (!profile) {
     c.appendChild(banner("info", "Complete your profile first so we can calculate anything. ",
