@@ -548,3 +548,20 @@ def test_export_download_and_account_deletion_with_receipt(page, live_url, track
     assert len(receipt) == 43
     page.get_by_role("button", name="I saved it - sign out").click()
     expect(page.get_by_role("heading", name="Welcome back")).to_be_visible()
+
+
+def test_support_access_is_opt_in_per_file_and_revocable(page, live_url, tracker, db_engine, synthetic):
+    from pathlib import Path
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/settings")
+    expect(page.get_by_text("Support staff have not looked at anything of yours.")).to_be_visible()
+    add_account(page, live_url)
+    page.set_input_files("#up_file", str(Path("tests/fixtures/statements/supported.csv").resolve()))
+    page.get_by_role("button", name="Upload", exact=True).click()
+    expect(page.get_by_text("Waiting to be read")).to_be_visible()
+    page.goto(f"{live_url}/app/#/settings")
+    page.get_by_role("button", name="Allow support to open this file").click()
+    expect(page.get_by_text("Support can open this one file until")).to_be_visible()
+    page.get_by_role("button", name="Stop this access now").click()
+    expect(page.get_by_text("Access stopped.")).to_be_visible()
+    assert not tracker["errors"], tracker["errors"]

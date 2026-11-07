@@ -112,6 +112,7 @@ export async function settings(c) {
   grid.appendChild(await preferencesCard());
   c.appendChild(await noticesCard());
   c.appendChild(dataCard());
+  c.appendChild(await supportCard());
 }
 
 function dataCard() {
@@ -169,4 +170,34 @@ function dataCard() {
       h("div", { class: "field" }, h("label", { for: "del_receipt", text: "Deletion receipt" }), token), done);
   });
   return h("div", { class: "grid c2" }, card("Download your data", exMsg, exForm), card("Delete your account", delMsg, delForm));
+}
+
+async function supportCard() {
+  const [imports, log] = await Promise.all([api("/statement-imports"), api("/support/access-log")]);
+  const msg = h("div", { "aria-live": "polite" });
+  const docs = imports.ok ? imports.data : [];
+  const logList = log.ok && log.data.length
+    ? h("ul", { class: "list" }, log.data.map((x) => h("li", {}, h("span", { class: "pill " + (x.outcome === "allowed" ? "warn" : "neutral"), text: x.outcome.replace(/_/g, " ") }),
+        " " + x.action.replace(/_/g, " ") + ": " + x.reason, h("div", { class: "muted small", text: when(x.at) }))))
+    : h("p", { class: "muted", text: "Support staff have not looked at anything of yours." });
+  if (!docs.length) return card("Support access", h("p", { class: "muted", text: "Support can see technical details of a failed request (no money amounts) when you give them the request ID. They cannot open your files unless you allow it here for one file." }), logList);
+  const pick = h("select", { id: "sg_doc" }, docs.map((j) => h("option", { value: j.document_id, text: (j.start_date || "?") + " to " + (j.end_date || "?") })));
+  const hours = h("select", { id: "sg_hours" }, [[1, "1 hour"], [24, "1 day"], [72, "3 days"]].map(([v, t]) => h("option", { value: v, text: t })));
+  const go = h("button", { class: "btn", type: "submit", text: "Allow support to open this file" });
+  const form = h("form", { novalidate: true }, h("div", { class: "grid c2" },
+    h("div", { class: "field" }, h("label", { for: "sg_doc", text: "File" }), pick),
+    h("div", { class: "field" }, h("label", { for: "sg_hours", text: "Allow for" }), hours)), go);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); msg.replaceChildren(); go.disabled = true;
+    const r = await api("/support/grants", { method: "POST", body: { document_id: pick.value, hours: Number(hours.value) } });
+    go.disabled = false;
+    if (!r.ok) { msg.appendChild(banner("bad", r.error)); return; }
+    const undo = h("button", { class: "btn", type: "button", text: "Stop this access now" });
+    undo.addEventListener("click", async () => {
+      const v = await api(`/support/grants/${r.data.id}/revoke`, { method: "POST" });
+      msg.replaceChildren(v.ok ? banner("ok", "Access stopped.") : banner("bad", v.error));
+    });
+    msg.replaceChildren(banner("ok", "Support can open this one file until " + when(r.data.expires_at) + ". Each look is listed below."), undo);
+  });
+  return card("Support access", h("p", { class: "muted", text: "Support cannot open your files unless you allow it here, for one file and a short time. Every look is recorded below." }), form, msg, h("h3", { text: "Who looked" }), logList);
 }
