@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dashboard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F8;color:#0F1726;font-family:'Inter',system-ui,sans-serif}
+a{color:#075E5C}
+button{font:inherit}
+button:focus-visible,a:focus-visible{outline:3px solid #0B7A78;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:1100px;background:#F5F6F8">
+  <header style="background:#FFFFFF;border-bottom:1px solid #E2E6EC">
+    <div style="max-width:1200px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+      <a href="Main.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;color:#0F1726;text-decoration:none;margin-right:12px">Advisor</a>
+      <nav style="display:flex;flex-wrap:wrap;gap:4px;flex:1">
+        <a href="Dashboard.dc.html" style="padding:10px 12px;border-radius:10px;background:#E3F3F2;color:#075E5C;text-decoration:none;font-weight:600">Dashboard</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Health</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Portfolio</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Stocks</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Credit</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Reports</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Profile</a>
+        <a href="Dashboard.dc.html" style="padding:10px 12px;color:#566074;text-decoration:none;font-weight:500">Advisor chat</a>
+      </nav>
+      <span style="color:#566074;font-size:14px">Test User</span>
+    </div>
+  </header>
+  <main style="max-width:1200px;margin:0 auto;padding:28px 20px 72px">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:44px;margin:0 0 8px;line-height:1.1">Dashboard</h1>
+    <p style="color:#566074;margin:0 0 20px">Hello, Test User.</p>
+    <div style="background:#FEF3E2;color:#7A3E00;border-radius:12px;padding:12px 16px;margin-bottom:16px"><strong>Partly automatic.</strong> The AI model was unavailable or returned something unusable, so some sections use fixed rules only. The numbers shown are still the checked ones.</div>
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <button onClick="{{toggle}}" style="min-height:44px;padding:10px 18px;border-radius:12px;border:1px solid #C5CCD7;background:#FFFFFF;color:#0F1726;font-weight:600;cursor:pointer">{{toggleLabel}}</button>
+      <span style="color:#566074;font-size:14px">Preview control: switches between the two states the real page can show.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:16px;margin-bottom:16px">
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px"><div style="font-size:14px;color:#566074;font-weight:500">Health score</div><div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin:4px 0">{{score}}</div><div style="font-size:14px;color:#566074">{{scoreSub}}</div></div>
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px"><div style="font-size:14px;color:#566074;font-weight:500">Monthly SIP</div><div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin:4px 0">{{sip}}</div><div style="font-size:14px;color:#566074">{{sipSub}}</div></div>
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px"><div style="font-size:14px;color:#566074;font-weight:500">10-year corpus</div><div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin:4px 0">{{corpus}}</div><div style="font-size:14px;color:#566074">{{corpusSub}}</div></div>
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px"><div style="font-size:14px;color:#566074;font-weight:500">Monthly surplus</div><div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin:4px 0">{{surplus}}</div><div style="font-size:14px;color:#566074">{{surplusSub}}</div></div>
+    </div>
+    <sc-if value="{{nothing}}" hint-placeholder-val="{{false}}">
+      <div style="background:#E8EFFB;color:#1D3F8C;border-radius:12px;padding:12px 16px"><strong>Nothing to invest each month right now.</strong> Your current numbers leave no money to invest, so no allocation, projection or card recommendation is shown. Close the gap first, then re-run the analysis.</div>
+    </sc-if>
+    <sc-if value="{{hasPlan}}" hint-placeholder-val="{{true}}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px">
+        <section style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px">
+          <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0 0 12px">Suggested allocation</h2>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div><div style="display:flex;justify-content:space-between;font-size:15px"><span>Equity</span><strong>74%</strong></div><div style="height:10px;border-radius:999px;background:#E2E6EC;overflow:hidden"><div style="width:74%;height:100%;background:#0B7A78"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px"><span>Debt</span><strong>16%</strong></div><div style="height:10px;border-radius:999px;background:#E2E6EC;overflow:hidden"><div style="width:16%;height:100%;background:#2F5FC4"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px"><span>Gold</span><strong>8%</strong></div><div style="height:10px;border-radius:999px;background:#E2E6EC;overflow:hidden"><div style="width:8%;height:100%;background:#C27A0E"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px"><span>Crypto</span><strong>2%</strong></div><div style="height:10px;border-radius:999px;background:#E2E6EC;overflow:hidden"><div style="width:2%;height:100%;background:#A8316C"></div></div></div>
+          </div>
+        </section>
+        <section style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px">
+          <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0 0 12px">Wealth projection</h2>
+          <p style="margin:0;color:#566074">Illustrative projections under stated assumptions; not balances or guarantees.</p>
+        </section>
+      </div>
+    </sc-if>
+    <section style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px;margin-top:16px">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0 0 8px">Priority actions</h2>
+      <p style="margin:0">{{priority}}</p>
+    </section>
+    <p style="color:#566074;font-size:14px;margin-top:16px">Educational estimates from the information you entered. Not licensed investment, tax or credit advice.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+state = { nothing: false };
+renderVals() {
+  const n = this.state.nothing;
+  return {
+    nothing: n,
+    hasPlan: !n,
+    toggle: () => this.setState({ nothing: !this.state.nothing }),
+    toggleLabel: n ? 'Show: money available to invest' : 'Show: nothing to invest',
+    score: n ? '64' : '87',
+    scoreSub: n ? 'Grade B' : 'Grade A',
+    sip: n ? '₹0' : '₹53,997',
+    sipSub: n ? 'nothing investable now' : 'estimate',
+    corpus: n ? '—' : '₹1,18,24,657',
+    corpusSub: n ? 'needs a monthly amount' : 'projection, not a promise',
+    surplus: n ? '-₹10,000' : '₹60,000',
+    surplusSub: n ? 'shortfall ₹10,000' : 'income minus expenses',
+    priority: n ? 'Close the monthly gap first: reduce expenses or raise income before investing.' : 'Start SIP of up to Rs 54,000/month (your estimated available amount) in a diversified index fund.'
+  };
+}
+}
+</script>
+</body>
+</html>

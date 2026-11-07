@@ -565,3 +565,20 @@ def test_support_access_is_opt_in_per_file_and_revocable(page, live_url, tracker
     page.get_by_role("button", name="Stop this access now").click()
     expect(page.get_by_text("Access stopped.")).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
+
+
+def test_no_horizontal_scroll_at_phone_width(browser, live_url):
+    ctx = browser.new_context(viewport={"width": 390, "height": 844})
+    page = ctx.new_page()
+    signup(page, live_url)
+    save_profile(page)
+    run_analysis(page)
+    wide = []
+    for route in ["dashboard", "health", "portfolio", "stocks", "credit", "reports", "profile", "chat"]:
+        page.goto(f"{live_url}/app/#/{route}")
+        page.wait_for_timeout(700)
+        sw = page.evaluate("[document.documentElement.scrollWidth, window.innerWidth]")
+        if sw[0] > sw[1] + 1:
+            wide.append((route, sw))
+    ctx.close()
+    assert wide == [], wide
