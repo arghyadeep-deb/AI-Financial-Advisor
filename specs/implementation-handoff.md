@@ -128,3 +128,19 @@ Streamlit (`frontend/app.py`, `frontend/requirements.txt`, `tests/frontend/`) wa
 - All Stage A UI rules were carried over: exact money strings, unknown credit score as explicit `null`, what-if kept apart from saved results, nothing-to-invest hides plan/projection/card, stale/degraded labels, `expected_revision` conflict message, chat `client_message_id` retry.
 - Tests: `tests/web/test_ui.py` (Playwright + live uvicorn on a temp DB, providers off): signup→profile→analysis, deficit dashboard, unknown credit what-if, logout revocation and memory-only token, revoked session redirect, profile 409, XSS payload rendered as text, fragmented SSE frames, CSP headers, no inline style/script. Command: `.venv/Scripts/python.exe -m pytest tests -q -p no:cacheprovider --timeout=300 -W ignore` -> 167 passed, 8 skipped. Real-browser (Chrome) pass: signup, profile, full analysis, what-if with unknown credit, chat fallback, all ten routes render without console errors. One bug found there and fixed: donut/line charts were filled blobs (CSS fill overrode `fill="none"`).
 - Open: Claude Design canvas (https://claude.ai/artifact/1gJ7WD5vj8nwLuhUe248Ji) holds no screens yet (publish was blocked by a permission rule); the UI was designed directly in CSS. Password-reset has no mail provider. Mobile layout was not browser-tested at phone width.
+
+## Orchestration update (2026-11-07, integration branch)
+
+Branches (local only, nothing pushed): `frontend-html`; `codex/stage-b`; `codex/modules`; `codex/stage-c` (commit e9f6e40);
+`integration` = all of the above merged (single Alembic head 0101); `codex/stage-d` running (migrations 0110+).
+
+Verified on `integration`: `pytest tests -q` -> 310 passed, 8 skipped (after the Stage C merge, before the Statements UI);
+`pytest tests/web -q` -> 15 passed (includes Settings page and Statements upload -> worker -> review -> confirm).
+
+Frontend added on integration: Settings (sessions, password change, consents, notification preferences, notices) and
+Statements (accounts, upload, review, confirm, cancel). Statements shows "not available yet" while
+`SYNTHETIC_STATEMENTS_ENABLED` is false (default; refused in production-like environments).
+Not in the UI on purpose: export/delete (not enabled by the backend), PDF reports, budgets.
+
+Still open for the owner: accept Stage A; review/merge branches (order: frontend-html, then integration); push so CI can run (T112);
+mail provider for password reset; provider/legal choices for 005, 011, 013, 014; T215/T220/G2 remain unapproved.
