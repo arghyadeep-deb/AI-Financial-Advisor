@@ -403,3 +403,20 @@ class PrivacyRequest(Base):
     storage_key = Column(String(36), nullable=False)
     created_at = Column(DateTime, nullable=False, default=utcnow)
     expires_at = Column(DateTime, nullable=False)
+
+
+class PlanningRevision(Base):
+    """Typed planning documents are append-only; resource identity survives edits/archive."""
+    __tablename__ = 'planning_revisions'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    kind = Column(String(24), nullable=False)
+    resource_id = Column(String(36), nullable=False)
+    revision = Column(Integer, nullable=False)
+    operation_key = Column(String(64), nullable=False)
+    request = Column(JSON, nullable=False)
+    data = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (
+        UniqueConstraint('user_id', 'resource_id', 'revision', name='uq_planning_revision'),
+        UniqueConstraint('user_id', 'operation_key', name='uq_planning_operation'))

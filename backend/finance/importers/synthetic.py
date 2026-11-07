@@ -64,7 +64,8 @@ def parse(content, max_rows, max_bytes):
         if not rows:
             raise ParseError('empty_statement')
         difference = check_paise(opening + total - closing) if opening is not None else None
-        return {'account_token': head[1], 'start_date': start.isoformat(), 'end_date': end.isoformat(),
+        from backend.finance.importers.registry import PARSER_VERSION
+        return {'parser_version': PARSER_VERSION, 'account_token': head[1], 'start_date': start.isoformat(), 'end_date': end.isoformat(),
             'opening_paise': opening, 'closing_paise': closing, 'difference_paise': difference, 'rows': rows}
     except (UnicodeError, csv.Error, StopIteration, ValueError) as exc:
         if isinstance(exc, ParseError):

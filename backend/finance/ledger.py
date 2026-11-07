@@ -34,6 +34,11 @@ def lock_owner(db, owner, bump=True):
     user = db.query(User).filter_by(id=owner).with_for_update().first()
     if not user or not user.is_active:
         raise HTTPException(409, 'Account unavailable.')
+    # SQLite ignores FOR UPDATE. Acquire its write reservation even for owners
+    # with no statement accounts (planning revisions share this serialization).
+    guard = db.execute(update(User).where(User.id == owner, User.is_active.is_(True)).values(id=User.id))
+    if guard.rowcount != 1:
+        raise HTTPException(409, 'Account unavailable.')
     ids = [row[0] for row in db.query(StatementAccount.id).filter_by(user_id=owner).order_by(StatementAccount.id)]
     for identity in ids:
         db.execute(update(StatementAccount).where(StatementAccount.id == identity,
@@ -256,8 +261,9 @@ def reprocess(db, owner, import_id, payload):
     reserve(db, owner, 'jobs', 1, config.UPLOAD_DAILY_LIMIT)
     generation = job.generation + 1
     work = enqueue(db, owner, 'statement:' + job.document_id + ':' + str(generation), 'statement')
+    from backend.finance.importers.registry import PARSER_VERSION
     new = StatementImport(id=str(uuid4()), user_id=owner, account_id=job.account_id,
-        document_id=job.document_id, work_id=work.id, generation=generation)
+        document_id=job.document_id, work_id=work.id, generation=generation, parser_version=PARSER_VERSION)
     db.add(new)
     db.flush()
     result = describe(new)
@@ -286,6 +292,12 @@ def split(db, owner, entry_id, payload):
             or_(LedgerLink.left_id == entry.id, LedgerLink.right_id == entry.id)).count():
         raise HTTPException(409, 'Linked transactions require link reversal before classification changes.')
     before = {'components': entry.components, 'revision': entry.revision}
+    for component in payload.components:
+        if component.obligation_id:
+            from backend.services.planning_service import get
+            obligation = get(db, owner, 'obligation', component.obligation_id)
+            if obligation.data['archived'] or obligation.data['paused']:
+                raise HTTPException(422, 'Split references an inactive obligation.')
     entry.components = [c.model_dump() for c in payload.components]
     entry.revision += 1
     result = {'id': entry.id, 'components': entry.components, 'revision': entry.revision}
@@ -320,6 +332,14 @@ def confirm_link(db, owner, payload):
         raise HTTPException(422, 'Adjustment precedes purchase.')
     if payload.kind in {'refund', 'reimbursement'} and any(c['category'] not in {'purchase', 'fee', 'interest'} for c in left.components):
         raise HTTPException(422, 'Adjustment requires an eligible purchase.')
+    if payload.kind == 'reimbursement':
+        from backend.services.planning_service import active_rows
+        for receivable in active_rows(db, owner, 'receivable'):
+            if receivable.data['purchase_entry_id'] == left.id:
+                received = sum(l.amount_paise for l in db.query(LedgerLink).filter_by(
+                    user_id=owner, left_id=left.id, kind='reimbursement', active=True))
+                if received+amount > receivable.data['due_paise']:
+                    raise HTTPException(422, 'Reimbursement exceeds confirmed receivable.')
     for entry in (left, right):
         existing = db.query(LedgerLink).filter(LedgerLink.user_id == owner, LedgerLink.active.is_(True),
                 or_(LedgerLink.left_id == entry.id, LedgerLink.right_id == entry.id)).all()
