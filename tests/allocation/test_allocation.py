@@ -38,7 +38,7 @@ def run(*, snap=None, suitability=None, constraints=None, registry=None, day=DAY
     p, r = synthetic_fixture()
     return allocate(snap or snapshot(), suitability or answers(), pack or p,
                     constraints or Constraints(eligible_liquid_paise=1000000),
-                    registry if registry is not None else r, owner_id=1, as_of=day)
+                    registry if registry is not None else r, owner_id=1, as_of=day, synthetic_test=True)
 
 
 def test_independent_cash_cost_stress_goldens():
@@ -141,7 +141,7 @@ def test_owned_immutable_stale_history(db_engine):
     with Session(db_engine) as db:
         seed(db)
         p = create_scenario(db, owner_id=1, expected_revision=1, suitability=answers(), pack=pack,
-                            constraints=Constraints(eligible_liquid_paise=1000000), registry=registry, as_of=DAY)
+                            constraints=Constraints(eligible_liquid_paise=1000000), registry=registry, as_of=DAY, synthetic_test=True)
         args = dict(owner_id=1, plan_id=p["id"], registry=registry, as_of=DAY,
                     suitability_revision=1, assumption_version=pack.version)
         assert not read_plan(db, **args)["stale"]
@@ -160,5 +160,5 @@ def test_owned_immutable_stale_history(db_engine):
         assert read_plan(db, **args)["stale"]
         with pytest.raises(HTTPException) as e:
             create_scenario(db, owner_id=1, expected_revision=1, suitability=answers(), pack=pack,
-                            constraints=Constraints(), registry=registry, as_of=DAY)
+                            constraints=Constraints(), registry=registry, as_of=DAY, synthetic_test=True)
         assert e.value.status_code == 409

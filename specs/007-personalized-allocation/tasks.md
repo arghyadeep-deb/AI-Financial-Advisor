@@ -31,3 +31,21 @@
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
 See [requirement-to-task acceptance mapping](acceptance.md) for complete planned coverage and evidence requirements.
+
+## D05 additional acceptance (lane I2)
+
+No feature-wide checkbox is completed by this addendum. Record executed evidence
+and remaining acceptance in specs/progress-lane-stage-i2.md only.
+
+- T0702: every scalar has versioned provenance, methodology, uncertainty, status
+  and exclusive expiry; missing, altered or expired register/source fails closed.
+  Synthetic assumptions cannot be loaded for development/production recommendations.
+- T0701/T0703: configurable cash floor and near-term boundary have positive/invalid
+  tests and unvalidated_prototype labels; no hidden fixed policy overrides them.
+- T0703/T0705: missing liquidity remains unknown, cannot satisfy a deadline, and
+  only dated instrument/restriction/settlement evidence supplies a duration.
+- T0704/T0706: exact conservation, costs, scenarios, deterministic repeatability,
+  immutable receipts, expiry/staleness and hostile explanations remain covered.
+- T0707: default real calls refuse "assumptions not validated"; public eligibility
+  is hard-false independently. Parameter validation and the separate public-advice
+  decision remain PENDING, no reviewer appointed. Execution/named products absent.

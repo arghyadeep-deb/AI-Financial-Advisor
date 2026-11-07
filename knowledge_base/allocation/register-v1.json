@@ -1,0 +1,35 @@
+{
+  "version": "allocation-policy.v1",
+  "assumptions": [
+    {
+      "version": 1,
+      "source": {
+        "name": "Owner decision D05",
+        "url": "specs/decision-register.md#d05-allocation-feature-007",
+        "publisher": "Product owner; no parameter validator appointed"
+      },
+      "as_of": "2026-11-07",
+      "expires": "2027-01-01",
+      "methodology": "Configurable prototype policy; no empirical suitability validation.",
+      "uncertainty": "Unvalidated; applicability and suitable range unknown.",
+      "status": "unvalidated_prototype",
+      "id": "cash_floor_bps",
+      "value": 1000
+    },
+    {
+      "version": 1,
+      "source": {
+        "name": "Owner decision D05",
+        "url": "specs/decision-register.md#d05-allocation-feature-007",
+        "publisher": "Product owner; no parameter validator appointed"
+      },
+      "as_of": "2026-11-07",
+      "expires": "2027-01-01",
+      "methodology": "Configurable prototype policy; no empirical suitability validation.",
+      "uncertainty": "Unvalidated; applicability and suitable range unknown.",
+      "status": "unvalidated_prototype",
+      "id": "near_term_months",
+      "value": 36
+    }
+  ]
+}

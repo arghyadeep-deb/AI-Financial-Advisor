@@ -20,3 +20,23 @@ Financial amounts come from tools; external text cannot authorize actions. All r
 Each task below has an acceptance statement. Attach code revision, test command, fixture version, result, skipped checks and residual risk. Include browser evidence for visible flows. For numerical engines compare to independently calculated fixtures; for AI evaluate held-out examples with deterministic fact checking. Implementation paths are proposed module boundaries, not claims that modules already exist.
 
 See [requirement-to-task acceptance mapping](acceptance.md) for complete planned coverage and evidence requirements.
+
+## D05 implementation contract
+
+Reuse the shared source registry, suitability, FinanceSnapshot, AllocationPlan,
+owned-store hooks and output_guard. Store the nonpersonal prototype register as
+versioned repository JSON, loaded through strict Pydantic contracts; no new table
+or migration is needed. Expose authenticated GET /allocation-assumptions. Freeze
+the used policy register and scenario overrides in existing immutable plan receipts.
+
+Market/risk/cost assumptions are per-scalar synthetic_test registers under
+ tests/fixtures/allocation (test environment only). Both source hashes and individual
+as-of/expiry dates fail closed. Register revisions and expiry invalidate saved plans.
+No validated pack exists; real recommendations refuse "assumptions not validated".
+The public-advice eligibility decision remains a separate hard-false gate.
+
+Cash-floor and near-term policy defaults come from the unvalidated_prototype
+register; request overrides retain that label and disclose applied values separately.
+Liquidity duration is optional and requires instrument/restriction/settlement/source
+and validity dates. Unknown/expired liquidity excludes a class under a deadline;
+a scenario without a deadline explicitly disclaims verified liquidity.

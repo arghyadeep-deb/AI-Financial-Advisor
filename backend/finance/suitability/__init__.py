@@ -1,5 +1,6 @@
 """Versioned suitability answers; missing material facts never imply capacity."""
 from typing import Literal
+from backend.finance.allocation_assumptions import load_register, policy_value
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,7 +20,9 @@ class Suitability(BaseModel):
     loss_tolerance: Literal["low", "moderate", "high"] | None = None
     loss_capacity: Literal["low", "moderate", "high"] | None = None
 
-    def blockers(self) -> tuple[str, ...]:
+    def blockers(self, *, near_term_months: int | None = None) -> tuple[str, ...]:
+        if near_term_months is None:
+            near_term_months = policy_value("near_term_months")
         required = ("horizon_months", "essential_goals_declared", "dependants", "income_stable",
                     "debt_reviewed", "reserves_reviewed", "experience", "loss_tolerance", "loss_capacity")
         reasons = [f"Provide {name}" for name in required if getattr(self, name) is None]
@@ -33,8 +36,8 @@ class Suitability(BaseModel):
         if self.loss_tolerance and self.loss_capacity and rank[self.loss_tolerance] > rank[self.loss_capacity]:
             reasons.append("Resolve tolerance exceeding loss capacity")
         if self.loss_tolerance == "high" and (
-            (self.horizon_months is not None and self.horizon_months < 36)
-            or (self.essential_goal_months is not None and self.essential_goal_months < 36)
+            (self.horizon_months is not None and self.horizon_months < near_term_months)
+            or (self.essential_goal_months is not None and self.essential_goal_months < near_term_months)
             or self.income_stable is False
         ):
             reasons.append("Resolve high tolerance against near-term needs or unstable income")
@@ -57,4 +60,6 @@ class Suitability(BaseModel):
             "resolution": "Submit a new answer revision resolving the listed facts or conflicts." if reasons else None,
             "capacity_basis": "owner_declared_unverified",
             "public_eligible": False,
+            "policy_status": "unvalidated_prototype",
+            "policy_assumptions": load_register().model_dump(mode="json"),
         }

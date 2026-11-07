@@ -1,6 +1,6 @@
 """Authenticated declared holdings; allocation publication remains gated."""
 from datetime import date
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from backend.core.dependencies import get_current_user
 from backend.core.database import get_db
@@ -60,3 +60,14 @@ def plan(identity: str, user: User = Depends(get_current_user), db: Session = De
 @router.post('/allocation-proposals')
 def propose(user: User = Depends(get_current_user)):
     return allocation.propose()
+
+
+@router.get('/allocation-assumptions')
+def assumptions(user: User = Depends(get_current_user)):
+    from backend.finance.allocation_assumptions import load_register
+    try:
+        register = load_register()
+    except (OSError, ValueError) as exc:
+        raise HTTPException(503, 'assumptions not validated; register unavailable') from exc
+    return {**register.model_dump(mode='json'), 'public_eligible': False,
+            'recommendation_status': 'assumptions not validated'}

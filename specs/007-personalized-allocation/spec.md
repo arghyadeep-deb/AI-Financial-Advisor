@@ -1,6 +1,6 @@
 # Feature specification — Personalized allocation and portfolio optimization
 
-**Status: Proposed; not authorized for implementation.** Version 2.1 · 2026-11-05
+**Status: D05 scenario/backend implementation authorized; public release pending.** Version 2.2 · 2026-11-05
 
 Release: R3; user-selected sandbox first; public proposals independently gated. Build prerequisites and release subsets: [implementation order](../implementation-order.md).
 
@@ -32,3 +32,25 @@ Agent gathers authorized facts, asks only for missing inputs, computes, validate
 Every requirement must have positive, invalid-input and wrong-owner evidence. Domain fixtures must compute expected values independently. [Tasks](tasks.md) contain concrete completion criteria; [plan](plan.md) specifies boundaries. No live feature is enabled solely because all code tasks are checked. Source/privacy/operational gates in [release gates](../release-gates.md) apply. Unavailable evidence is an explicit user-visible state. Apply [financial rules](../financial-rules.md) and [agent controls](../agent-quality.md).
 
 See [requirement-to-task acceptance mapping](acceptance.md) for complete planned coverage and evidence requirements.
+
+## Owner decision D05 (2026-11-07)
+
+Implementation is authorized for cash/debt/equity/gold scenarios only. A versioned
+assumption register records each parameter's id/version, source name/URL/publisher,
+as-of date, methodology, uncertainty/range, expiry and status (synthetic_test,
+unvalidated_prototype or validated). Real recommendation paths refuse explicitly
+with "assumptions not validated" unless every used assumption is validated and
+current. No supplied assumption is validated. Historical data never guarantees
+future returns. Invented returns, volatility and risk limits belong only in
+explicit synthetic_test fixtures used by automated tests.
+
+The cash-floor and near-term thresholds are configurable unvalidated_prototype
+policies; their labels and effective values appear in explanations. They are not
+universal suitability rules. Liquidity is unknown for every class/instrument unless
+instrument, restriction and settlement evidence provides a dated duration; unknown
+never counts as liquid and cannot meet a deadline. Old immutable receipts remain
+historical, stale when evidence changes, without rewriting their original numbers.
+
+Parameter validation and the separate public-advice eligibility decision are
+PENDING; no reviewer appointed. Public eligibility stays hard-false and execution
+stays disabled independently of solver feasibility or parameter-validation status.
