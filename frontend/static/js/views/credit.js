@@ -1,6 +1,7 @@
 import { h, money, clear } from "../dom.js";
 import { loadProfile, loadLast, section, runAnalysis } from "../state.js";
 import { banner, card, pageHead, list, runStatus, nothingToInvest, busyButton, disclaimer } from "../components.js";
+import { api } from "../api.js";
 
 const MONEY_RE = /^\d{1,14}(\.\d{1,2})?$/;
 
@@ -22,9 +23,58 @@ function renderCards(cr, target) {
   if (av) target.appendChild(card("Pitfalls to avoid", av));
 }
 
+async function manualScoreCard() {
+  const r = await api("/credit/manual");
+  const msg = h("div", { "aria-live": "polite" });
+  const holder = h("div", { class: "stack" });
+  const paint = (data) => {
+    clear(holder);
+    const l = data.latest;
+    holder.appendChild(l.status === "unknown"
+      ? banner("info", "No credit score on record. We never guess one.")
+      : banner(l.status === "stale" ? "warn" : "ok", h("strong", { text: "Your entry: " + l.score + " " }),
+          "as of " + l.as_of + ". " + l.note));
+    holder.appendChild(h("p", { class: "muted small", text: "Automatic credit-bureau lookup: " + (data.provider.status === "disabled" ? "not available yet." : data.provider.status) }));
+  };
+  if (r.ok) paint(r.data); else holder.appendChild(banner("bad", r.error));
+  const today = new Date().toISOString().slice(0, 10);
+  const score = h("input", { id: "ms_score", type: "number", min: 300, max: 900, step: 1, inputmode: "numeric" });
+  const unk = h("input", { id: "ms_unknown", type: "checkbox" });
+  const when = h("input", { id: "ms_date", type: "date", max: today, value: today });
+  const label = h("input", { id: "ms_label", type: "text", maxlength: 40, autocomplete: "off" });
+  unk.addEventListener("change", () => { score.disabled = unk.checked; });
+  const save = h("button", { class: "btn primary", type: "submit", text: "Save entry" });
+  const form = h("form", { novalidate: true },
+    h("div", { class: "grid c3" },
+      h("div", { class: "field" }, h("label", { for: "ms_score", text: "Credit score (300 to 900)" }), score,
+        h("div", { class: "check" }, unk, h("label", { for: "ms_unknown", text: "I don't know it" }))),
+      h("div", { class: "field" }, h("label", { for: "ms_date", text: "Date of this score" }), when),
+      h("div", { class: "field" }, h("label", { for: "ms_label", text: "Where it came from (optional)" }), label)), save);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); msg.replaceChildren();
+    const body = { as_of: when.value };
+    if (!unk.checked) {
+      const n = Number(score.value);
+      if (!Number.isInteger(n) || n < 300 || n > 900) { msg.appendChild(banner("bad", "Enter a score from 300 to 900, or tick \"I don't know it\".")); return; }
+      body.score = n;
+    }
+    if (!when.value) { msg.appendChild(banner("bad", "Choose the date of this score.")); return; }
+    if (label.value.trim()) body.bureau_label = label.value.trim();
+    save.disabled = true;
+    const d = await api("/credit/manual", { method: "POST", body });
+    save.disabled = false;
+    if (!d.ok) { msg.appendChild(banner("bad", d.error)); return; }
+    const again = await api("/credit/manual");
+    if (again.ok) paint(again.data);
+    msg.appendChild(banner("ok", "Saved."));
+  });
+  return card("Your credit score", h("p", { class: "muted", text: "Enter the score you were shown and when. It is kept as reported by you and is never checked or updated for you." }), holder, form, msg);
+}
+
 export async function credit(c) {
   const [p, last] = await Promise.all([loadProfile(true), loadLast(true)]);
-  c.appendChild(pageHead("Credit cards", "Matches based on how you spend. Only shown when your numbers can support it."));
+  c.appendChild(pageHead("Credit", "Record your credit score with its date, and see card matches when your numbers support it."));
+  c.appendChild(await manualScoreCard());
   if (!p) { c.appendChild(banner("info", "Complete your profile first. ", h("a", { href: "#/profile", text: "Go to profile" }))); return; }
 
   const spend = h("input", { id: "cc_spend", type: "text", inputmode: "decimal", autocomplete: "off", value: p.monthly_credit_spend ?? "" });
