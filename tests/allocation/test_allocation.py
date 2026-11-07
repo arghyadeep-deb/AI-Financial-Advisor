@@ -121,7 +121,8 @@ def test_guard_gate_and_no_http_surface(monkeypatch):
     assert safe["public_eligible"] is False and safe["named_products_eligible"] is False
     assert "product" not in safe and propose(**malicious)["status"] == "gated"
     from backend.main import app
-    assert not any("allocation" in route.path for route in app.routes)
+    # Authenticated synthetic sandbox routes now exist; publication remains gated.
+    assert propose()["status"] == "gated"
 
 
 def seed(db):

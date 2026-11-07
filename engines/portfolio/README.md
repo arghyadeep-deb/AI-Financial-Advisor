@@ -1,20 +1,30 @@
-# Partial portfolio arithmetic, feature 003
+# Portfolio arithmetic and owned observations
 
-`portfolio-metrics.v1` accepts normalized unique INR instrument observations,
-exact units (8 decimal places), integer paise quotes, source/version, date and
-explicit expiry. The caller owns approval, licensing, per-asset market calendars,
-ownership and observation deduplication. Duplicate instruments fail closed here;
-multi-account consolidation requires the future owned holdings service.
+`portfolio-metrics.v2` uses exact units (eight decimal places), integer paise,
+source/version, quote date and expiry. Aggregate rational values are rounded
+half-even once. Class/issuer amounts use largest remainders (ties by string key)
+to conserve the rounded total. The same security may occur in distinct accounts;
+duplicate account/instrument observations require explicit review.
 
-Unknown/stale/future/foreign quotes leave a priced subtotal and unavailable total;
-no price fallback. Aggregate exact rational values before half-even paise rounding.
-Rounded class/issuer display subtotals may differ by a paise from the rounded total.
-Issuer HHI is exact sum of squared issuer shares; unknown issuer or partial prices
-leave HHI unavailable. Largest known issuer share is explicitly over priced assets.
-Neither concentration nor missing coverage constitutes a low-risk claim.
+`backend/services/portfolio_service.py` owns confirmed full-book revisions.
+An edit replaces the complete book, preserving history. CSV is a bounded text
+preview of the header in `CSV_COLUMNS`, followed by explicit owner confirmation.
+It does not accept binary documents, parse bank flows or infer instrument units.
+Quotes and ownership remain **owner_confirmed_unverified** even if arithmetic is
+complete. A book from another date is stale; its dated subtotal remains inspectable
+but its current total is unavailable. Missing/future/expired/foreign quotes never
+become zero. Price/source licensing and per-asset market calendars remain absent;
+the caller declares quote expiry. No verified net-worth eligibility is asserted.
 
-Absolute gain requires complete prices, cost bases and explicit corporate-action
-support. XIRR, TWR, benchmark, volatility estimation and performance histories stay
-unavailable; dated-flow solvers and multiple-root validation remain unimplemented.
-Shocks are hypothetical and never replace observed values. No database, API,
-ingestion, named proposals, market feed or execution integration is included.
+Absolute gain needs cost basis and explicit corporate-action support. Observed
+books do not contain performance histories, so their XIRR/TWR/benchmark stay null.
+`returns.py` separately accepts explicit dated flows: conventional ACT/365 XIRR
+uses bounded Decimal bisection, and end-flow TWR compounds exact fractions.
+Nonconventional sign patterns, multiple-root possibilities, missing action support
+and roots outside the documented domain are unavailable. No cash flow or terminal
+valuation is inferred. Benchmark data, histories and market feeds remain disabled.
+
+Portfolio shocks/contributions are hypothetical, read-only, and distinct from
+affordability. Allocation consumes owned snapshots through its existing solver;
+shared planning capacity handles existing commitments, reserves and goal funding.
+Named recommendations, filing, trades and execution are disabled.

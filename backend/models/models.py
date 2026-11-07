@@ -429,3 +429,19 @@ class OperationalCounter(Base):
     period = Column(String(10), primary_key=True)
     used = Column(BigInteger, nullable=False, default=0)
     updated_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class PortfolioRevision(Base):
+    """Full confirmed holdings book or suitability answers, retained immutably."""
+    __tablename__ = 'portfolio_revisions'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    kind = Column(String(24), nullable=False)
+    revision = Column(Integer, nullable=False)
+    operation_key = Column(String(64), nullable=False)
+    request = Column(JSON, nullable=False)
+    data = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (
+        UniqueConstraint('user_id', 'kind', 'revision', name='uq_portfolio_revision'),
+        UniqueConstraint('user_id', 'operation_key', name='uq_portfolio_operation'))
