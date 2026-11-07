@@ -28,7 +28,7 @@ Prerequisites are the [spec](spec.md), [plan](plan.md), and [review checklist](.
 
 ## Detailed implementation and verification
 
-- [ ] **T113** Complete claims/signing, salted-hash migration and lifecycle acceptance cases for the T108 authentication implementation. Location: `backend/core/, tests/auth/`.
+- [x] **T113** Complete claims/signing, salted-hash migration and lifecycle acceptance cases for the T108 authentication implementation. Location: `backend/core/, tests/auth/`.
   - Done when: Forged/expired/malformed claims, legacy login/reset, enumeration, logout and reset replay all pass.
   - Evidence: pending implementation and independent verification.
 
@@ -36,7 +36,7 @@ Prerequisites are the [spec](spec.md), [plan](plan.md), and [review checklist](.
   - Done when: Same snapshot yields same totals in API, UI, chat and export; manual versus ledger conflict is explicit.
   - Evidence: pending implementation and independent verification.
 
-- [ ] **T115** Prove financial boundary and migration coverage. Location: `tests/finance/, tests/migrations/`.
+- [x] **T115** Prove financial boundary and migration coverage. Location: `tests/finance/, tests/migrations/`.
   - Done when: NaN/overflow/rounding and corrupted legacy projected values cannot become verified facts.
   - Evidence: pending implementation and independent verification.
 
