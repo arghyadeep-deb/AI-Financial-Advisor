@@ -11,6 +11,8 @@ from backend.schemas.schemas import (
     LastAnalysisResponse,
 )
 from backend.services.analysis_service import AnalysisService
+from backend.core.limits import reserve
+from backend.core.config import config
 
 router = APIRouter(prefix="/analysis", tags=["Analysis"])
 
@@ -32,6 +34,8 @@ def run_analysis(
     ``status`` is complete | degraded | partial | failed | superseded; check it
     rather than assuming success.
     """
+    reserve(db, current_user.id, "analysis", 1, config.ANALYSIS_DAILY_LIMIT)
+    db.commit()  # bound attempted expensive work, including failed attempts
     scenario = payload.scenario.model_dump(exclude_unset=True) if payload.scenario else None
     output = AnalysisService(db).run(payload.analysis_type, current_user.id, scenario)
     return AnalysisResponse(analysis_type=payload.analysis_type, **output)

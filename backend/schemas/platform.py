@@ -13,6 +13,10 @@ class ConsentChoice(BaseModel):
     granted: bool
     notice_version: str = Field(min_length=1, max_length=40)
 
+class Reauthentication(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    password: SecretStr = Field(min_length=1, max_length=1024)
+
 from pydantic import model_validator
 class Preferences(BaseModel):
     model_config = ConfigDict(extra="forbid")

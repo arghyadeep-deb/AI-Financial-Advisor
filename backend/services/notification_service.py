@@ -39,3 +39,39 @@ def deliver(db, owner, event_key, category):
     db.flush()
     return row
 
+
+def schedule(db, owner, event_key, category, when):
+    """Schedule safe metadata in the shared outbox; caller commits business event."""
+    from backend.workers.queue import enqueue
+    if category not in COPY or not 1 <= len(event_key) <= 50:
+        raise ValueError("Unsupported notification")
+    if when.tzinfo is not None:
+        from datetime import timezone
+        when = when.astimezone(timezone.utc).replace(tzinfo=None)
+    row = enqueue(db, owner, 'notice:' + category + ':' + event_key, 'notification')
+    if row.state == 'queued':
+        row.available_at = when
+    return row
+
+
+def run_scheduled(db, job_id, fence):
+    from backend.workers.queue import complete
+    from backend.models.models import WorkItem
+    row = db.get(WorkItem, job_id)
+    if not row or row.kind != 'notification':
+        raise ValueError('Unsupported work')
+    _, category, event_key = row.event_key.split(':', 2)
+    def publish(db, owner):
+        notice = deliver(db, owner, event_key, category)
+        if notice.state == 'deferred':
+            if utcnow() - row.created_at >= timedelta(days=7):
+                notice.state = 'suppressed'
+                return
+            # One finite retry per hour, bounded by current preferences at delivery.
+            # The business queue remains the only scheduler.
+            row.state = 'queued'
+            row.available_at = utcnow() + timedelta(hours=1)
+            row.attempts = 0
+            row.lease_until = None
+    complete(db, job_id, fence, publish)
+

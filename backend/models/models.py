@@ -268,3 +268,138 @@ class QuotaUsage(Base):
     resource = Column(String(40), nullable=False)
     period = Column(String(10), nullable=False)
     used = Column(BigInteger, nullable=False, default=0)
+
+
+class StatementAccount(Base):
+    __tablename__ = "statement_accounts"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    label = Column(String(80), nullable=False)
+    token = Column(String(40), nullable=False)
+    account_type = Column(String(20), nullable=False, default="synthetic_debit")
+    revision = Column(Integer, nullable=False, default=0)
+    link_revision = Column(Integer, nullable=False, default=0)
+    __table_args__ = (UniqueConstraint("user_id", "token", name="uq_statement_account_token"),)
+
+
+class StatementDocument(Base):
+    __tablename__ = "statement_documents"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    account_id = Column(String(36), ForeignKey("statement_accounts.id"), nullable=False)
+    digest = Column(String(64), nullable=False)
+    storage_key = Column(String(36), nullable=False)
+    size = Column(Integer, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    expires_at = Column(DateTime, nullable=False)
+    __table_args__ = (UniqueConstraint("user_id", "account_id", "digest", name="uq_statement_digest"),)
+
+
+class StatementImport(Base):
+    __tablename__ = "statement_imports"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    account_id = Column(String(36), ForeignKey("statement_accounts.id"), nullable=False)
+    document_id = Column(String(36), ForeignKey("statement_documents.id"), nullable=False)
+    work_id = Column(String(36), nullable=False)  # opaque reference to shared queue (purged independently)
+    generation = Column(Integer, nullable=False, default=1)
+    revision = Column(Integer, nullable=False, default=0)
+    state = Column(String(24), nullable=False, default="queued")
+    parser_version = Column(String(40), nullable=False, default="synthetic.v1")
+    checkpoint = Column(String(24), nullable=False, default="stored")
+    error_code = Column(String(40), nullable=True)
+    start_date = Column(String(10), nullable=True)
+    end_date = Column(String(10), nullable=True)
+    opening_paise = Column(BigInteger, nullable=True)
+    closing_paise = Column(BigInteger, nullable=True)
+    difference_paise = Column(BigInteger, nullable=True)
+    business_commit_id = Column(String(36), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (UniqueConstraint("document_id", "generation", name="uq_statement_generation"),)
+
+
+class StatementRow(Base):
+    __tablename__ = "statement_rows"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    import_id = Column(String(36), ForeignKey("statement_imports.id"), nullable=False)
+    ordinal = Column(Integer, nullable=False)
+    posting_date = Column(String(10), nullable=False)
+    amount_paise = Column(BigInteger, nullable=False)
+    description = Column(String(200), nullable=False)
+    reference = Column(String(80), nullable=True)
+    category = Column(String(32), nullable=False)
+    __table_args__ = (UniqueConstraint("import_id", "ordinal", name="uq_statement_row"),)
+
+
+class LedgerEntry(Base):
+    __tablename__ = "ledger_entries"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    account_id = Column(String(36), ForeignKey("statement_accounts.id"), nullable=False)
+    posting_date = Column(String(10), nullable=False)
+    amount_paise = Column(BigInteger, nullable=False)
+    description = Column(String(200), nullable=False)
+    reference = Column(String(80), nullable=True)
+    components = Column(JSON, nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
+    revision = Column(Integer, nullable=False, default=1)
+
+
+class LedgerEvidence(Base):
+    __tablename__ = "ledger_evidence"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    entry_id = Column(String(36), ForeignKey("ledger_entries.id"), nullable=False)
+    row_id = Column(String(36), ForeignKey("statement_rows.id"), nullable=False)
+    import_id = Column(String(36), ForeignKey("statement_imports.id"), nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
+    __table_args__ = (UniqueConstraint("row_id", name="uq_ledger_evidence_row"),)
+
+
+class LedgerCorrection(Base):
+    __tablename__ = "ledger_corrections"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    account_id = Column(String(36), ForeignKey("statement_accounts.id"), nullable=False)
+    target_id = Column(String(36), nullable=False)
+    operation_key = Column(String(64), nullable=False)
+    payload = Column(JSON, nullable=False)
+    before = Column(JSON, nullable=False)
+    after = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (UniqueConstraint("user_id", "operation_key", name="uq_ledger_operation"),)
+
+
+class LedgerLink(Base):
+    __tablename__ = "ledger_links"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    left_id = Column(String(36), ForeignKey("ledger_entries.id"), nullable=False)
+    right_id = Column(String(36), ForeignKey("ledger_entries.id"), nullable=False)
+    kind = Column(String(24), nullable=False)
+    amount_paise = Column(BigInteger, nullable=False)
+    active = Column(Boolean, nullable=False, default=True)
+
+
+class MonthlyReport(Base):
+    __tablename__ = "monthly_reports"
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    month = Column(String(7), nullable=False)
+    rule_version = Column(String(24), nullable=False)
+    vector = Column(JSON, nullable=False)
+    snapshot = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class PrivacyRequest(Base):
+    """Private expiring export delivery metadata; content lives encrypted outside DB."""
+    __tablename__ = 'privacy_requests'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    kind = Column(String(20), nullable=False)
+    state = Column(String(24), nullable=False)
+    storage_key = Column(String(36), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    expires_at = Column(DateTime, nullable=False)

@@ -36,6 +36,24 @@ def _int(name: str, default: int) -> int:
 
 class Config:
 
+    # Offline controls. No implicit key, journal location, or real-data opt-in.
+    ANALYSIS_DAILY_LIMIT = _int("ANALYSIS_DAILY_LIMIT", 100)
+    CHAT_DAILY_LIMIT = _int("CHAT_DAILY_LIMIT", 200)
+    UPLOAD_DAILY_LIMIT = _int("UPLOAD_DAILY_LIMIT", 20)
+    STORAGE_DAILY_BYTES = _int("STORAGE_DAILY_BYTES", 50 * 1024 * 1024)
+    SUPPRESSION_JOURNAL = os.getenv("SUPPRESSION_JOURNAL", "")
+    PRIVATE_STORAGE_ROOT = os.getenv("PRIVATE_STORAGE_ROOT", "")
+    STORAGE_KEYS_JSON = os.getenv("STORAGE_KEYS_JSON", "{}")
+    STORAGE_ACTIVE_KEY = os.getenv("STORAGE_ACTIVE_KEY", "")
+    SOURCE_RETENTION_DAYS = _int("SOURCE_RETENTION_DAYS", 30)
+    EXPORT_TTL_SECONDS = _int("EXPORT_TTL_SECONDS", 300)
+    EXPORT_DAILY_LIMIT = _int("EXPORT_DAILY_LIMIT", 10)
+    BACKUP_RETENTION_DAYS = _int("BACKUP_RETENTION_DAYS", 30)
+    SYNTHETIC_STATEMENTS_ENABLED = os.getenv("SYNTHETIC_STATEMENTS_ENABLED", "false").lower() == "true"
+    STATEMENT_MAX_BYTES = _int("STATEMENT_MAX_BYTES", 1024 * 1024)
+    STATEMENT_MAX_ROWS = _int("STATEMENT_MAX_ROWS", 10000)
+    STATEMENT_TIMEOUT_SECONDS = _int("STATEMENT_TIMEOUT_SECONDS", 5)
+
     # ── Environment ───────────────────────────────────────────────────────
     # production | staging | development | test.  Unknown values are treated
     # as production so a typo can never weaken the checks.
@@ -121,6 +139,16 @@ class Config:
         (tokens do not survive restart) and a warning is logged by the caller.
         """
         key = self.SECRET_KEY
+        for value in (self.ANALYSIS_DAILY_LIMIT, self.CHAT_DAILY_LIMIT, self.UPLOAD_DAILY_LIMIT,
+                      self.STORAGE_DAILY_BYTES, self.EXPORT_DAILY_LIMIT):
+            if type(value) is not int or not 0 <= value <= 10**13:
+                raise ConfigError("Invalid resource limit")
+        if not (1 <= self.SOURCE_RETENTION_DAYS <= 3650 and 1 <= self.BACKUP_RETENTION_DAYS <= 3650
+                and 1 <= self.EXPORT_TTL_SECONDS <= 3600 and 1 <= self.STATEMENT_MAX_BYTES <= 10*1024*1024
+                and 1 <= self.STATEMENT_MAX_ROWS <= 10000 and 1 <= self.STATEMENT_TIMEOUT_SECONDS <= 30):
+            raise ConfigError("Invalid retention or parser bounds")
+        if self.is_production_like and self.SYNTHETIC_STATEMENTS_ENABLED:
+            raise ConfigError("Synthetic statements cannot be enabled in production-like environments")
         weak = key.strip().lower() in _PLACEHOLDER_SECRETS or len(key) < MIN_SECRET_LENGTH
         if self.is_production_like:
             if weak:

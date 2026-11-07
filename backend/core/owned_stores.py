@@ -39,11 +39,13 @@ def inventory():
     return [{"store": s.name, "tables": sorted(s.tables), "purpose": s.purpose,
              "retention": s.retention} for s in _registry.values()]
 
-def register_database_store(name, models, purpose):
+def register_database_store(name, models, purpose, before_purge=None):
     def export(db, owner):
         return {m.__tablename__: [{c.name: getattr(row, c.name) for c in inspect(m).columns
                 if c.name not in {"token_hash"}} for row in db.query(m).filter(m.user_id == owner)] for m in models}
     def purge(db, owner):
+        if before_purge:
+            before_purge(db, owner)
         for model in models:
             db.query(model).filter(model.user_id == owner).delete(synchronize_session=False)
     register_owned_store(OwnedStore(name, frozenset(m.__tablename__ for m in models), export, purge,
@@ -62,3 +64,30 @@ from backend.models.models import QuotaUsage
 register_database_store("quotas", [QuotaUsage], "resource accounting")
 from backend.models.models import AllocationPlan
 register_database_store("allocation", [AllocationPlan], "hypothetical allocation scenarios (feature 007, gated off)")
+from backend.models.models import (StatementAccount, StatementDocument, StatementImport, StatementRow,
+    LedgerEntry, LedgerEvidence, LedgerCorrection, LedgerLink, MonthlyReport)
+_statement_models = [MonthlyReport, LedgerLink, LedgerCorrection, LedgerEvidence, LedgerEntry,
+                     StatementRow, StatementImport, StatementDocument, StatementAccount]
+def _purge_statement_sources(db, owner):
+    documents = db.query(StatementDocument).filter_by(user_id=owner).all()
+    if documents:
+        from backend.finance.storage import configured_storage
+        storage = configured_storage()  # unavailable keys/storage fail closed; deletion can resume
+        for document in documents:
+            storage.delete(owner, document.storage_key)
+register_database_store("statements", _statement_models, "synthetic statement evidence and observed monthly facts",
+                        before_purge=_purge_statement_sources)
+from backend.models.models import PrivacyRequest
+
+
+def _purge_export_files(db, owner):
+    requests = db.query(PrivacyRequest).filter_by(user_id=owner).all()
+    if requests:
+        from backend.finance.storage import configured_storage
+        storage = configured_storage()
+        for request in requests:
+            storage.delete(owner, request.storage_key)
+
+
+register_database_store('privacy_requests', [PrivacyRequest], 'short-lived private export delivery',
+                        before_purge=_purge_export_files)

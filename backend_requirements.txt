@@ -23,6 +23,7 @@ langchain-anthropic==1.7.10
 langchain-google-genai==4.2.1
 langchain-groq==1.1.2
 langgraph==1.2.20
+cryptography==46.0.5
 langsmith==0.14.17
 openai==3.46.0
 anthropic==2.5.0

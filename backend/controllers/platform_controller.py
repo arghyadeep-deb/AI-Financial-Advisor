@@ -5,8 +5,46 @@ from backend.core.dependencies import get_auth_context, AuthContext
 from backend.schemas.platform import PasswordChange, ConsentChoice
 from backend.services.auth_service import AuthService
 from backend.models.models import ConsentRecord
+from backend.schemas.platform import Reauthentication
+from backend.services.privacy.lifecycle import export_owned, delete_owned, configured_journal
+from backend.core.config import config
 
 router = APIRouter(tags=["Account controls"])
+
+@router.post('/privacy/exports', status_code=201)
+def request_export(payload: Reauthentication, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    from backend.services.privacy import exports
+    return exports.create(db, ctx.user, payload.password.get_secret_value())
+
+@router.get('/privacy/requests/{request_id}')
+def request_status(request_id: str, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    from backend.services.privacy import exports
+    from backend.models.models import PrivacyRequest
+    from backend.services.statement_service import owned
+    return exports.describe(owned(db, PrivacyRequest, ctx.user.id, request_id))
+
+@router.get('/privacy/exports/{request_id}/download')
+def download_export(request_id: str, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    from backend.services.privacy import exports
+    return Response(exports.download(db, ctx.user.id, request_id), media_type='application/json',
+        headers={'Cache-Control': 'no-store', 'Content-Disposition': 'attachment; filename="account-export.json"',
+                 'X-Content-Type-Options': 'nosniff'})
+
+@router.get("/privacy/consents")
+def consent_status(ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    from backend.services.consent_service import allowed
+    return {purpose: allowed(db, ctx.user.id, purpose) for purpose in ("model_inference", "tracing")}
+
+@router.post("/privacy/export")
+def export(payload: Reauthentication, response: Response, ctx: AuthContext = Depends(get_auth_context),
+           db: Session = Depends(get_db)):
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Content-Disposition"] = 'attachment; filename="account-export.json"'
+    return export_owned(db, ctx.user, payload.password.get_secret_value())
+
+@router.post("/privacy/deletion", status_code=202)
+def deletion(payload: Reauthentication, ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):
+    return delete_owned(db, ctx.user, payload.password.get_secret_value(), configured_journal())
 
 @router.get("/sessions")
 def sessions(ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):

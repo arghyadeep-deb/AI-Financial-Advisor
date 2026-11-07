@@ -1,0 +1,4 @@
+SYNTHETIC-INR-v1,SYNTH_A,2026-01-01,2026-01-31,2000.00,1000.00
+date,description,reference,signed_rupees,category
+2026-01-02,Synthetic meal,,-500.00,purchase
+2026-01-02,Synthetic meal,,-500.00,purchase

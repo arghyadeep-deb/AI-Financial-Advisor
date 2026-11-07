@@ -45,6 +45,11 @@ def get_auth_context(
     user = db.get(User, int(claims["sub"]))
     if not user or not user.is_active:
         raise _unauthorized()
+    from backend.core.config import config
+    if config.SUPPRESSION_JOURNAL:
+        from backend.services.privacy.lifecycle import configured_journal
+        if configured_journal().contains(user.id):
+            raise _unauthorized()
     return AuthContext(user, session.id)
 
 

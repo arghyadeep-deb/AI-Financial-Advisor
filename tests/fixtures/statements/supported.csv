@@ -1,0 +1,4 @@
+SYNTHETIC-INR-v1,SYNTH_A,2026-01-01,2026-01-31,20000.00,10000.00
+date,description,reference,signed_rupees,category
+2026-01-02,Synthetic salary,SAL-1,45000.00,income
+2026-01-05,Synthetic expenses,EXP-1,-55000.00,purchase
