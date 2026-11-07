@@ -33,3 +33,12 @@ Tax-professional reviewer; allocation parameter validator and public-advice elig
 
 ### Other decisions already taken
 Mail: Resend (free tier) behind a provider interface; domain pending. MFA: TOTP, opt-in, `MFA_REQUIRED` flag default off. Deletion receipt: DB-backed throttle. Frontend: after all backend work. CI: GitHub Actions on `integration`.
+
+## 2026-11-07 free-pilot scope (owner) and statement-layout status
+- Free pilot. Paid billing requirements are DEFERRED (the disabled free-pilot flag does not complete them).
+- Banks: pilot users' banks NOT confirmed. Additional bank selection = PENDING. No bank layout is invented; no bank is claimed supported.
+- FINDING (verified in repo): the only importer is `synthetic-inr-v1` (`backend/finance/importers/`), a fictional CSV/text grammar with fictional accounts (fixtures: `tests/fixtures/statements/`, README: "no real bank layout or customer data. Not a released bank or card adapter"). NO genuine bank layout has been established. The adapter stays EXPERIMENTAL/synthetic-only; synthetic fixtures test parsing logic and do not establish compatibility with real bank statements. Additional PDF adapters wait and do not block the build.
+- Next for statements: documented CSV with manual column mapping, preview, validation and review (lane L).
+- Providers stay unselected; live integrations disabled; research claims unverified until checked against official documentation or a quote; no further provider decision needed from the owner now.
+- Frontend: core journeys (onboarding, upload, transaction review, monthly report, manual credit) proceed as APIs stabilize, tested in the browser. The owner's visual reference is for final styling only. Advanced/deferred features stay hidden.
+- Independent review and real-data release gates are preserved; passing isolated lane tests is not evidence that the merged app works (run integration tests on the combined branch before and after merging).
