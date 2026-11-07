@@ -41,16 +41,59 @@ function affordability(m) {
     "Observed activity alone does not show future bills or how quickly you could reach your money, so no amount is suggested.");
 }
 
+const FILTER_KEY = "monthly.filter";
+function savedFilter() { try { return JSON.parse(sessionStorage.getItem(FILTER_KEY)) || {}; } catch (e) { return {}; } }
+function saveFilter(v) { try { sessionStorage.setItem(FILTER_KEY, JSON.stringify(v)); } catch (e) { /* private mode: filters just do not persist */ } }
+
+function entryDetail(r) {
+  const comps = (r.components || []).map((c) => c.category + " " + paise(c.amount_paise) + (c.budget_category ? " (budget: " + c.budget_category + ")" : ""));
+  const refs = (r.evidence || []).map((e) => "import " + String(e.import_id).slice(0, 8) + ", row " + String(e.row_id).slice(0, 8));
+  return h("div", { class: "stack" },
+    h("p", { class: "small", text: "Where this came from: " + (r.origin || "unknown") + ", entry revision " + r.revision + "." }),
+    comps.length ? h("p", { class: "small", text: "Split into: " + comps.join("; ") }) : null,
+    refs.length ? h("p", { class: "small muted", text: "Statement rows: " + refs.join("; ") }) : h("p", { class: "small muted", text: "No statement row (entered by hand)." }),
+    h("a", { class: "small", href: "#/statements", text: "Open statements" }));
+}
+
 function sourcesTable(snap) {
-  const rows = (snap.sources || []).slice(0, 200);
-  if (!rows.length) return h("p", { class: "muted", text: "No confirmed entries in this month." });
-  return h("div", { class: "table-scroll" }, h("table", {},
-    h("thead", {}, h("tr", {}, ["Date", "Description", "Amount", "Category"].map((t, i) => h("th", { class: i === 2 ? "right" : null, text: t })))),
-    h("tbody", {}, rows.map((r) => h("tr", {},
-      h("td", { text: r.posting_date }), h("td", { text: r.description || "" }),
-      h("td", { class: "right " + (r.amount_paise >= 0 ? "pos" : "neg"), text: paise(r.amount_paise) }),
-      h("td", { text: (r.components || []).map((c) => c.category).join(", ") || "unknown" }))))),
-    snap.sources.length > rows.length ? h("p", { class: "muted small", text: "Showing the first " + rows.length + " of " + snap.sources.length + " entries. Download the CSV for all of them." }) : null);
+  const all = snap.sources || [];
+  if (!all.length) return h("p", { class: "muted", text: "No confirmed entries in this month." });
+  const cats = [...new Set(all.flatMap((r) => (r.components || []).map((c) => c.category)))].sort();
+  const saved = savedFilter();
+  const kind = h("select", { id: "mr_cat" }, h("option", { value: "", text: "All categories" }), cats.map((c) => h("option", { value: c, text: c })));
+  kind.value = cats.includes(saved.category) ? saved.category : "";
+  const find = h("input", { id: "mr_find", type: "search", autocomplete: "off", value: saved.text || "" });
+  const body = h("div", { class: "stack" });
+  const paint = () => {
+    saveFilter({ category: kind.value, text: find.value });
+    const q = find.value.trim().toLowerCase();
+    const rows = all.filter((r) => (!kind.value || (r.components || []).some((c) => c.category === kind.value))
+      && (!q || (r.description || "").toLowerCase().includes(q)));
+    clear(body);
+    if (!rows.length) { body.appendChild(h("p", { class: "muted", text: "No entries match these filters." })); return; }
+    const shown = rows.slice(0, 200);
+    body.appendChild(h("div", { class: "table-scroll" }, h("table", {},
+      h("thead", {}, h("tr", {}, ["Date", "Description", "Amount", "Category", "Details"].map((t, i) => h("th", { class: i === 2 ? "right" : null, text: t })))),
+      h("tbody", {}, shown.flatMap((r) => {
+        const open = h("button", { class: "btn ghost", type: "button", "aria-expanded": "false", text: "Details" });
+        const detail = h("tr", { hidden: true }, h("td", { colspan: 5 }, entryDetail(r)));
+        open.addEventListener("click", () => {
+          detail.hidden = !detail.hidden;
+          open.setAttribute("aria-expanded", String(!detail.hidden));
+        });
+        return [h("tr", {}, h("td", { text: r.posting_date }), h("td", { text: r.description || "" }),
+          h("td", { class: "right " + (r.amount_paise >= 0 ? "pos" : "neg"), text: paise(r.amount_paise) }),
+          h("td", { text: (r.components || []).map((c) => c.category).join(", ") || "unknown" }), h("td", {}, open)), detail];
+      })))));
+    if (rows.length > shown.length) body.appendChild(h("p", { class: "muted small", text: "Showing the first " + shown.length + " of " + rows.length + " entries. Download the CSV for all of them." }));
+  };
+  kind.addEventListener("change", paint);
+  find.addEventListener("input", paint);
+  paint();
+  return h("div", { class: "stack" },
+    h("div", { class: "grid c2" },
+      h("div", { class: "field" }, h("label", { for: "mr_cat", text: "Category" }), kind),
+      h("div", { class: "field" }, h("label", { for: "mr_find", text: "Search description" }), find)), body);
 }
 
 async function downloadCsv(id, msg) {

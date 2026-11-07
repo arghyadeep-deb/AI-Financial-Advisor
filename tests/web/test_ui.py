@@ -407,6 +407,21 @@ def test_monthly_report_shows_checked_totals_and_does_not_invent_investable_mone
     assert not page.get_by_text("You can invest").count()
     expect(page.get_by_role("cell", name="Synthetic salary")).to_be_visible()
     expect(page.get_by_text("Net worth is not shown")).to_be_visible()
+    # filters narrow the list, persist across a reload, and a row opens to show where it came from
+    page.select_option("#mr_cat", "income")
+    expect(page.get_by_role("cell", name="Synthetic expenses")).to_have_count(0)
+    page.fill("#mr_find", "salary")
+    page.get_by_role("button", name="Details").click()
+    expect(page.get_by_text("Where this came from")).to_be_visible()
+    expect(page.get_by_text("Statement rows: import")).to_be_visible()
+    page.fill("#mr_find", "zzz")
+    expect(page.get_by_text("No entries match these filters.")).to_be_visible()
+    page.fill("#mr_find", "salary")
+    page.goto(f"{live_url}/app/#/profile")                           # leave and come back (a reload would log out)
+    expect(page.get_by_role("heading", name="Your profile")).to_be_visible()
+    page.goto(f"{live_url}/app/#/monthly")
+    expect(page.locator("#mr_cat")).to_have_value("income")
+    expect(page.locator("#mr_find")).to_have_value("salary")
     assert not tracker["errors"], tracker["errors"]
 
 
