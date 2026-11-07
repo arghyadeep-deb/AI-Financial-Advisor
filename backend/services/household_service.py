@@ -1,5 +1,6 @@
 """Deterministic private books. No household data enters the advice/chat context."""
 from uuid import uuid4
+from fractions import Fraction
 import hashlib
 import hmac
 import secrets
@@ -9,6 +10,16 @@ from backend.core.config import config
 from backend.core.money import check_paise
 from backend.finance.ledger import atomic, lock_owner
 from backend.models.models import (HouseholdRevision, Household, HouseholdMembership, HouseholdGrant, User, utcnow)
+
+
+ADULT_STATEMENT_VERSION = 'adult-self-declaration.v1'
+ADULT_STATEMENT = 'I declare that I am at least 18 years old.'
+
+
+def declare_adult(row):
+    row.adult_declared_at = utcnow()
+    row.adult_statement_version = ADULT_STATEMENT_VERSION
+    row.adult_assurance = 'unverified'
 
 
 def missing():
@@ -57,9 +68,10 @@ def create_house(db, actor, payload):
     enabled()
     lock_owner(db, actor, bump=False)
     row = Household(id=str(uuid4()), user_id=actor, label=payload.label, revision=1)
+    declare_adult(row)
     db.add(row)
     db.commit()
-    return {'id': row.id, 'revision': row.revision, 'label': row.label,
+    return {'id': row.id, 'adult_assurance': row.adult_assurance, 'adult_statement_version': row.adult_statement_version, 'adult_declared_at': row.adult_declared_at, 'revision': row.revision, 'label': row.label,
             'role': 'owner', 'download_notice': 'Downloaded exports cannot be remotely recalled.'}
 
 
@@ -95,6 +107,7 @@ def accept(db, actor, invite_id, payload):
     digest = hashlib.sha256(payload.token.get_secret_value().encode()).hexdigest()
     if row.state != 'invited' or row.expires_at <= utcnow() or not hmac.compare_digest(row.token_hash, digest):
         missing()
+    declare_adult(row)
     row.state, row.revision = 'accepted', row.revision+1
     row.token_hash = ''  # consumed; never retain a usable invite
     household.revision += 1
@@ -107,21 +120,24 @@ def grant(db, actor, identity, payload):
     household = locked_house(db, identity, actor)
     if actor == payload.member_id or not active_member(db, household, payload.member_id):
         missing()
+    resource_data(db, actor, payload.view, payload.resource)
     row = db.query(HouseholdGrant).filter_by(household_id=identity, user_id=actor,
-                                            member_id=payload.member_id, view=payload.view).first()
+                                            member_id=payload.member_id, view=payload.view, resource=payload.resource).first()
     revision = row.revision if row else 0
     if payload.expected_revision != revision:
         raise HTTPException(409, 'Revision changed; reload before retrying.')
     if row is None:
         row = HouseholdGrant(id=str(uuid4()), user_id=actor, household_id=identity,
-            member_id=payload.member_id, view=payload.view, revision=1, granted=payload.granted)
+            member_id=payload.member_id, view=payload.view, resource=payload.resource,
+            permissions=sorted(payload.permissions), revision=1, granted=payload.granted)
         db.add(row)
     else:
         row.revision += 1
         row.granted = payload.granted
+    row.permissions = sorted(payload.permissions)
     household.revision += 1
     db.commit()
-    return {'id': row.id, 'view': row.view, 'granted': row.granted, 'revision': row.revision}
+    return {'id': row.id, 'resource': row.resource, 'permissions': row.permissions, 'view': row.view, 'granted': row.granted, 'revision': row.revision}
 
 
 @atomic
@@ -144,36 +160,46 @@ def revoke_member(db, actor, identity, member_id, payload):
     return {'state': row.state, 'revision': row.revision}
 
 
+def resource_data(db, owner, view, resource):
+    row = latest(db, owner, view)
+    key = 'observations' if view == 'networth' else 'policies'
+    if row and resource:
+        items = [item for item in row.data.get(key, []) if item['reference'] == resource]
+        if items:
+            return row, {key: items}
+    missing()
+
+
 @atomic
-def shared_view(db, actor, identity, source, view, expected_grant=None):
+def shared_view(db, actor, identity, source, view, expected_grant=None, resource=None, permission='summaries'):
     household = locked_house(db, identity, actor)
     if not active_member(db, household, source) or view not in {'networth', 'protection'}:
         missing()
-    permission = db.query(HouseholdGrant).filter_by(household_id=identity, user_id=source,
-        member_id=actor, view=view, granted=True).first()
-    if source != actor and permission is None:
+    # Unsupported consumers stay closed, even when a grant names that permission.
+    if permission not in {'summaries', 'exports'}:
         missing()
-    if expected_grant is not None and (permission is None or permission.revision != expected_grant):
+    grant = db.query(HouseholdGrant).filter_by(household_id=identity, user_id=source,
+        member_id=actor, view=view, resource=resource, granted=True).first()
+    if grant is None or permission not in grant.permissions:
         missing()
-    row = latest(db, source, view)
-    if not row:
+    if expected_grant is not None and grant.revision != expected_grant:
         missing()
-    result = {**describe(row), 'household_revision': household.revision,
-              'grant_revision': permission.revision if permission else None,
-              'download_notice': 'Downloaded exports cannot be remotely recalled.'}
+    row, data = resource_data(db, source, view, resource)
+    result = {**describe(row), 'data': data, 'household_revision': household.revision,
+              'grant_revision': grant.revision}
     if view == 'networth':
-        result['snapshot'] = consolidate([row.data])
-    db.commit()  # serialization ends only after the authorized response is materialized
+        result['snapshot'] = consolidate([data])
+    db.commit()
     return result
 
 
 @atomic
-def request_export(db, actor, identity, source, view):
+def request_export(db, actor, identity, source, view, resource=None):
     """A queued reference contains no financial bytes; fetch always reauthorizes."""
     locked_house(db, identity, actor)
     permission = db.query(HouseholdGrant).filter_by(household_id=identity, user_id=source,
-        member_id=actor, view=view, granted=True).first()
-    if permission is None or not active_member(db, house(db, identity), source):
+        member_id=actor, view=view, resource=resource, granted=True).first()
+    if permission is None or 'exports' not in permission.permissions or not active_member(db, house(db, identity), source):
         missing()
     from backend.core.limits import reserve
     reserve(db, actor, 'exports', 1, config.EXPORT_DAILY_LIMIT)
@@ -195,7 +221,7 @@ def fetch_export(db, actor, identity):
     permission = db.query(HouseholdGrant).filter_by(id=grant_id, member_id=actor).first()
     if permission is None:
         missing()
-    return shared_view(db, actor, household_id, permission.user_id, permission.view, int(revision))
+    return shared_view(db, actor, household_id, permission.user_id, permission.view, int(revision), permission.resource, 'exports')
 
 
 @atomic
@@ -203,14 +229,15 @@ def consolidated_view(db, actor, identity):
     household = locked_house(db, identity, actor)
     grants = db.query(HouseholdGrant).filter_by(household_id=identity, member_id=actor,
                                                view='networth', granted=True).all()
-    owners = {actor: None}
-    owners.update({g.user_id: g.revision for g in grants if active_member(db, household, g.user_id)})
     books, vector = [], {}
-    for owner, grant_revision in sorted(owners.items()):
-        row = latest(db, owner, 'networth')
-        if row:
-            books.append(row.data)
-            vector[str(owner)] = {'book_revision': row.revision, 'grant_revision': grant_revision}
+    own = latest(db, actor, 'networth')
+    if own:
+        books.append(own.data)
+    for grant in grants:
+        if grant.resource and 'summaries' in grant.permissions and active_member(db, household, grant.user_id):
+            row, data = resource_data(db, grant.user_id, 'networth', grant.resource)
+            books.append(data)
+            vector[grant.id] = {'book_revision': row.revision, 'grant_revision': grant.revision}
     result = {**consolidate(books), 'vector': vector, 'household_revision': household.revision,
               'allocation_status': 'unavailable', 'notice': 'Shared inventory is not spendable planning capacity.'}
     db.commit()
@@ -267,8 +294,39 @@ def write(db, owner, kind, payload):
     return describe(row)
 
 
+def allocate_paise(total, shares):
+    """Exact largest remainder, including an explicit unallocated bucket.
+
+    Identifiers order ties lexically; the unallocated bucket sorts last.
+    """
+    check_paise(total)
+    if isinstance(total, bool) or not isinstance(total, int) or total < 0:
+        raise ValueError('Expected nonnegative integer paise')
+    exact = {}
+    for key, value in shares.items():
+        if not isinstance(key, str) or not key or isinstance(value, float):
+            raise ValueError('Stable string identifiers and exact shares required')
+        exact[key] = Fraction(value)
+    if any(v < 0 for v in exact.values()) or sum(exact.values()) > 1:
+        raise ValueError('Ownership total exceeds 100% or is negative')
+    weights = {**exact, None: 1 - sum(exact.values())}
+    raw = {key: total * weight for key, weight in weights.items()}
+    amounts = {key: value.numerator // value.denominator for key, value in raw.items()}
+    order = sorted(raw, key=lambda key: (-(raw[key] - amounts[key]), key is None, key or ''))
+    for key in order[:total - sum(amounts.values())]:
+        amounts[key] += 1
+    remainder = amounts.pop(None)
+    return {'allocations': amounts, 'unallocated_paise': remainder,
+            'unallocated_share': str(weights[None])}
+
+
+def ownership(item):
+    if item.get('share_percent') is not None:
+        return Fraction(item['share_percent']) / 100
+    return Fraction(item['share_bps'], 10000)
+
+
 def consolidate(books):
-    """Same identity requires identical facts; member shares may never exceed 100%."""
     references = {}
     for book in books:
         seen = set()
@@ -277,25 +335,31 @@ def consolidate(books):
             if ref in seen:
                 continue
             seen.add(ref)
-            facts = {k: v for k, v in item.items() if k != 'share_bps'}
+            facts = {k: v for k, v in item.items() if k not in {'share_bps', 'share_percent'}}
+            share = ownership(item)
             if ref in references:
                 prior, shares = references[ref]
-                if prior != facts or shares + item['share_bps'] > 10000:
+                if prior != facts or shares + share > 1:
                     raise HTTPException(409, 'Joint observation facts or shares conflict; review required.')
-                references[ref] = (facts, shares + item['share_bps'])
+                references[ref] = (facts, shares + share)
             else:
-                references[ref] = (facts, item['share_bps'])
+                references[ref] = (facts, share)
     totals = {'asset': 0, 'liability': 0}
-    for facts, shares in references.values():
-        totals[facts['kind']] += facts['value_paise'] * shares // 10000
+    observations = []
+    for ref, (facts, share) in references.items():
+        allocation = allocate_paise(facts['value_paise'], {ref: share})
+        totals[facts['kind']] += allocation['allocations'][ref]
+        observations.append({**facts, 'share_bps': int(share * 10000) if (share * 10000).denominator == 1 else None,
+            'ownership_fraction': str(share), 'allocated_paise': allocation['allocations'][ref],
+            'unallocated_paise': allocation['unallocated_paise'], 'unallocated_share': allocation['unallocated_share']})
     for value in totals.values():
         check_paise(value)
     return {'assets_paise': totals['asset'] if references else None,
             'liabilities_paise': totals['liability'] if references else None,
             'net_worth_paise': check_paise(totals['asset']-totals['liability']) if references else None,
-            'status': 'partial', 'coverage': 'declared_only', 'rule_version': 'networth.v1',
+            'status': 'partial', 'coverage': 'declared_only', 'rule_version': 'networth.v2',
             'basis': 'included_observations_only',
             'missing_inputs': ['verified_account_inventory'] if references else ['declared_observations', 'verified_account_inventory'],
             'warnings': ['Unverified declared inventory; dates and account coverage may differ.',
                          'Do not add these observations to bank or portfolio totals.'],
-            'observations': [{**facts, 'share_bps': shares} for facts, shares in references.values()]}
+            'observations': observations}
