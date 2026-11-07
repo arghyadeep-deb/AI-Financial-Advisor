@@ -453,6 +453,9 @@ class Household(Base):
     id = Column(String(36), primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     label = Column(String(80), nullable=False)
+    adult_declared_at = Column(DateTime, nullable=True)
+    adult_statement_version = Column(String(40), nullable=True)
+    adult_assurance = Column(String(20), nullable=True)
     revision = Column(Integer, nullable=False, default=1)
 
 
@@ -465,6 +468,9 @@ class HouseholdMembership(Base):
     token_hash = Column(String(64), nullable=False)
     expires_at = Column(DateTime, nullable=False)
     state = Column(String(20), nullable=False, default='invited')
+    adult_declared_at = Column(DateTime, nullable=True)
+    adult_statement_version = Column(String(40), nullable=True)
+    adult_assurance = Column(String(20), nullable=True)
     revision = Column(Integer, nullable=False, default=1)
     __table_args__ = (UniqueConstraint('household_id', 'member_id', name='uq_household_member'),)
 
@@ -476,9 +482,11 @@ class HouseholdGrant(Base):
     household_id = Column(String(36), ForeignKey('households.id'), nullable=False)
     member_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     view = Column(String(24), nullable=False)
+    resource = Column(String(80), nullable=True)
+    permissions = Column(JSON, nullable=False, default=list)
     revision = Column(Integer, nullable=False, default=1)
     granted = Column(Boolean, nullable=False)
-    __table_args__ = (UniqueConstraint('household_id', 'user_id', 'member_id', 'view', name='uq_household_grant'),)
+    __table_args__ = (UniqueConstraint('household_id', 'user_id', 'member_id', 'view', 'resource', name='uq_household_grant'),)
 
 
 class PortfolioRevision(Base):

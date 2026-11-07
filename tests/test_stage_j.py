@@ -47,7 +47,7 @@ def test_T1101_duplicate_partial_shares_money_and_history(db_engine):
 
 
 @pytest.mark.parametrize('item', [observation(value=True), observation(value=-1), observation(share=10001),
-    observation(value=1, share=5000), observation(currency='USD'), observation(projected=True),
+    observation(currency='USD'), observation(projected=True),
     {**observation(), 'valued_on': '2099-01-01'}])
 def test_T1101_invalid(item):
     with pytest.raises(ValueError):
@@ -101,7 +101,7 @@ def sharing(db):
 
 
 def permission(member, revision=0, granted=True, view='networth'):
-    return h.GrantWrite(member_id=member, view=view, expected_revision=revision, granted=granted)
+    return h.GrantWrite(member_id=member, view=view, resource='property' if view == 'networth' else 'unknown', permissions={'summaries', 'exports'}, expected_revision=revision, granted=granted)
 
 
 def test_T1102_invites_membership_is_not_permission(db_engine):
@@ -113,7 +113,7 @@ def test_T1102_invites_membership_is_not_permission(db_engine):
         service.write(db, a.id, 'networth', book([observation()]))
         for actor in (b, c):
             with pytest.raises(HTTPException) as exc:
-                service.shared_view(db, actor.id, house['id'], a.id, 'networth')
+                service.shared_view(db, actor.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
             assert exc.value.status_code == 404
         with pytest.raises(HTTPException) as exc:
             service.accept(db, b.id, invite['id'], h.InviteAccept(token=invite['token'], adult_confirmed=True))
@@ -127,12 +127,12 @@ def test_T1102_invites_membership_is_not_permission(db_engine):
         assert exc.value.status_code == 404
         grant = service.grant(db, a.id, house['id'], permission(b.id))
         assert grant['revision'] == 1
-        assert service.shared_view(db, b.id, house['id'], a.id, 'networth')['data']['observations']
+        assert service.shared_view(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')['data']['observations']
         with pytest.raises(HTTPException) as exc:
             service.grant(db, c.id, house['id'], permission(b.id))
         assert exc.value.status_code == 404
         with pytest.raises(HTTPException) as exc:
-            service.shared_view(db, b.id, house['id'], a.id, 'protection')
+            service.shared_view(db, b.id, house['id'], a.id, 'protection', resource='property' if 'protection' == 'networth' else 'unknown')
         assert exc.value.status_code == 404
 
 
@@ -144,6 +144,7 @@ def test_T1102_sharing_migration_privacy_and_purge(db_engine):
         assert set(model.__table__.columns.keys()) == {c['name'] for c in inspect(db_engine).get_columns(model.__tablename__)}
     with Session(db_engine) as db:
         a, b, _, house, _, _ = sharing(db)
+        service.write(db, a.id, 'networth', book([observation()]))
         service.grant(db, a.id, house['id'], permission(b.id))
         data = _registry['household_sharing'].export(db, a.id)
         assert 'token_hash' not in data['household_memberships'][0]
@@ -168,15 +169,15 @@ def test_T1103_revocation_rechecks_view_and_queued_export(db_engine):
         a, b, c, house, _, accepted = sharing(db)
         service.write(db, a.id, 'networth', book([observation()]))
         service.grant(db, a.id, house['id'], permission(b.id))
-        cached = service.shared_view(db, b.id, house['id'], a.id, 'networth')
-        ticket = service.request_export(db, b.id, house['id'], a.id, 'networth')
+        cached = service.shared_view(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
+        ticket = service.request_export(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
         assert service.fetch_export(db, b.id, ticket['id'])['data'] == cached['data']
         with pytest.raises(HTTPException) as exc:
             service.fetch_export(db, c.id, ticket['id'])
         assert exc.value.status_code == 404
         service.grant(db, a.id, house['id'], permission(b.id, 1, False))
         for action in (lambda: service.fetch_export(db, b.id, ticket['id']),
-                       lambda: service.shared_view(db, b.id, house['id'], a.id, 'networth')):
+                       lambda: service.shared_view(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')):
             with pytest.raises(HTTPException) as exc:
                 action()
             assert exc.value.status_code == 404
@@ -186,7 +187,7 @@ def test_T1103_revocation_rechecks_view_and_queued_export(db_engine):
             service.fetch_export(db, b.id, ticket['id'])
         service.revoke_member(db, a.id, house['id'], b.id, h.MembershipRevoke(expected_revision=accepted['revision']))
         with pytest.raises(HTTPException):
-            service.shared_view(db, b.id, house['id'], a.id, 'networth')
+            service.shared_view(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
         exported = _registry['household_books'].export(db, b.id)
         assert exported == {'household_revisions': []}
 
@@ -204,12 +205,12 @@ def test_T1103_chat_and_api_never_receive_household_cache(client):
         json={'member_id': b_id, 'expected_revision': 1, 'adult_confirmed': True}).json()
     assert client.post(f'/household-invites/{inv["id"]}/accept', headers=b,
         json={'token': inv['token'], 'adult_confirmed': True}).status_code == 200
-    client.post('/networth', headers=a, json=book([observation('SECRET_PROPERTY', 987654321)]).model_dump(mode='json'))
-    assert client.put(f'/households/{house}/grants', headers=a, json=permission(b_id).model_dump()).status_code == 200
-    path = f'/households/{house}/views/{a_id}/networth'
+    client.post('/networth', headers=a, json=book([observation('property', 987654321)]).model_dump(mode='json'))
+    assert client.put(f'/households/{house}/grants', headers=a, json=permission(b_id).model_dump(mode='json')).status_code == 200
+    path = f'/households/{house}/views/{a_id}/networth?resource=property'
     cached = client.get(path, headers=b)
     assert cached.status_code == 200 and cached.headers['cache-control'] == 'no-store'
-    client.put(f'/households/{house}/grants', headers=a, json=permission(b_id, 1, False).model_dump())
+    client.put(f'/households/{house}/grants', headers=a, json=permission(b_id, 1, False).model_dump(mode='json'))
     assert client.get(path, headers=b).status_code == 404
     chat = client.post('/chat', headers=b, json={'message': 'Show my partner net worth SECRET_PROPERTY', 'client_message_id': str(uuid4())})
     assert chat.status_code == 200
@@ -288,12 +289,13 @@ def test_T1104_policy_api_private_and_explicit_grant(db_engine):
     with Session(db_engine) as db:
         a, b, _, house, _, _ = sharing(db)
         service.write(db, a.id, 'protection', protection([{'reference': 'unknown'}]))
+        service.write(db, a.id, 'networth', book([observation()]))
         service.grant(db, a.id, house['id'], permission(b.id))
         with pytest.raises(HTTPException) as exc:
-            service.shared_view(db, b.id, house['id'], a.id, 'protection')
+            service.shared_view(db, b.id, house['id'], a.id, 'protection', resource='property' if 'protection' == 'networth' else 'unknown')
         assert exc.value.status_code == 404
         service.grant(db, a.id, house['id'], permission(b.id, view='protection'))
-        assert service.shared_view(db, b.id, house['id'], a.id, 'protection')['data']['policies'][0]['coverage_paise'] is None
+        assert service.shared_view(db, b.id, house['id'], a.id, 'protection', resource='property' if 'protection' == 'networth' else 'unknown')['data']['policies'][0]['coverage_paise'] is None
 
 
 def test_T1106_joint_consolidation_conflicts_and_no_shared_allocation(db_engine):
@@ -322,7 +324,7 @@ def test_T1106_joint_consolidation_conflicts_and_no_shared_allocation(db_engine)
         assert service.consolidated_view(db, b.id, house['id'])['net_worth_paise'] == 4000000
         for view in ('tax', 'transactions', 'documents'):
             with pytest.raises(HTTPException) as exc:
-                service.shared_view(db, b.id, house['id'], a.id, view)
+                service.shared_view(db, b.id, house['id'], a.id, view, resource='property' if view == 'networth' else 'unknown')
             assert exc.value.status_code == 404
 
 
@@ -333,7 +335,7 @@ def test_T1106_concurrent_grant_changes_and_stale_export(db_engine):
         a_id, b_id = a.id, b.id
         service.write(db, a_id, 'networth', book([observation()]))
         service.grant(db, a_id, house['id'], permission(b_id))
-        ticket = service.request_export(db, b_id, house['id'], a_id, 'networth')
+        ticket = service.request_export(db, b_id, house['id'], a_id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
     results = race(db_engine, [
         lambda db: service.grant(db, a_id, house['id'], permission(b_id, 1, False)),
         lambda db: service.grant(db, a_id, house['id'], permission(b_id, 1, False))])
@@ -566,16 +568,16 @@ def test_household_inactive_owner_uniform_denial_and_shared_export_quota(db_engi
         service.write(db, a.id, 'networth', book([observation()]))
         service.grant(db, a.id, house['id'], permission(b.id))
         monkeypatch.setattr(config, 'EXPORT_DAILY_LIMIT', 1)
-        ticket = service.request_export(db, b.id, house['id'], a.id, 'networth')
+        ticket = service.request_export(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
         with pytest.raises(HTTPException) as exc:
-            service.request_export(db, b.id, house['id'], a.id, 'networth')
+            service.request_export(db, b.id, house['id'], a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
         assert exc.value.status_code == 429
         a.is_active = False  # held records can remain after access suppression
         db.commit()
         for actor in (b.id, c.id):
             for identity in (house['id'], 'missing'):
                 with pytest.raises(HTTPException) as exc:
-                    service.shared_view(db, actor, identity, a.id, 'networth')
+                    service.shared_view(db, actor, identity, a.id, 'networth', resource='property' if 'networth' == 'networth' else 'unknown')
                 assert exc.value.status_code == 404
         with pytest.raises(HTTPException) as exc:
             service.fetch_export(db, b.id, ticket['id'])

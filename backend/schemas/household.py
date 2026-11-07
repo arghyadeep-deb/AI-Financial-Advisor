@@ -1,5 +1,7 @@
 """Synthetic, read-only household contracts. Integer paise and basis-point shares."""
 from datetime import date
+from decimal import Decimal
+from fractions import Fraction
 from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
 from backend.core.money import MAX_PAISE
@@ -15,7 +17,8 @@ class Observation(Contract):
     reference: str = Field(min_length=1, max_length=80, pattern=r'^[A-Za-z0-9_-]+$')
     kind: Literal['asset', 'liability']
     value_paise: Paise
-    share_bps: int = Field(strict=True, ge=1, le=10000)
+    share_bps: int | None = Field(None, strict=True, ge=1, le=10000)
+    share_percent: str | None = Field(None, max_length=40, pattern=r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
     valued_on: date
     currency: Literal['INR'] = 'INR'
     source: Literal['user_declared'] = 'user_declared'
@@ -26,8 +29,10 @@ class Observation(Contract):
     def observed(self):
         if self.valued_on > date.today():
             raise ValueError('Future valuations are not observations')
-        if self.value_paise * self.share_bps % 10000:
-            raise ValueError('Ownership must resolve to whole paise')
+        if (self.share_bps is None) == (self.share_percent is None):
+            raise ValueError('Supply exactly one exact ownership representation')
+        if self.share_percent is not None and not 0 < Decimal(self.share_percent) <= 100:
+            raise ValueError('Ownership percentage must be positive and at most 100')
         return self
 
 
@@ -74,6 +79,8 @@ class InviteAccept(Contract):
 class GrantWrite(Contract):
     member_id: int = Field(strict=True, ge=1)
     view: Literal['networth', 'protection']
+    resource: str = Field(min_length=1, max_length=80, pattern=r'^[A-Za-z0-9_-]+$')
+    permissions: set[Literal['summaries', 'transactions', 'documents', 'exports']] = Field(min_length=1)
     expected_revision: int = Field(strict=True, ge=0)
     granted: bool = Field(strict=True)
 

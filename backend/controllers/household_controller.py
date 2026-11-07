@@ -61,10 +61,10 @@ def revoke(identity: str, member_id: int, payload: MembershipRevoke,
 
 
 @router.get('/households/{identity}/views/{source}/{view}')
-def shared(identity: str, source: int, view: str, response: Response,
+def shared(identity: str, source: int, view: str, response: Response, resource: str | None = None,
            user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     response.headers['Cache-Control'] = 'no-store'
-    return service.shared_view(db, user.id, identity, source, view)
+    return service.shared_view(db, user.id, identity, source, view, resource=resource)
 
 
 @router.get('/households/{identity}/snapshot')
@@ -75,9 +75,9 @@ def consolidated(identity: str, response: Response,
 
 
 @router.post('/households/{identity}/exports/{source}/{view}')
-def export_request(identity: str, source: int, view: str,
+def export_request(identity: str, source: int, view: str, resource: str | None = None,
                    user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return service.request_export(db, user.id, identity, source, view)
+    return service.request_export(db, user.id, identity, source, view, resource=resource)
 
 
 @router.get('/household-exports/{identity}')
