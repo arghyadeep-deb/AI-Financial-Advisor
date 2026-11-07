@@ -60,7 +60,9 @@ def upload(db, owner, account_id, content):
         db.add(document)
         db.flush()
         work = queue.enqueue(db, owner, 'statement:' + document_id + ':1', 'statement')
-        row = StatementImport(id=str(uuid4()), user_id=owner, account_id=account.id, document_id=document_id, work_id=work.id)
+        from backend.finance.importers.registry import PARSER_VERSION
+        row = StatementImport(id=str(uuid4()), user_id=owner, account_id=account.id,
+                              document_id=document_id, work_id=work.id, parser_version=PARSER_VERSION)
         db.add(row)
         db.commit()
         return row
@@ -112,6 +114,9 @@ def process_claimed(db, work_id, fence, *, scanner_available=True):
             current.state, current.error_code = 'quarantined', result['error_code']
             return
         data = result['parsed']
+        if data.get('parser_version') != current.parser_version:
+            current.state, current.error_code = 'quarantined', 'parser_version_changed'
+            return
         account = owned(db, StatementAccount, owner, current.account_id)
         if data['account_token'] != account.token:
             current.state, current.error_code = 'needs_review', 'account_mismatch'
@@ -129,3 +134,21 @@ def describe(job):
     return {key: getattr(job, key) for key in ('id', 'account_id', 'document_id', 'work_id', 'generation',
         'revision', 'state', 'checkpoint', 'parser_version', 'error_code', 'start_date', 'end_date',
         'opening_paise', 'closing_paise', 'difference_paise', 'business_commit_id')}
+
+
+def generation_comparison(db, owner, identity):
+    """Inspect parser changes before publication; never authorize a match from them."""
+    job = owned(db, StatementImport, owner, identity)
+    previous = db.query(StatementImport).filter(StatementImport.user_id == owner,
+        StatementImport.document_id == job.document_id, StatementImport.generation < job.generation).order_by(
+        StatementImport.generation.desc()).first()
+    def rows(import_id):
+        return [{key: getattr(r, key) for key in ('ordinal', 'posting_date', 'amount_paise', 'description', 'reference', 'category')}
+                for r in db.query(StatementRow).filter_by(user_id=owner, import_id=import_id).order_by(StatementRow.ordinal)]
+    old, new = rows(previous.id) if previous else [], rows(job.id)
+    return {'import_id': job.id, 'revision': job.revision, 'previous_import_id': previous.id if previous else None,
+        'parser_version': job.parser_version, 'previous_parser_version': previous.parser_version if previous else None,
+        'state': 'awaiting_extraction' if job.state == 'queued' else 'review_required' if previous else 'baseline',
+        'facts_changed': old != new if previous and job.state != 'queued' else None,
+        'previous_rows': old, 'current_rows': new,
+        'authority': 'comparison_only; use_revision_checked_review_and_ledger_corrections'}

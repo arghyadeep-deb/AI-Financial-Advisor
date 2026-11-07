@@ -25,7 +25,6 @@ from backend.core.telemetry import traceable
 from backend.models.models import Message, Thread
 from backend.services import output_guard
 from backend.services.analysis_service import AnalysisService
-from backend.services.profile_service import ProfileIncomplete, ProfileService, snapshot_for
 from engines.cashflow import FinanceSnapshot
 from memory.conversation_memory import ConversationMemory
 from utils.llm_brain import ProviderUnavailable, StreamInterrupted, call_llm, stream_llm
@@ -45,6 +44,11 @@ class Turn:
 
 
 def deterministic_reply(user_name: str, snap: Optional[FinanceSnapshot]) -> str:
+    if snap is not None and snap.coverage.startswith('observed_ledger'):
+        return (f'Observed account activity for {snap.as_of}: income {format_inr(snap.income_paise)}, '
+                f'net spending {format_inr(snap.expenses_paise)}, '
+                f'shortfall {format_inr(snap.shortfall_paise)}. {snap.contribution_reason} '
+                'Review coverage, source revisions and confirmed upcoming obligations before making a plan.')
     if snap is None:
         return (f"I can't reach my analysis models right now, {user_name}, and your profile isn't complete yet. "
                 "Please complete your profile and try again shortly.")
@@ -62,7 +66,7 @@ def deterministic_reply(user_name: str, snap: Optional[FinanceSnapshot]) -> str:
     else:
         facts = "After your obligations and emergency-fund top-up there is nothing left to invest this month."
         step = "Next step: review your fixed costs to see where room could be made."
-    return (f"I'm temporarily unable to reach the AI models, {user_name}, so here are the verified numbers "
+    return (f"I'm temporarily unable to reach the AI models, {user_name}, so here are the recorded numbers "
             f"from your profile. {facts} {step}")
 
 
@@ -171,13 +175,8 @@ class ChatService:
 
     # ─── Context ──────────────────────────────────────────────────────────
     def _snapshot(self, user_id: int) -> Optional[FinanceSnapshot]:
-        profile = ProfileService(self.db).get(user_id)
-        if not profile:
-            return None
-        try:
-            return snapshot_for(profile)
-        except ProfileIncomplete:
-            return None
+        from backend.services.finance_snapshot_service import current_snapshot
+        return current_snapshot(self.db, user_id)
 
     def _build_prompts(self, user_id: int, user_name: str, message: str, thread_id: int,
                        snap: Optional[FinanceSnapshot]) -> tuple:
@@ -187,11 +186,15 @@ class ChatService:
         health = results.get("health", {}) or {}
         inv = results.get("investment", {}) or {}
         credit = results.get("credit", {}) or {}
+        if snap and snap.coverage.startswith('observed_ledger'):
+            # Profile-era recommendations cannot override the ledger's unavailable cap.
+            inv = {}
 
         if snap is None:
             facts = "The user's profile is missing or incomplete. Ask them to complete it before giving numbers."
         else:
             facts = "\n".join([
+                f"Source coverage and period: {snap.coverage}; {snap.as_of}; {snap.contribution_reason}",
                 f"Monthly income            : {format_inr(snap.income_paise)}",
                 f"Monthly expenses          : {format_inr(snap.expenses_paise)}",
                 (f"MONTHLY SHORTFALL         : {format_inr(snap.shortfall_paise)} (expenses exceed income)"
@@ -253,6 +256,9 @@ Do not name specific stocks or funds. Keep replies to 3-6 sentences and end with
             return {"reply": turn.replay, "thread_id": thread_id, "status": turn.replay_status, "replayed": True}
 
         snap = self._snapshot(user_id)
+        if snap and snap.coverage.startswith('observed_ledger'):
+            stored = self.finish_turn(thread_id, deterministic_reply(user_name, snap), 'degraded', client_message_id)
+            return {'reply': stored, 'thread_id': thread_id, 'status': 'degraded', 'replayed': False}
         status = "ok"
         try:
             system_prompt, user_message = self._build_prompts(user_id, user_name, message, thread_id, snap)
@@ -279,6 +285,11 @@ Do not name specific stocks or funds. Keep replies to 3-6 sentences and end with
             return
 
         snap = self._snapshot(user_id)
+        if snap and snap.coverage.startswith('observed_ledger'):
+            stored = self.finish_turn(thread_id, deterministic_reply(user_name, snap), 'degraded', client_message_id)
+            yield {'chunk': stored, 'thread_id': thread_id}
+            yield {'done': True, 'full_reply': stored, 'status': 'degraded', 'replayed': False, 'thread_id': thread_id}
+            return
         system_prompt, user_message = self._build_prompts(user_id, user_name, message, thread_id, snap)
         buffer = ""
         try:

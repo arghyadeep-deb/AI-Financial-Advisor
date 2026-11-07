@@ -90,6 +90,7 @@ def root():
     return {"message": "AI Financial Advisor API is running"}
 app.include_router(__import__("backend.controllers.platform_controller", fromlist=["router"]).router)
 app.include_router(__import__("backend.controllers.statement_controller", fromlist=["router"]).router)
+app.include_router(__import__("backend.controllers.planning_controller", fromlist=["router"]).router)
 
 
 # ── Web UI: plain HTML/CSS/JS served from frontend/static (no build step) ────

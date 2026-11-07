@@ -51,4 +51,7 @@ def get_last_analysis(current_user: User = Depends(get_current_user), db: Sessio
 @router.get("/state", response_model=FinancialStateResponse)
 def get_financial_state(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Health score (None when unknown) and declared holdings; projections are never reported here."""
-    return FinancialStateResponse(**AnalysisService(db).get_state(current_user.id))
+    from backend.services.finance_snapshot_service import current_snapshot
+    snapshot = current_snapshot(db, current_user.id)
+    return FinancialStateResponse(**AnalysisService(db).get_state(current_user.id),
+                                  snapshot=snapshot.to_dict() if snapshot else None)

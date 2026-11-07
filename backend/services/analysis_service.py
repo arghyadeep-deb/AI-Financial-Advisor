@@ -59,9 +59,15 @@ class AnalysisService:
         overrides = {k: v for k, v in (scenario or {}).items() if v is not None or k == "credit_score"}
         is_scenario = bool(overrides)
         snapshot = snapshot_for(profile, overrides)          # raises ProfileIncomplete (422) if unknown inputs
+        if not is_scenario:
+            from backend.services.finance_snapshot_service import current_snapshot
+            snapshot = current_snapshot(self.db, user_id) or snapshot
         started_revision = profile.revision
 
         agent_profile = to_agent_dict(profile, overrides)
+        if snapshot.coverage.startswith('observed_ledger'):
+            agent_profile['monthly_income'] = paise_to_float(snapshot.income_paise)
+            agent_profile['monthly_expenses'] = paise_to_float(snapshot.expenses_paise)
         agent_profile["available_monthly_contribution"] = (
             paise_to_float(snapshot.available_contribution_paise)
             if snapshot.available_contribution_paise is not None else None)
@@ -101,6 +107,11 @@ class AnalysisService:
         self.db.expire_all()
         current = ProfileService(self.db).get(user_id)
         stale = (not is_scenario) and current is not None and current.revision != started_revision
+        if not is_scenario:
+            from backend.services.finance_snapshot_service import sources_changed
+            stale = stale or sources_changed(self.db, user_id, snapshot.to_dict())
+        if snapshot.coverage.startswith('observed_ledger') and status == 'complete':
+            status = 'partial'
         record.status = "superseded" if stale else status
         record.completed_at = _now()
         record.results = results
@@ -108,7 +119,7 @@ class AnalysisService:
         record.section_status = section_status
         self.db.commit()
 
-        if not stale and not is_scenario and "health" in results:
+        if not stale and not is_scenario and "health" in results and not snapshot.coverage.startswith('observed_ledger'):
             h = results["health"]
             self._update_state(user_id, h.get("overall_score"), snapshot, started_revision)
 
@@ -130,6 +141,7 @@ class AnalysisService:
         """Latest result per section (by recency) across non-scenario runs."""
         profile = ProfileService(self.db).get(user_id)
         current_rev = profile.revision if profile else None
+        from backend.services.finance_snapshot_service import sources_changed
         rows: List[Analysis] = (
             self.db.query(Analysis)
             .filter(Analysis.user_id == user_id, Analysis.is_scenario.is_(False),
@@ -139,7 +151,8 @@ class AnalysisService:
         if not rows:
             return {}
         # A late-finishing run for an old revision must not displace results for the current one.
-        rows.sort(key=lambda r: current_rev is not None and r.profile_revision != current_rev)
+        rows.sort(key=lambda r: (bool(current_rev is not None and r.profile_revision != current_rev)
+                                 or sources_changed(self.db, user_id, r.snapshot)))
         merged: Dict[str, Any] = {}
         meta: Dict[str, Any] = {}
         sect_status: Dict[str, Any] = {}
@@ -152,7 +165,7 @@ class AnalysisService:
                 if name not in merged:
                     merged[name] = res
                     meta[name] = {"analysis_id": r.id, "profile_revision": r.profile_revision,
-                                  "stale": current_rev is not None and r.profile_revision != current_rev,
+                                  "stale": (current_rev is not None and r.profile_revision != current_rev) or sources_changed(self.db, user_id, r.snapshot),
                                   "completed_at": r.completed_at.isoformat() if r.completed_at else None}
                     sect_status[name] = (r.section_status or {}).get(name, {})
         newest = rows[0]

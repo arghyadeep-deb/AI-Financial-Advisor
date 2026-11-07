@@ -4,6 +4,7 @@ Critical security messages continue through the existing auth recovery contract.
 Quiet hours use Asia/Kolkata. Deferred events require an explicit later delivery call.
 """
 from datetime import timedelta
+from fastapi import HTTPException
 from uuid import uuid4
 from backend.models.models import NotificationPreference, DeliveryAttempt, User, utcnow
 from backend.schemas.platform import Preferences
@@ -62,6 +63,26 @@ def run_scheduled(db, job_id, fence):
         raise ValueError('Unsupported work')
     _, category, event_key = row.event_key.split(':', 2)
     def publish(db, owner):
+        if category == 'reminder' and ':' in event_key:
+            from backend.services import planning_service
+            from backend.finance.ledger import lock_owner
+            lock_owner(db, owner, bump=False)
+            identity, revision = event_key.rsplit(':', 1)
+            try:
+                obligation = planning_service.get(db, owner, 'obligation', identity)
+            except HTTPException as exc:
+                # A deleted resource never authorizes a reminder.
+                if exc.status_code == 404:
+                    return
+                raise
+            data = obligation.data
+            if str(obligation.revision) != revision or not data['reminder_opt_in'] or data['paused'] or data['archived']:
+                return
+            paid = sum(-planning_service.owned(db, planning_service.LedgerEntry, owner, s.data['entry_id']).amount_paise
+                       for s in planning_service.current(db, owner, 'settlement') if
+                       s.data['obligation_id'] == identity and planning_service.settlement_valid(db, owner, s))
+            if paid >= data['amount_paise']:
+                return
         notice = deliver(db, owner, event_key, category)
         if notice.state == 'deferred':
             if utcnow() - row.created_at >= timedelta(days=7):

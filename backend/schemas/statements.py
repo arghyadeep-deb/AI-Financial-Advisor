@@ -42,6 +42,7 @@ class Component(Contract):
     category: str
     amount_paise: StrictInt = Field(ge=-MAX_PAISE, le=MAX_PAISE)
     obligation_id: str | None = Field(default=None, max_length=64)
+    budget_category: str | None = Field(default=None, min_length=1, max_length=40, pattern=r'^[a-z][a-z0-9_]*$')
 
     @model_validator(mode='after')
     def valid(self):
@@ -68,3 +69,6 @@ class ReportCreate(Contract):
     month: str = Field(pattern=r'^\d{4}-(0[1-9]|1[0-2])$')
     account_ids: list[str] = Field(min_length=1, max_length=50)
     expected_vector: dict[str, list[StrictInt]]
+    restates_report_id: str | None = None
+    restatement_refund_ids: list[str] = Field(default_factory=list, max_length=100)
+    restatement_reason: str | None = Field(default=None, min_length=1, max_length=200)

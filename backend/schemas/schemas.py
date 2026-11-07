@@ -256,6 +256,7 @@ class HistoryResponse(BaseModel):
 # ─── Financial State ──────────────────────────────────────────────────────────
 
 class FinancialStateResponse(BaseModel):
+    snapshot: Optional[Dict[str, Any]] = None
     # None == unknown (never coerced to 0 or a default).
     health_score:         Optional[float] = None
     # Observed holdings declared by the user. Never a projection.

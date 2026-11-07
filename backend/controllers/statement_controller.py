@@ -103,6 +103,11 @@ def events(import_id: str, user: User = Depends(get_current_user), db: Session =
             for r in db.query(LedgerCorrection).filter_by(user_id=user.id, target_id=import_id).order_by(LedgerCorrection.created_at, LedgerCorrection.id).offset(offset).limit(100)]
 
 
+@router.get('/statement-imports/{import_id}/comparison')
+def generation_comparison(import_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return service.generation_comparison(db, user.id, import_id)
+
+
 @router.get('/ledger')
 def entries(user: User = Depends(get_current_user), db: Session = Depends(get_db), offset: int = Query(0, ge=0)):
     return [{key: getattr(e, key) for key in ('id', 'account_id', 'posting_date', 'amount_paise', 'components', 'revision', 'active')}
@@ -127,6 +132,30 @@ def reverse_link(link_id: str, payload: Operation, user: User = Depends(get_curr
 @router.post('/monthly-reports', status_code=201)
 def report(payload: ReportCreate, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     return reports.create(db, user.id, payload)
+
+
+@router.get('/monthly-reports')
+def report_history(month: str | None = Query(default=None, pattern=r'^\d{4}-(0[1-9]|1[0-2])$'),
+                   offset: int = Query(0, ge=0), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from backend.models.models import MonthlyReport
+    query = db.query(MonthlyReport).filter_by(user_id=user.id)
+    if month:
+        query = query.filter_by(month=month)
+    return [reports.read(db, user.id, r.id) for r in query.order_by(
+        MonthlyReport.month.desc(), MonthlyReport.created_at.desc(), MonthlyReport.id.desc()).offset(offset).limit(100)]
+
+
+@router.get('/monthly-reports/{report_id}/transactions')
+def report_evidence(report_id: str, offset: int = Query(0, ge=0), category: str | None = None,
+                    budget_category: str | None = None, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    report = reports.read(db, user.id, report_id)
+    rows = report['snapshot']['sources']
+    if category:
+        rows = [r for r in rows if any(c['category'] == category for c in r['components'])]
+    if budget_category:
+        rows = [r for r in rows if any(c.get('budget_category') == budget_category for c in r['components'])]
+    return {'report_id': report_id, 'stale': report['stale'], 'sources': rows[offset:offset+100],
+            'restatement': report['snapshot'].get('restatement')}
 
 
 @router.get('/monthly-reports/{report_id}')

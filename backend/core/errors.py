@@ -12,6 +12,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from backend.core.money import MoneyError
 
 log = logging.getLogger("advisor.api")
 
@@ -42,6 +43,10 @@ def _body(request: Request, status_code: int, detail: Any) -> dict:
 
 
 def install(app: FastAPI) -> None:
+
+    @app.exception_handler(MoneyError)
+    async def _money(request: Request, exc: MoneyError):
+        return JSONResponse(_body(request, 422, 'Amounts exceed the supported exact-money range.'), status_code=422)
 
     @app.middleware("http")
     async def _request_id(request: Request, call_next):
