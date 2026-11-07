@@ -254,3 +254,20 @@ def test_chat_thread_buttons_are_disabled_while_a_reply_streams(page, live_url, 
     held["route"].fulfill(status=200, content_type="text/event-stream", body=body)
     expect(page.locator(".msg.assistant").first).to_contain_text("ok", timeout=10000)
     expect(page.get_by_role("button", name="+ New chat")).to_be_enabled()
+
+
+def test_no_horizontal_scroll_at_phone_width(browser, live_url):
+    ctx = browser.new_context(viewport={"width": 390, "height": 844})
+    page = ctx.new_page()
+    signup(page, live_url)
+    save_profile(page)
+    run_analysis(page)
+    wide = []
+    for route in ["dashboard", "health", "portfolio", "stocks", "credit", "reports", "profile", "chat"]:
+        page.goto(f"{live_url}/app/#/{route}")
+        page.wait_for_timeout(700)
+        sw = page.evaluate("[document.documentElement.scrollWidth, window.innerWidth]")
+        if sw[0] > sw[1] + 1:
+            wide.append((route, sw))
+    ctx.close()
+    assert wide == [], wide
