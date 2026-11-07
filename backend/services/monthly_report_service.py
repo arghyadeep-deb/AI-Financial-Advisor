@@ -104,6 +104,7 @@ def create(db, owner, payload):
         evidence = db.query(LedgerEvidence).filter_by(user_id=owner, entry_id=entry.id, active=True).all()
         sources.append({'entry_id': entry.id, 'account_id': entry.account_id, 'posting_date': entry.posting_date,
             'amount_paise': entry.amount_paise, 'description': entry.description, 'components': entry.components,
+            'origin': entry.origin,
             'revision': entry.revision, 'evidence': [{'import_id': e.import_id, 'row_id': e.row_id} for e in evidence]})
     snapshot = {'metrics': facts, 'coverage': scopes, 'selected_scope_complete': all(c['complete'] for c in scopes.values()),
         'household_coverage': 'undeclared_inventory', 'account_ids': selected, 'sources': sources,

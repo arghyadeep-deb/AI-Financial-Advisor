@@ -163,6 +163,9 @@ def invalidate_links(db, owner, removed):
         or_(LedgerLink.left_id.in_(removed), LedgerLink.right_id.in_(removed))).all()
     for link in links:
         link.active = False
+        if link.kind == 'manual_match' and link.left_id in removed:
+            # Reversing the last bank evidence restores the retained manual origin.
+            owned(db, LedgerEntry, owner, link.right_id).active = True
     if links:
         # confirm_link/reverse_link advance both endpoints. Evidence reversal
         # must also fence stale edits on surviving counterpart transactions.
@@ -381,12 +384,94 @@ def reverse_link(db, owner, link_id, payload):
     expect(left, payload.expected_revision)
     if not link.active:
         raise HTTPException(409, 'Link is already inactive.')
+    if link.kind == 'manual_match':
+        raise HTTPException(409, 'Reverse bank evidence to restore a matched manual origin.')
     link.active = False
     bump_links(db, owner)
     left.revision += 1
     right.revision += 1
     result = {'id': link.id, 'active': False, 'revision': left.revision}
     audit(db, owner, left.account_id, link.id, data, {'active': True}, result)
+    db.commit()
+    return result
+
+
+def manual_enabled():
+    from backend.core.config import config
+    if not config.SYNTHETIC_MANUAL_CASH_ENABLED or config.is_production_like:
+        raise HTTPException(404, 'Resource not found.')
+
+
+@atomic
+def manual_cash(db, owner, payload):
+    manual_enabled()
+    owned(db, StatementAccount, owner, payload.account_id)
+    data, prior = replay(db, owner, payload.account_id, 'manual_cash', payload)
+    if prior is not None:
+        return prior
+    lock_owner(db, owner, bump=False)
+    data, prior = replay(db, owner, payload.account_id, 'manual_cash', payload)
+    if prior is not None:
+        db.rollback()
+        return prior
+    account = owned(db, StatementAccount, owner, payload.account_id)
+    expect(account, payload.expected_revision)
+    if account.account_type != 'synthetic_cash':
+        raise HTTPException(422, 'Manual cash requires a separate cash account.')
+    from backend.schemas.statements import Component
+    entry = LedgerEntry(id=str(uuid4()), user_id=owner, account_id=account.id,
+        posting_date=payload.posting_date.isoformat(), amount_paise=payload.amount_paise,
+        description=payload.description, origin='manual_cash', components=[
+            Component(category=payload.category, amount_paise=payload.amount_paise).model_dump()])
+    db.add(entry)
+    db.flush()
+    account.revision += 1
+    result = {'id': entry.id, 'account_id': account.id, 'account_revision': account.revision,
+              'revision': entry.revision, 'origin': entry.origin, 'amount_paise': entry.amount_paise}
+    audit(db, owner, account.id, entry.id, data, {}, result)
+    db.commit()
+    return result
+
+
+@atomic
+def match_manual(db, owner, bank_id, payload):
+    manual_enabled()
+    owned(db, LedgerEntry, owner, bank_id)
+    owned(db, LedgerEntry, owner, payload.manual_entry_id)
+    data, prior = replay(db, owner, bank_id, 'manual_match', payload)
+    if prior is not None:
+        return prior
+    lock_owner(db, owner, bump=False)
+    data, prior = replay(db, owner, bank_id, 'manual_match', payload)
+    if prior is not None:
+        db.rollback()
+        return prior
+    bank = owned(db, LedgerEntry, owner, bank_id)
+    manual = owned(db, LedgerEntry, owner, payload.manual_entry_id)
+    expect(bank, payload.expected_revision)
+    expect(manual, payload.expected_manual_revision)
+    if (not bank.active or not manual.active or bank.origin != 'bank' or manual.origin != 'manual_cash'
+            or bank.amount_paise >= 0 or (bank.posting_date, bank.amount_paise) != (manual.posting_date, manual.amount_paise)
+            or bank.components != manual.components
+            or any(c['category'] not in {'purchase', 'fee', 'interest'} for c in bank.components)):
+        raise HTTPException(422, 'Match requires identical dated spending and explicit classification review.')
+    if not db.query(LedgerEvidence).filter_by(user_id=owner, entry_id=bank.id, active=True).first():
+        raise HTTPException(422, 'Active bank source evidence required.')
+    if db.query(LedgerLink).filter(LedgerLink.user_id == owner, LedgerLink.active.is_(True),
+            or_(LedgerLink.left_id.in_([bank.id, manual.id]), LedgerLink.right_id.in_([bank.id, manual.id]))).first():
+        raise HTTPException(409, 'Linked origins require review before matching.')
+    # Keep both rows and correction evidence; only the bank origin remains in totals.
+    manual.active = False
+    manual.revision += 1
+    bank.revision += 1
+    link = LedgerLink(id=str(uuid4()), user_id=owner, left_id=bank.id, right_id=manual.id,
+                      kind='manual_match', amount_paise=-bank.amount_paise)
+    db.add(link)
+    bump_links(db, owner)
+    db.flush()
+    result = {'id': link.id, 'bank_entry_id': bank.id, 'manual_entry_id': manual.id,
+              'revision': bank.revision, 'manual_revision': manual.revision}
+    audit(db, owner, bank.account_id, bank.id, data, {'manual_active': True}, result)
     db.commit()
     return result
 

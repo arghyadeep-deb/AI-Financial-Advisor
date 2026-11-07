@@ -339,6 +339,7 @@ class LedgerEntry(Base):
     account_id = Column(String(36), ForeignKey("statement_accounts.id"), nullable=False)
     posting_date = Column(String(10), nullable=False)
     amount_paise = Column(BigInteger, nullable=False)
+    origin = Column(String(16), nullable=False, default='bank', server_default='bank')
     description = Column(String(200), nullable=False)
     reference = Column(String(80), nullable=True)
     components = Column(JSON, nullable=False)
@@ -429,6 +430,55 @@ class OperationalCounter(Base):
     period = Column(String(10), primary_key=True)
     used = Column(BigInteger, nullable=False, default=0)
     updated_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class HouseholdRevision(Base):
+    """Private immutable observation books; never authoritative planning capacity."""
+    __tablename__ = 'household_revisions'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    kind = Column(String(24), nullable=False)
+    revision = Column(Integer, nullable=False)
+    operation_key = Column(String(64), nullable=False)
+    request = Column(JSON, nullable=False)
+    data = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (
+        UniqueConstraint('user_id', 'kind', 'revision', name='uq_household_revision'),
+        UniqueConstraint('user_id', 'operation_key', name='uq_household_operation'))
+
+
+class Household(Base):
+    __tablename__ = 'households'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    label = Column(String(80), nullable=False)
+    revision = Column(Integer, nullable=False, default=1)
+
+
+class HouseholdMembership(Base):
+    __tablename__ = 'household_memberships'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    household_id = Column(String(36), ForeignKey('households.id'), nullable=False)
+    member_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    token_hash = Column(String(64), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    state = Column(String(20), nullable=False, default='invited')
+    revision = Column(Integer, nullable=False, default=1)
+    __table_args__ = (UniqueConstraint('household_id', 'member_id', name='uq_household_member'),)
+
+
+class HouseholdGrant(Base):
+    __tablename__ = 'household_grants'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    household_id = Column(String(36), ForeignKey('households.id'), nullable=False)
+    member_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    view = Column(String(24), nullable=False)
+    revision = Column(Integer, nullable=False, default=1)
+    granted = Column(Boolean, nullable=False)
+    __table_args__ = (UniqueConstraint('household_id', 'user_id', 'member_id', 'view', name='uq_household_grant'),)
 
 
 class PortfolioRevision(Base):

@@ -36,6 +36,8 @@ def _int(name: str, default: int) -> int:
 
 class Config:
     TAX_SANDBOX_ENABLED = os.getenv("TAX_SANDBOX_ENABLED", "false").strip().lower() == "true"
+    SYNTHETIC_MANUAL_CASH_ENABLED = os.getenv('SYNTHETIC_MANUAL_CASH_ENABLED', 'false').lower() == 'true'
+    SYNTHETIC_HOUSEHOLDS_ENABLED = os.getenv('SYNTHETIC_HOUSEHOLDS_ENABLED', 'false').lower() == 'true'
 
     # Offline controls. No implicit key, journal location, or real-data opt-in.
     ANALYSIS_DAILY_LIMIT = _int("ANALYSIS_DAILY_LIMIT", 100)

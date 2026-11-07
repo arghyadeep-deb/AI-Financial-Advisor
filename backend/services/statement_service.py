@@ -26,6 +26,9 @@ def owned(db, model, owner, identity):
 
 def create_account(db, owner, payload):
     enabled()
+    if payload.account_type == 'synthetic_cash':
+        from backend.finance.ledger import manual_enabled
+        manual_enabled()
     from backend.finance.ledger import lock_owner
     lock_owner(db, owner, bump=False)
     row = StatementAccount(id=str(uuid4()), user_id=owner, **payload.model_dump())
@@ -41,6 +44,8 @@ def create_account(db, owner, payload):
 def upload(db, owner, account_id, content):
     enabled()
     account = owned(db, StatementAccount, owner, account_id)
+    if account.account_type != 'synthetic_debit':
+        raise HTTPException(422, 'Cash accounts accept manual evidence only.')
     if not content or len(content) > config.STATEMENT_MAX_BYTES:
         raise HTTPException(413, 'Empty or oversized statement.')
     digest = sha256(content).hexdigest()
