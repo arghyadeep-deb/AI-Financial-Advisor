@@ -153,3 +153,11 @@ Verified by the orchestrator: lane tests `pytest tests --ignore=tests/web` -> 36
 integrated suite `pytest tests` on `integration` -> 384 passed, 8 skipped (includes 18 browser tests).
 Task status stays as reported in specs/progress-lane-stage-d.md: 006 T0601-T0605 done (offline backend); T0606/T0607 and
 002 T211-T214/T219 partial. No UI for budgets/goals/debt yet (frontend on hold at the owner's request).
+
+## Lanes E, F, G merged (2026-11-07)
+
+- Merged into `integration`: F (`48dea45`), G (`fab464e`), E (`1a77f7b`). Conflicts in `backend/main.py` and `backend/models/models.py` were additive; both sides kept. New Alembic merge `0141` (parents 0120, 0140). Single head: 0141.
+- Verified: full suite on `integration` after all three merges: **542 passed, 9 skipped** (`python -m pytest tests -q -p no:cacheprovider -W ignore`, about 5 min). `evals/results/latest.json` reverted after the run.
+- Task status from lane progress files: E has T301, T302, T304, T307 done (selected backend scopes); T303, T305, T308, T309, T310, T0705-T0707 partial. F (002 T211-T219 subset, 012 T1201-T1204) and G (T0801-T0807, T0901-T0905) are all partial. Nothing was ticked as complete beyond what the lane files state.
+- Open owner question: lane G added the public `POST /privacy/deletion-receipt` (256-bit bearer token, hashed, constant-time compare, uniform 404). It is whitelisted as public in `tests/api/test_tenancy.py` and has no rate limit; each call scans receipt rows. Decide whether to add an edge/IP throttle.
+- Still blocked on owner: provider/legal choices for 005, 011, 013, 014; mail provider; MFA; push for CI (T112); frontend integration of E/F/G APIs (frontend on hold).
