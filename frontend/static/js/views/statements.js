@@ -1,6 +1,7 @@
 import { h, clear, uid } from "../dom.js";
 import { api } from "../api.js";
 import { banner, card, pageHead } from "../components.js";
+import { emptyState } from "../illustrations.js";
 
 // Amounts from the server are signed integer paise.  Format with integer maths only (no float rounding).
 function rupees(p) {
@@ -117,7 +118,7 @@ async function importsCard(onChange) {
     const body = job.state === "needs_review" ? await reviewPanel(job, onChange) : null;
     items.push(h("div", { class: "stack" }, head, body));
   }
-  return card("Your imports", items.length ? h("div", { class: "stack" }, items) : h("p", { class: "muted", text: "Nothing uploaded yet." }),
+  return card("Your imports", items.length ? h("div", { class: "stack" }, items) : emptyState("doc", "Nothing uploaded yet", "Upload a statement file above. You review every row before anything counts."),
     h("button", { class: "btn", type: "button", text: "Refresh status", onClick: onChange }));
 }
 

@@ -1,6 +1,7 @@
 import { h, clear } from "../dom.js";
 import { api, session } from "../api.js";
 import { banner, card, pageHead } from "../components.js";
+import { emptyState } from "../illustrations.js";
 
 const NOTICE_VERSION = "v1";
 const when = (iso) => { try { return new Date(iso + (iso.endsWith("Z") ? "" : "Z")).toLocaleString(); } catch (e) { return String(iso); } };
@@ -98,7 +99,7 @@ async function noticesCard() {
   const items = r.ok && Array.isArray(r.data) ? r.data : [];
   return card("Recent notices", items.length
     ? h("ul", { class: "list" }, items.map((n) => h("li", {}, h("span", { class: "pill", text: n.category }), " ", n.message, h("div", { class: "muted small", text: when(n.created_at) }))))
-    : h("p", { class: "muted", text: "Nothing yet." }));
+    : emptyState("bell", "Nothing yet", "Reminders and report-ready notices will show up here."));
 }
 
 export async function settings(c) {

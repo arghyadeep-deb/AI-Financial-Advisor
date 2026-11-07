@@ -334,3 +334,28 @@ def test_theme_toggle_switches_persists_and_changes_colours(page, live_url, trac
     page.get_by_role("button", name="Switch to light mode").click()
     assert bg() == light_bg
     assert not tracker["errors"], tracker["errors"]
+
+
+def _metrics(page):
+    return page.evaluate("[...document.querySelectorAll('.metric .value')].map(e => e.textContent)")
+
+
+def test_numbers_animate_then_settle_on_the_exact_values(page, live_url, tracker):
+    signup(page, live_url)
+    save_profile(page)
+    run_analysis(page)
+    page.wait_for_timeout(2500)                                           # animation is about 1.1 s
+    settled = _metrics(page)
+    assert settled[0] == "87" and settled[3] == "₹60,000", settled        # exact, not an in-between frame
+    dash = page.evaluate("[...document.querySelectorAll('.donut-wrap circle')].map(c => c.getAttribute('stroke-dasharray').split(' ')[0])")
+    assert len(dash) >= 2 and all(float(x) > 0 for x in dash), dash
+    assert not tracker["errors"], tracker["errors"]
+
+
+def test_reduced_motion_shows_final_numbers_immediately(page, live_url, tracker):
+    page.emulate_media(reduced_motion="reduce")
+    signup(page, live_url)
+    save_profile(page)
+    run_analysis(page)
+    assert _metrics(page)[0] == "87"                                      # no counting up when the user asks for less motion
+    assert not tracker["errors"], tracker["errors"]

@@ -1,5 +1,6 @@
 // Dependency-free SVG charts.  Attributes only (CSP forbids inline style); colours come from CSS classes.
 import { svg, h } from "./dom.js";
+import { sweepDonut, drawLines } from "./motion.js";
 
 export function donut(items, label) {
   items = [...items].sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0));   // biggest slice first = brand colour
@@ -7,14 +8,18 @@ export function donut(items, label) {
   const R = 70, C = 2 * Math.PI * R;
   const g = svg("g", { transform: "rotate(-90 100 100)" });
   let offset = 0;
+  const circles = [], fracs = [];
   items.forEach((it, i) => {
     const frac = total ? Math.max(0, Number(it.value) || 0) / total : 0;
-    g.appendChild(svg("circle", {
+    fracs.push(frac);
+    const circle = svg("circle", {
       cx: 100, cy: 100, r: R, "stroke-width": 28, class: "stk s" + (i % 5),
       "stroke-dasharray": `${frac * C} ${C}`, "stroke-dashoffset": -offset * C,
-    }));
+    });
+    circles.push(circle); g.appendChild(circle);
     offset += frac;
   });
+  sweepDonut(g, circles, fracs, C);
   const chart = svg("svg", { viewBox: "0 0 200 200", class: "chart", role: "img", "aria-label": label }, g);
   const legend = h("ul", { class: "legend col" }, items.map((it, i) =>
     h("li", {}, h("span", {}, h("i", { class: "s" + (i % 5) }), it.label), h("strong", { text: (total ? Math.round((it.value / total) * 100) : 0) + "%" }))));
@@ -39,5 +44,6 @@ export function lines(labels, series, label) {
     root.appendChild(el);
   });
   const legend = h("div", { class: "legend" }, series.map((s, i) => h("span", {}, h("i", { class: "s" + i }), s.name)));
+  drawLines(root);
   return h("div", {}, root, legend);
 }

@@ -2,6 +2,7 @@ import { h } from "../dom.js";
 import { api, session } from "../api.js";
 import { state } from "../state.js";
 import { banner } from "../components.js";
+import { heroArt } from "../illustrations.js";
 
 function field(id, label, attrs, hint) {
   return h("div", { class: "field" }, h("label", { for: id, text: label }),
@@ -43,12 +44,13 @@ export async function authView(c, mode) {
       : banner("bad", r.error));
   });
 
-  c.appendChild(h("div", { class: "auth-box stack" },
+  c.appendChild(h("div", { class: "auth-split" }, h("div", { class: "auth-box stack" },
     h("h1", { text: signup ? "Create your account" : "Welcome back" }),
     msg,
     h("div", { class: "card" }, form),
     h("div", { class: "spread" },
       signup ? h("a", { href: "#/login", text: "Already have an account? Log in" })
              : h("a", { href: "#/signup", text: "New here? Create an account" }),
-      signup ? null : reset)));
+      signup ? null : reset)),
+    h("div", { class: "art", "aria-hidden": "true" }, heroArt(), h("p", { text: "Your numbers, checked by rules. Explained in plain language." }))));
 }

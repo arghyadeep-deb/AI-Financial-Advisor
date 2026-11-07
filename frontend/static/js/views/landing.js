@@ -1,5 +1,6 @@
 import { h } from "../dom.js";
 import { disclaimer } from "../components.js";
+import { heroArt } from "../illustrations.js";
 
 const feature = (title, text) => h("div", { class: "card flat" }, h("h3", { text: title }), h("p", { class: "muted", text }));
 const step = (n, title, text) => h("div", {}, h("div", { class: "big-num", text: n }), h("h3", { text: title }), h("p", { class: "muted", text }));
@@ -14,12 +15,12 @@ export async function landing(c) {
         h("a", { class: "btn primary lg", href: "#/signup", text: "Start free" }),
         h("a", { class: "btn lg", href: "#/login", text: "Log in" })),
       h("p", { class: "muted small", text: "Educational estimates. Not licensed investment, tax or credit advice." })),
-    h("div", { class: "card preview" },
+    h("div", {}, h("div", { class: "hero-art" }, heroArt()), h("div", { class: "card preview" },
       h("div", { class: "spread" }, h("strong", { text: "Example month" }), h("span", { class: "pill warn", text: "Sample data" })),
       h("div", { class: "grid c2" },
         h("div", { class: "tile" }, h("div", { class: "muted small", text: "Income minus expenses" }), h("div", { class: "tile-value", text: "₹60,000" })),
         h("div", { class: "tile accent" }, h("div", { class: "small", text: "Can invest monthly" }), h("div", { class: "tile-value", text: "₹54,000" }))),
-      h("p", { class: "muted small", text: "Sample: ₹1,00,000 income, ₹40,000 expenses, no debt payments, a 10% buffer kept back. An illustration, not your result." })))));
+      h("p", { class: "muted small", text: "Sample: ₹1,00,000 income, ₹40,000 expenses, no debt payments, a 10% buffer kept back. An illustration, not your result." }))))));
 
   c.appendChild(h("section", { class: "stack" },
     h("h2", { class: "section-title", text: "Built so the numbers can be trusted." }),

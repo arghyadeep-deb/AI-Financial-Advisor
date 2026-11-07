@@ -2,6 +2,7 @@ import { h, money, num, clear } from "../dom.js";
 import { state, loadProfile, loadLast, section, runAnalysis } from "../state.js";
 import { banner, metric, card, pageHead, list, runStatus, nothingToInvest, nothingToInvestNote, busyButton, disclaimer } from "../components.js";
 import { donut, lines } from "../charts.js";
+import { emptyState } from "../illustrations.js";
 
 export async function dashboard(c) {
   const [profile, last] = await Promise.all([loadProfile(true), loadLast(true)]);
@@ -33,7 +34,7 @@ export async function dashboard(c) {
   c.appendChild(msg);
 
   if (!last.found) {
-    out.appendChild(banner("info", "No analysis yet. Run your first full analysis above."));
+    out.appendChild(card(null, emptyState("chart", "No analysis yet", "Run your first full analysis to see your health score, a suggested split and a projection.")));
     return;
   }
 

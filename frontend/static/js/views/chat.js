@@ -1,3 +1,4 @@
+import { emptyState } from "../illustrations.js";
 import { h, clear, uid } from "../dom.js";
 import { api, streamChat } from "../api.js";
 import { banner, pageHead } from "../components.js";
@@ -10,12 +11,14 @@ export async function chat(c) {
 
   const list = h("div", { class: "threads", role: "list" });
   const box = h("div", { class: "messages", role: "log", "aria-live": "polite", "aria-label": "Conversation" });
+  box.appendChild(emptyState("chat", "Ask about your numbers", "Try: Why is my health score 87? or What if I cut expenses by 5,000?"));
   const msg = h("div", { "aria-live": "polite" });
   const input = h("textarea", { id: "chat_in", placeholder: "Ask a question...", "aria-label": "Your message", maxlength: 4000, rows: 2 });
   const send = h("button", { class: "btn primary", type: "button", text: "Send" });
   const retry = h("button", { class: "btn hidden", type: "button", text: "Retry" });
 
   const bubble = (role, text, tag) => {
+    const intro = box.querySelector(".empty"); if (intro) intro.remove();
     const el = h("div", { class: "msg " + role, text });
     if (tag) el.appendChild(h("span", { class: "tag", text: tag }));
     box.appendChild(el); box.scrollTop = box.scrollHeight;

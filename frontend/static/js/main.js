@@ -3,6 +3,7 @@ import { h, clear, svg } from "./dom.js";
 import { api, session } from "./api.js";
 import { state, resetState } from "./state.js";
 import { currentTheme, toggleTheme } from "./theme.js";
+import { watch } from "./motion.js";
 import { landing } from "./views/landing.js";
 import { authView } from "./views/auth.js";
 import { dashboard } from "./views/dashboard.js";
@@ -133,6 +134,7 @@ async function render() {
   main.focus({ preventScroll: true });
 }
 
+watch(main);
 session.onChange(() => { resetState(); go("login"); render(); });
 window.addEventListener("hashchange", render);
 render();
