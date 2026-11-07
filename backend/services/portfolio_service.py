@@ -80,8 +80,11 @@ def valuation_data(data, as_of):
         # Explicitly confirmed empty/closed inventory is distinct from a missing price.
         result.update(status='complete', total_value_paise=0, known_subtotal_paise=0)
     stale = book.as_of != as_of
+    dated = metrics(positions, as_of=book.as_of) if stale else result
+    if stale and not positions and book.inventory_complete:
+        dated = {**dated, 'total_value_paise': 0}
     # User confirmation is a declaration, never independent price/ownership verification.
-    return {**result, 'dated_total_value_paise': result['total_value_paise'],
+    return {**result, 'dated_total_value_paise': dated['total_value_paise'],
         'total_value_paise': None if stale else result['total_value_paise'],
         'status': 'partial' if stale else result['status'],
         'observation_date': book.as_of.isoformat(), 'stale': stale,
@@ -107,7 +110,7 @@ def scenario(db, owner, payload):
     current = get(db, owner, 'holdings')
     if current.revision != payload.expected_revision:
         raise HTTPException(409, 'Holdings changed; reload before retrying.')
-    observed = valuation(db, owner, payload.as_of)
+    observed = valuation(db, owner, payload.as_of, revision=current.revision)
     from backend.services.finance_snapshot_service import current_snapshot
     finance = current_snapshot(db, owner)
     cap = None if finance is None else finance.available_contribution_paise

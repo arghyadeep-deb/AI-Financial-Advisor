@@ -512,3 +512,26 @@ def test_missing_current_inputs_or_assumptions_preserve_history(db_engine, monke
         old = allocation.read_owned_plan(db, 1, result['id'])
         assert old['stale_reasons'] == ['current_inputs_unavailable']
         assert old['inputs'] == result['inputs']
+
+
+def test_review_fixes_dated_total_survives_expiry_and_scenario_uses_checked_revision():
+    from datetime import date
+    from types import SimpleNamespace
+    from unittest.mock import patch
+    from backend.services import portfolio_service as p
+    from backend.schemas.portfolio import ShockRequest
+
+    def book(price):
+        return dict(confirmed=True, source='manual', as_of='2026-11-07', inventory_complete=True, observations=[dict(
+            account_ref='a', instrument_id='i', units='1', observation_date='2026-11-07', price_paise=price,
+            price_date='2026-11-07', price_source='owner', price_version=1, price_expires='2026-11-08')])
+
+    later = p.valuation_data(book(10000), date(2026, 11, 9))
+    assert later['dated_total_value_paise'] == 10000 and later['total_value_paise'] is None
+
+    def get(db, owner, kind, revision=None):
+        return SimpleNamespace(revision=revision or 1, data=book(10000 if (revision or 1) == 1 else 20000))
+    with patch.object(p, 'get', side_effect=get), patch.object(p, 'today', return_value=date(2026, 11, 7)), \
+            patch('backend.services.finance_snapshot_service.current_snapshot', return_value=None):
+        out = p.scenario(None, 1, ShockRequest(expected_revision=1, as_of=date(2026, 11, 7), shock_bps=0))
+    assert out['holdings_revision'] == out['observed']['holdings_revision'] == 1
