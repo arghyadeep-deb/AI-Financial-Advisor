@@ -8,6 +8,7 @@ from backend.schemas.schemas import (
     PasswordResetRequest, SignupRequest,
 )
 from backend.services.auth_service import AuthService
+from backend.schemas.mfa import MfaChallengeResponse
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -18,7 +19,7 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     return AuthService(db).signup(payload.email, payload.full_name, payload.password)
 
 
-@router.post("/login", response_model=AuthResponse)
+@router.post("/login", response_model=AuthResponse | MfaChallengeResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     """Login with email and password. Failures are generic and rate limited."""
     return AuthService(db).login(payload.email, payload.password)

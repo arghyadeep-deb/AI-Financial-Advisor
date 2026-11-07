@@ -9,8 +9,10 @@ from backend.main import app
 PUBLIC = {
     ("GET", "/"), ("GET", "/health"),
     ("POST", "/auth/signup"), ("POST", "/auth/login"),
+    ("POST", "/auth/mfa/verify"),  # short-lived single-use challenge; DB throttle and MFA proof, tested in Lane K
     ("POST", "/auth/password-reset/request"), ("POST", "/auth/password-reset/confirm"),
-    ("POST", "/privacy/deletion-receipt"),  # narrow receipt capability tested in Stage G
+    ("POST", "/privacy/deletion-receipt"),  # post-deletion bearer capability: indexed digest, constant-time compare,
+    # per-source + global DB admission BEFORE lookup (Lane K concurrency/cap tests); no account/session access
 }
 DOC_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
 PW = "Correct-Horse-9"

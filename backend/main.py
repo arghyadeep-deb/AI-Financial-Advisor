@@ -79,6 +79,7 @@ from backend.controllers.chat_controller import router as chat_router          #
 from backend.controllers.thread_controller import router as thread_router      # noqa: E402
 
 app.include_router(auth_router)
+app.include_router(__import__('backend.controllers.mfa_controller', fromlist=['router']).router)
 app.include_router(profile_router)
 app.include_router(analysis_router)
 app.include_router(chat_router)

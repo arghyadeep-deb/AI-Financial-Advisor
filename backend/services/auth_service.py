@@ -59,12 +59,13 @@ class AuthService:
         self.db = db
 
     # ── helpers ───────────────────────────────────────────────────────────
-    def _issue(self, user: User) -> dict:
+    def _issue(self, user: User, *, mfa_verified=False) -> dict:
         now = _now()
         sid = authlib.new_session_id()
         self.db.add(AuthSession(
             id=sid, user_id=user.id, created_at=now,
             expires_at=now + timedelta(minutes=config.ACCESS_TOKEN_MINUTES),
+            mfa_verified=mfa_verified,
         ))
         self.db.commit()
         return {
@@ -73,6 +74,7 @@ class AuthService:
             "full_name": user.full_name,
             "email": user.email,
             "expires_in": config.ACCESS_TOKEN_MINUTES * 60,
+            "mfa_enrollment_required": bool(config.MFA_REQUIRED and not mfa_verified),
         }
 
     def revoke_user_sessions(self, user_id: int, reason: str) -> int:
@@ -139,6 +141,11 @@ class AuthService:
             user.password_changed_at = _now()
             self.db.commit()
             log.info("password rehashed to argon2id for user id=%s", user.id)
+        from backend.models.models import MfaCredential
+        credential = self.db.get(MfaCredential, user.id)
+        if credential and credential.enabled:
+            from backend.services import mfa_service
+            return mfa_service.challenge(self.db, user, credential)
         return self._issue(user)
 
     # ── logout ────────────────────────────────────────────────────────────
@@ -166,11 +173,19 @@ class AuthService:
         self.db.add(PasswordResetToken(
             user_id=user.id, token_hash=authlib.digest_token(token), created_at=now,
             expires_at=now + timedelta(minutes=config.PASSWORD_RESET_MINUTES)))
-        self.db.commit()
         try:
-            recovery_delivery(user.email, token)
+            if recovery_delivery is _default_delivery:
+                from backend.services.mail_service import enqueue
+                enqueue(self.db, user.id, 'reset:' + authlib.digest_token(token)[:40],
+                    'password_reset', {'token': token}, now + timedelta(minutes=config.PASSWORD_RESET_MINUTES))
+                self.db.commit()
+            else:
+                # Compatibility injection seam for the existing offline tests.
+                self.db.commit()
+                recovery_delivery(user.email, token)
         except Exception:      # delivery failure must not change the response
-            log.exception("recovery delivery failed")
+            self.db.rollback()
+            log.warning("recovery delivery unavailable")
 
     def confirm_reset(self, token: str, new_password: str) -> None:
         digest = authlib.digest_token(token or "")
@@ -199,6 +214,10 @@ class AuthService:
             update(PasswordResetToken)
             .where(PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None))
             .values(used_at=now))
+        from backend.models.models import MfaChallenge
+        self.db.query(MfaChallenge).filter_by(user_id=user.id).delete(synchronize_session=False)
+        # Invalidate challenges BEFORE session revocation. A verifier already
+        # holding a challenge must finish first, so its new session is revoked.
         self.revoke_user_sessions(user.id, "password_reset")
         throttle.record_success(self.db, user.email)
         self.db.commit()
@@ -233,5 +252,7 @@ class AuthService:
         user.password_changed_at = _now()
         self.db.execute(update(PasswordResetToken).where(
             PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None)).values(used_at=_now()))
+        from backend.models.models import MfaChallenge
+        self.db.query(MfaChallenge).filter_by(user_id=user.id).delete(synchronize_session=False)
         self.revoke_user_sessions(user.id, "password_change")
         self.db.commit()

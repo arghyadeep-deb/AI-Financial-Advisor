@@ -44,6 +44,34 @@ class AuthSession(Base):
     expires_at     = Column(DateTime, nullable=False)
     revoked_at     = Column(DateTime, nullable=True)
     revoked_reason = Column(String(40), nullable=True)
+    mfa_verified = Column(Boolean, nullable=False, default=False, server_default='0')
+
+
+class MfaCredential(Base):
+    __tablename__ = 'mfa_credentials'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    encrypted_secret = Column(Text, nullable=False)
+    generation = Column(String(36), nullable=False)
+    enabled = Column(Boolean, nullable=False, default=False)
+    expires_at = Column(DateTime, nullable=False)
+    last_step = Column(BigInteger, nullable=False, default=-1)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+
+
+class MfaChallenge(Base):
+    __tablename__ = 'mfa_challenges'
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    generation = Column(String(36), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+
+
+class MfaRecoveryCode(Base):
+    __tablename__ = 'mfa_recovery_codes'
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    used_at = Column(DateTime, nullable=True)
 
 
 class PasswordResetToken(Base):
@@ -249,6 +277,8 @@ class NotificationPreference(Base):
     categories = Column(JSON, nullable=False, default=lambda: ["report_ready", "reminder"])
     quiet_start = Column(Integer, nullable=True)
     quiet_end = Column(Integer, nullable=True)
+    email_enabled = Column(Boolean, nullable=False, default=False, server_default='0')
+    verified_email_hash = Column(String(64), nullable=True)
 
 class DeliveryAttempt(Base):
     __tablename__ = "delivery_attempts"
@@ -268,6 +298,20 @@ class QuotaUsage(Base):
     resource = Column(String(40), nullable=False)
     period = Column(String(10), nullable=False)
     used = Column(BigInteger, nullable=False, default=0)
+
+
+class MailMessage(Base):
+    """Encrypted payload; scheduling/retries belong exclusively to WorkItem."""
+    __tablename__ = 'mail_messages'
+    id = Column(String(36), ForeignKey('work_items.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    template_id = Column(String(40), nullable=False)
+    payload = Column(Text, nullable=True)
+    expires_at = Column(DateTime, nullable=False)
+    first_attempt_at = Column(DateTime, nullable=True)
+    state = Column(String(24), nullable=False, default='queued')
+    source_event = Column(String(100), nullable=True)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
 
 
 class StatementAccount(Base):

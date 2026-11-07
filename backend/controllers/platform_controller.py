@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request, HTTPException
 from sqlalchemy.orm import Session
 from backend.core.database import get_db
 from backend.core.dependencies import get_auth_context, AuthContext
@@ -51,11 +51,27 @@ def deletion(payload: Reauthentication, response: Response, ctx: AuthContext = D
 from backend.schemas.platform import DeletionReceipt
 
 
-@router.post('/privacy/deletion-receipt')
+def receipt_admission(request: Request, db: Session = Depends(get_db)):
+    from backend.core import throttle
+    import hashlib
+    # Ignore untrusted forwarding headers. A fixed 4096 buckets bounds storage;
+    # collisions share a conservative cap. Global admission precedes lookup.
+    source = request.client.host if request.client else 'unknown'
+    source_bucket = hashlib.sha256(source[:256].encode()).hexdigest()[:3]
+    bounds = {'window_seconds': config.RECEIPT_WINDOW_SECONDS, 'lock_seconds': config.RECEIPT_WINDOW_SECONDS}
+    if not throttle.consume_attempt(db, 'receipt-global', max_attempts=config.RECEIPT_GLOBAL_LIMIT, **bounds) or not throttle.consume_attempt(db, 'receipt-source:' + source_bucket, max_attempts=config.RECEIPT_SOURCE_LIMIT, **bounds):
+        raise HTTPException(429, 'Try again later.', headers={'Retry-After': str(config.RECEIPT_WINDOW_SECONDS), 'Cache-Control': 'no-store'})
+
+
+@router.post('/privacy/deletion-receipt', dependencies=[Depends(receipt_admission)])
 def deletion_receipt(payload: DeletionReceipt, response: Response):
     # Receipt is a narrow bearer capability, sent in a body, never a URL or log.
     response.headers['Cache-Control'] = 'no-store'
-    return configured_journal().receipt(payload.token.get_secret_value())
+    try:
+        return configured_journal().receipt(payload.token.get_secret_value())
+    except HTTPException as exc:
+        exc.headers = {**(exc.headers or {}), 'Cache-Control': 'no-store'}
+        raise
 
 @router.get("/sessions")
 def sessions(ctx: AuthContext = Depends(get_auth_context), db: Session = Depends(get_db)):

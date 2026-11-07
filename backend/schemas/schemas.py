@@ -41,6 +41,7 @@ class AuthResponse(BaseModel):
     user_id:      int
     full_name:    str
     email:        str
+    mfa_enrollment_required: bool = False
 
 
 class PasswordResetRequest(BaseModel):

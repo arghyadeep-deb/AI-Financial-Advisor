@@ -26,6 +26,7 @@ from pydantic import model_validator
 class Preferences(BaseModel):
     model_config = ConfigDict(extra="forbid")
     enabled: bool = True
+    email_enabled: bool = False
     categories: list[Literal["report_ready", "reminder"]] = Field(default_factory=lambda: ["report_ready", "reminder"], max_length=2)
     quiet_start: int | None = Field(default=None, ge=0, le=23)
     quiet_end: int | None = Field(default=None, ge=0, le=23)

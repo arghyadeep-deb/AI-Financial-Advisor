@@ -58,6 +58,21 @@ class LocalEncryptedStorage:
     def rotate(self, owner, key):
         self.put(owner, key, self.get(owner, key))
 
+    def seal(self, owner, purpose, content):
+        """Encrypt a small DB value with this same managed key ring, bound to owner/purpose."""
+        envelope = json.dumps([owner, purpose, content], separators=(',', ':')).encode()
+        return self.active + ':' + self.keys[self.active].encrypt(envelope).decode()
+
+    def unseal(self, owner, purpose, value):
+        try:
+            version, token = value.split(':', 1)
+            bound_owner, bound_purpose, content = json.loads(self.keys[version].decrypt(token.encode()))
+            if (bound_owner, bound_purpose) != (owner, purpose):
+                raise ValueError('Invalid encrypted value binding')
+            return content
+        except (KeyError, InvalidToken, UnicodeError, TypeError, ValueError) as exc:
+            raise ValueError('Encrypted value unavailable') from exc
+
     def delete(self, owner, key):
         self.path(owner, key).unlink(missing_ok=True)
 

@@ -27,6 +27,11 @@ for _i in range(1, 5):
     os.environ[f"GROQ_API_KEY_{_i}"] = ""
     os.environ[f"GOOGLE_API_KEY_{_i}"] = ""
 os.environ["OPENROUTER_API_KEY"] = ""
+os.environ['MAIL_PROVIDER'] = 'fake'
+os.environ['MAIL_LIVE_ENABLED'] = 'false'
+os.environ['RESEND_API_KEY'] = ''
+os.environ['NOTIFICATION_EMAIL_ENABLED'] = 'false'
+os.environ['MFA_REQUIRED'] = 'false'
 
 import pytest  # noqa: E402
 
