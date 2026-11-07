@@ -5,6 +5,7 @@ and adds ``{code, message, request_id, retryable, field_errors}``.
 Request validation errors never echo submitted values (no secrets/PII).
 """
 import logging
+import time
 import uuid
 from typing import Any, List
 
@@ -52,7 +53,12 @@ def install(app: FastAPI) -> None:
     async def _request_id(request: Request, call_next):
         rid = request.headers.get("x-request-id", "")[:64]
         request.state.request_id = rid if rid.replace("-", "").isalnum() and rid else uuid.uuid4().hex
+        started = time.perf_counter()
         response = await call_next(request)
+        route = getattr(request.scope.get("route"), "path", None) or "unmatched"
+        from backend.observability import requests as request_log
+        request_log.record(request.state.request_id, request.method, route, response.status_code,
+                           (time.perf_counter() - started) * 1000)
         response.headers["X-Request-ID"] = request.state.request_id
         return response
 

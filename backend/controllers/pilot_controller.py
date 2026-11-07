@@ -104,5 +104,5 @@ def credit_latest(user: User = Depends(get_current_user), db: Session = Depends(
 
 @router.get('/billing/entitlement')
 def entitlement(user: User = Depends(get_current_user)):
-    return {'plan': 'free_pilot', 'billing': 'disabled', 'paid_billing': 'deferred', 'features': 'all_pilot_features',
-            'note': 'Free controlled pilot. No payment is requested or taken.'}
+    from backend.services import entitlements
+    return entitlements.describe()          # server-side only; nothing the client sends can change it

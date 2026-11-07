@@ -158,3 +158,9 @@ register_owned_store(OwnedStore('operations', frozenset({'operational_counters'}
 
 from backend.models.models import ManualCreditEntry
 register_database_store("manual_credit", [ManualCreditEntry], "user-reported dated credit score (unverified)")
+from backend.models.models import IntegrationConsent, IntegrationEvent, IntegrationOperation
+register_database_store("integrations", [IntegrationConsent, IntegrationEvent, IntegrationOperation],
+                        "consent records and external-operation state (test-only adapter; no live provider)")
+from backend.models.models import SupportGrant, SupportAccessLog
+register_database_store("support", [SupportGrant, SupportAccessLog],
+                        "support access grants and the audit trail of support lookups")
