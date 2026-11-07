@@ -8,7 +8,7 @@ from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from backend.models.models import QuotaUsage, User, utcnow
 
-RESOURCES = {'jobs', 'storage_bytes', 'model_tokens', 'uploads'}
+RESOURCES = {'jobs', 'storage_bytes', 'model_tokens', 'uploads', 'analysis', 'chat', 'exports'}
 
 def reserve(db, owner, resource, units, limit):
     if resource not in RESOURCES or type(units) is not int or type(limit) is not int or not 0 < units <= 10**13 or not 0 <= limit <= 10**13:

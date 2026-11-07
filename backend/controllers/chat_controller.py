@@ -10,6 +10,19 @@ from backend.core.dependencies import get_current_user
 from backend.models.models import Message, Thread, User
 from backend.schemas.schemas import ChatRequest, ChatResponse
 from backend.services.chat_service import ChatService
+from backend.core.limits import reserve
+from backend.core.config import config
+
+
+def _reserve_chat(db, owner, payload):
+    # Completed idempotent retries are reads and do not consume another unit.
+    prior = db.query(Message).filter_by(user_id=owner, client_message_id=payload.client_message_id,
+                                       role="user").first() if payload.client_message_id else None
+    if prior and db.query(Message).filter_by(thread_id=prior.thread_id,
+            client_message_id=payload.client_message_id, role="assistant").first():
+        return
+    reserve(db, owner, "chat", 1, config.CHAT_DAILY_LIMIT)
+    db.commit()
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 log = logging.getLogger("advisor.chat")
@@ -32,6 +45,7 @@ def chat(
     unavailable and a deterministic reply built from your verified numbers was
     returned instead.
     """
+    _reserve_chat(db, current_user.id, payload)
     service = ChatService(db)
     thread_id = service.get_or_create_thread(
         user_id=current_user.id, thread_id=payload.thread_id, message=payload.message,
@@ -60,6 +74,7 @@ def chat_stream(
 
     The same ``client_message_id`` rule as POST /chat applies.
     """
+    _reserve_chat(db, current_user.id, payload)
     service = ChatService(db)
     thread_id = service.get_or_create_thread(
         user_id=current_user.id, thread_id=payload.thread_id, message=payload.message,

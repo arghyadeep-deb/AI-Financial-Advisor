@@ -27,13 +27,15 @@ def enqueue(db, owner, event_key, kind, consent_purpose=None):
     db.flush()  # unique constraint also arbitrates concurrent enqueue; caller retries transaction
     return row
 
-def claim(db, seconds=30):
+def claim(db, seconds=30, kind=None):
     if not 1 <= seconds <= 300:
         raise ValueError("Invalid lease")
     now = utcnow()
     eligible = or_(WorkItem.state == "queued", (WorkItem.state == "running") & (WorkItem.lease_until <= now))
-    row = db.query(WorkItem).filter(eligible, WorkItem.available_at <= now,
-            WorkItem.attempts < MAX_ATTEMPTS).order_by(WorkItem.created_at).first()
+    query = db.query(WorkItem).filter(eligible, WorkItem.available_at <= now, WorkItem.attempts < MAX_ATTEMPTS)
+    if kind is not None:
+        query = query.filter(WorkItem.kind == kind)
+    row = query.order_by(WorkItem.created_at).first()
     if row is None:
         return None
     fence = row.fence
