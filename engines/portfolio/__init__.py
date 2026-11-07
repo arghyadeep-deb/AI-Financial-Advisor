@@ -13,6 +13,7 @@ class Position(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
     observation_id: str = Field(min_length=1)
     instrument_id: str = Field(min_length=1)
+    account_ref: str = 'unspecified'
     issuer_id: str | None = None
     asset_class: str | None = None
     currency: str = "INR"
@@ -41,8 +42,19 @@ def _rounded(value: Fraction) -> int:
     return check_paise(quotient)
 
 
+def _conserved_groups(groups, unknown):
+    """Largest remainders conserve the aggregate rounded subtotal exactly."""
+    values = {**groups, None: unknown}
+    rounded = {k: v.numerator // v.denominator for k, v in values.items()}
+    remainder = _rounded(sum(values.values(), Fraction(0))) - sum(rounded.values())
+    order = sorted(values, key=lambda k: (-(values[k] - rounded[k]), str(k)))
+    for k in order[:remainder]:
+        rounded[k] += 1
+    return {k: v for k, v in rounded.items() if k is not None}, rounded[None]
+
+
 def metrics(positions: tuple[Position, ...], *, as_of: date) -> dict:
-    if len({p.observation_id for p in positions}) != len(positions) or len({p.instrument_id for p in positions}) != len(positions):
+    if len({p.observation_id for p in positions}) != len(positions) or len({(p.account_ref, p.instrument_id) for p in positions}) != len(positions):
         raise ValueError("overlapping observations require review before aggregation")
     values, missing, issuers, classes = [], [], {}, {}
     basis = 0
@@ -72,15 +84,17 @@ def metrics(positions: tuple[Position, ...], *, as_of: date) -> dict:
         check_paise(basis)
         actions_supported &= p.corporate_actions_supported
     total = sum(values, Fraction(0))
+    rounded_classes, rounded_unknown_class = _conserved_groups(classes, unknown_class)
+    rounded_issuers, rounded_unknown_issuer = _conserved_groups(issuers, unknown_issuer)
     complete = bool(positions) and not missing
     hhi = sum(((v / total) ** 2 for v in issuers.values()), Fraction(0)) if total else None
     return {"rule_version": RULES.version, "status": "complete" if complete else "partial" if values else "unavailable",
             "as_of": as_of.isoformat(), "currency": "INR", "priced_positions": len(values),
             "total_positions": len(positions), "missing_price_observations": missing,
             "known_subtotal_paise": _rounded(total), "total_value_paise": _rounded(total) if complete else None,
-            "asset_class_paise": {k: _rounded(v) for k, v in classes.items()},
-            "issuer_paise": {k: _rounded(v) for k, v in issuers.items()},
-            "unknown_class_paise": _rounded(unknown_class), "unknown_issuer_paise": _rounded(unknown_issuer),
+            "asset_class_paise": rounded_classes,
+            "issuer_paise": rounded_issuers,
+            "unknown_class_paise": rounded_unknown_class, "unknown_issuer_paise": rounded_unknown_issuer,
             "issuer_hhi": str(hhi) if hhi is not None and unknown_issuer == 0 and complete else None,
             "largest_issuer_share": str(max(issuers.values()) / total) if issuers and total else None,
             "concentration_scope": "priced subset only", "low_risk_claim": False,

@@ -420,3 +420,19 @@ class PlanningRevision(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'resource_id', 'revision', name='uq_planning_revision'),
         UniqueConstraint('user_id', 'operation_key', name='uq_planning_operation'))
+
+
+class PortfolioRevision(Base):
+    """Full confirmed holdings book or suitability answers, retained immutably."""
+    __tablename__ = 'portfolio_revisions'
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
+    kind = Column(String(24), nullable=False)
+    revision = Column(Integer, nullable=False)
+    operation_key = Column(String(64), nullable=False)
+    request = Column(JSON, nullable=False)
+    data = Column(JSON, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=utcnow)
+    __table_args__ = (
+        UniqueConstraint('user_id', 'kind', 'revision', name='uq_portfolio_revision'),
+        UniqueConstraint('user_id', 'operation_key', name='uq_portfolio_operation'))

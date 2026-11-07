@@ -1,0 +1,6 @@
+[
+  {"holdings":{"equity":80,"cash":20},"contribution":10,"target_bps":{"cash":2000,"debt":3000,"equity":5000},"expected_target":{"cash":22,"debt":33,"equity":55},"expected_additions":{"cash":2,"debt":8,"equity":0},"expected_sales":25},
+  {"holdings":{},"contribution":1,"target_bps":{"cash":3333,"debt":3333,"equity":3334},"expected_target":{"cash":1,"debt":0,"equity":0},"expected_additions":{"cash":1,"debt":0,"equity":0},"expected_sales":0},
+  {"holdings":{"cash":100},"contribution":0,"target_bps":{"cash":0,"debt":10000,"equity":0},"expected_target":{"cash":0,"debt":100,"equity":0},"expected_additions":{"cash":0,"debt":0,"equity":0},"expected_sales":100},
+  {"holdings":{"equity":7},"contribution":3,"target_bps":{"cash":10000,"debt":0,"equity":0},"expected_target":{"cash":10,"debt":0,"equity":0},"expected_additions":{"cash":3,"debt":0,"equity":0},"expected_sales":7}
+]
