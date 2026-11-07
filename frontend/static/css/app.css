@@ -249,6 +249,8 @@ body:not(.shell) .page>section.hero{margin-top:0}
 .tabs{border-bottom:0;gap:8px}
 .tabs button{border:1px solid var(--line-strong);border-radius:999px;padding:8px 18px;background:var(--surface)}
 .tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{background:var(--bad-bg);color:var(--bad-ink);border-color:var(--bad-ink)}
+.btn.danger:hover{background:var(--bad-ink);color:var(--surface)}
 .pill.neutral{background:var(--line);color:var(--muted)}
 
 /* dark-mode refinement: layered neutral surfaces, hairline borders (Robinhood / Linear review) */

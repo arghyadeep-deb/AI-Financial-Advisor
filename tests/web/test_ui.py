@@ -503,3 +503,48 @@ def test_first_run_checklist_and_privacy_notice_before_upload(page, live_url, tr
     expect(page.get_by_text("never sent to an AI model")).to_be_visible()
     expect(page.get_by_text("PDFs, photos and scanned pages")).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
+
+
+def test_wrong_password_on_sensitive_actions_keeps_the_user_signed_in(page, live_url, tracker):
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/settings")
+    page.fill("#pw_cur", "Not-the-right-password-1!")
+    page.fill("#pw_new", "Another-Throwaway-5582!")
+    page.get_by_role("button", name="Change password").click()
+    expect(page.locator("[role=alert]").first).to_be_visible()
+    expect(page.get_by_role("heading", name="Settings")).to_be_visible()      # still signed in, not bounced to login
+    page.fill("#ex_pw", "Not-the-right-password-1!")
+    page.get_by_role("button", name="Prepare my download").click()
+    expect(page.get_by_role("heading", name="Settings")).to_be_visible()
+    expect(page.locator("#ex_pw")).to_have_value("")                   # the password is never left in the field
+
+
+def test_export_download_and_account_deletion_with_receipt(page, live_url, tracker, db_engine, monkeypatch, tmp_path):
+    import json as _json
+    from cryptography.fernet import Fernet
+    from backend.core.config import config
+    monkeypatch.setattr(config, 'PRIVATE_STORAGE_ROOT', str(tmp_path / 'private'))
+    monkeypatch.setattr(config, 'STORAGE_ACTIVE_KEY', 'v1')
+    monkeypatch.setattr(config, 'STORAGE_KEYS_JSON', _json.dumps({'v1': Fernet.generate_key().decode()}))
+    monkeypatch.setattr(config, 'SUPPRESSION_JOURNAL', str(tmp_path / 'journal.db'))
+    signup(page, live_url)
+    page.goto(f"{live_url}/app/#/settings")
+    page.fill("#ex_pw", PASSWORD)
+    page.get_by_role("button", name="Prepare my download").click()
+    expect(page.get_by_text("Your file is ready until")).to_be_visible()
+    with page.expect_download() as info:
+        page.get_by_role("button", name="Download my data (JSON)").click()
+    data = _json.loads(open(info.value.path(), encoding="utf-8").read())
+    assert isinstance(data, dict) and data
+    # deletion needs the exact word and the password, then shows a one-time receipt
+    page.fill("#del_pw", PASSWORD)
+    page.fill("#del_word", "delete")
+    page.get_by_role("button", name="Delete my account").click()
+    expect(page.get_by_text("Type DELETE exactly to confirm.")).to_be_visible()
+    page.fill("#del_word", "DELETE")
+    page.get_by_role("button", name="Delete my account").click()
+    expect(page.get_by_text("Your account has been closed.")).to_be_visible()
+    receipt = page.locator("#del_receipt").input_value()
+    assert len(receipt) == 43
+    page.get_by_role("button", name="I saved it - sign out").click()
+    expect(page.get_by_role("heading", name="Welcome back")).to_be_visible()

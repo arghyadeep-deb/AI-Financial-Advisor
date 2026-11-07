@@ -1,5 +1,5 @@
 import { h, clear } from "../dom.js";
-import { api, session } from "../api.js";
+import { api, session, fetchBlob } from "../api.js";
 import { banner, card, pageHead } from "../components.js";
 import { emptyState } from "../illustrations.js";
 
@@ -37,7 +37,7 @@ function passwordCard() {
     h("div", { class: "field" }, h("label", { for: "pw_new", text: "New password" }), nw, h("div", { class: "hint", text: "Changing it signs you out everywhere." })), go);
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); msg.replaceChildren(); go.disabled = true;
-    const r = await api("/auth/password-change", { method: "POST", body: { password: cur.value, new_password: nw.value } });
+    const r = await api("/auth/password-change", { method: "POST", reauth: true, body: { password: cur.value, new_password: nw.value } });
     go.disabled = false; cur.value = ""; nw.value = "";
     if (r.status === 204 || r.ok) { session.clear(); return; }               // every token was revoked: back to login
     msg.appendChild(banner("bad", r.error));
@@ -104,7 +104,6 @@ async function noticesCard() {
 
 export async function settings(c) {
   c.appendChild(pageHead("Settings", "Your sign-ins, password, privacy choices and notifications."));
-  c.appendChild(banner("info", "Downloading or deleting all your data is not available in the app yet."));
   const grid = h("div", { class: "grid c2" });
   c.appendChild(grid);
   grid.appendChild(await sessionsCard());
@@ -112,4 +111,62 @@ export async function settings(c) {
   grid.appendChild(consentCard());
   grid.appendChild(await preferencesCard());
   c.appendChild(await noticesCard());
+  c.appendChild(dataCard());
+}
+
+function dataCard() {
+  // ---- download everything we hold about you ----
+  const exMsg = h("div", { "aria-live": "polite" });
+  const exPw = h("input", { id: "ex_pw", type: "password", autocomplete: "current-password", maxlength: 128 });
+  const exGo = h("button", { class: "btn", type: "submit", text: "Prepare my download" });
+  const exForm = h("form", { novalidate: true },
+    h("div", { class: "field" }, h("label", { for: "ex_pw", text: "Your password" }), exPw,
+      h("div", { class: "hint", text: "We ask again because this contains all your data. The file is ready for a short time only." })), exGo);
+  exForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); exMsg.replaceChildren();
+    if (!exPw.value) { exMsg.appendChild(banner("bad", "Enter your password.")); return; }
+    exGo.disabled = true;
+    const r = await api("/privacy/exports", { method: "POST", reauth: true, body: { password: exPw.value } });
+    exGo.disabled = false; exPw.value = "";
+    if (!r.ok) { exMsg.appendChild(banner("bad", r.error)); return; }
+    const dl = h("button", { class: "btn primary", type: "button", text: "Download my data (JSON)" });
+    dl.addEventListener("click", async () => {
+      const blob = await fetchBlob(`/privacy/exports/${r.data.id}/download`);
+      if (!blob) { exMsg.appendChild(banner("bad", "The file is no longer available. Prepare it again.")); return; }
+      const url = URL.createObjectURL(blob);
+      const a = h("a", { href: url, download: "account-export.json" });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    });
+    exMsg.replaceChildren(banner("ok", "Your file is ready until " + when(r.data.expires_at) + "."), dl);
+  });
+
+  // ---- delete the account ----
+  const delMsg = h("div", { "aria-live": "polite" });
+  const delPw = h("input", { id: "del_pw", type: "password", autocomplete: "current-password", maxlength: 128 });
+  const delWord = h("input", { id: "del_word", type: "text", autocomplete: "off", maxlength: 10 });
+  const delGo = h("button", { class: "btn danger", type: "submit", text: "Delete my account" });
+  const delForm = h("form", { novalidate: true },
+    banner("warn", h("strong", { text: "This cannot be undone. " }),
+      "Your account and the data we hold are removed and you are signed out everywhere. Copies in backups may remain until their retention period ends; that period is not yet approved, so we cannot give a date."),
+    h("div", { class: "field" }, h("label", { for: "del_pw", text: "Your password" }), delPw),
+    h("div", { class: "field" }, h("label", { for: "del_word", text: "Type DELETE to confirm" }), delWord), delGo);
+  delForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); delMsg.replaceChildren();
+    if (delWord.value.trim() !== "DELETE") { delMsg.appendChild(banner("bad", "Type DELETE exactly to confirm.")); return; }
+    if (!delPw.value) { delMsg.appendChild(banner("bad", "Enter your password.")); return; }
+    delGo.disabled = true;
+    const r = await api("/privacy/deletion", { method: "POST", reauth: true, body: { password: delPw.value } });
+    delPw.value = "";
+    if (!r.ok) { delGo.disabled = false; delMsg.appendChild(banner("bad", r.error)); return; }
+    const token = h("input", { id: "del_receipt", type: "text", readonly: true, value: r.data.receipt_token || "", "aria-label": "Deletion receipt" });
+    const done = h("button", { class: "btn primary", type: "button", text: "I saved it - sign out" });
+    done.addEventListener("click", () => session.clear());
+    clear(delForm);
+    delForm.append(banner("ok", h("strong", { text: "Your account has been closed. " }),
+        r.data.status === "held" ? "Deletion is on hold and will finish when the hold ends." : "Your data was removed from the live system."),
+      h("p", { text: "Keep this receipt. It is the only proof of your request and cannot be shown again." }),
+      h("div", { class: "field" }, h("label", { for: "del_receipt", text: "Deletion receipt" }), token), done);
+  });
+  return h("div", { class: "grid c2" }, card("Download your data", exMsg, exForm), card("Delete your account", delMsg, delForm));
 }
