@@ -165,6 +165,19 @@ class Analysis(Base):
     section_status   = Column(JSON)                 # per-section provenance (llm | fallback | deterministic)
 
 
+class AllocationPlan(Base):
+    """Append-only scenario evidence; never an executable/public proposal."""
+    __tablename__ = "allocation_plans"
+
+    id = Column(String(36), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    profile_revision = Column(Integer, nullable=False)
+    suitability_revision = Column(Integer, nullable=False)
+    input_snapshot = Column(JSON, nullable=False)
+    result = Column(JSON, nullable=False)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+
+
 class Thread(Base):
     __tablename__ = "threads"
 

@@ -370,6 +370,21 @@ def _guard_summary(s: Dict[str, Any], snap: FinanceSnapshot, results: Dict[str, 
 
 # ── public entry ───────────────────────────────────────────────────────────
 
+def guard_allocation(canonical: Dict[str, Any], model_output: Any = None) -> Dict[str, Any]:
+    """Allocation owns all facts. Model output has no publication authority.
+
+    No free-text narrative is rendered until a separately evaluated structured
+    explanation contract exists; arbitrary fields and named products are discarded.
+    """
+    from copy import deepcopy
+    from backend.core.feature_flags import allocation_public_eligible
+    result = deepcopy(canonical)
+    result["narrative_status"] = "unavailable" if model_output is None else "rejected"
+    result["public_eligible"] = allocation_public_eligible()
+    result["named_products_eligible"] = named_products_enabled() and result["public_eligible"]
+    return result
+
+
 def enforce(results: Dict[str, Any], errors: Dict[str, Any], snapshot: FinanceSnapshot,
             agent_profile: Dict[str, Any], engine_health: Optional[Dict[str, Any]]
             ) -> Tuple[Dict[str, Any], Dict[str, Any], str]:
