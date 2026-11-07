@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sign up</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F8;color:#0F1726;font-family:'Inter',system-ui,sans-serif}
+a{color:#075E5C}
+input{font:inherit}
+input:focus-visible,button:focus-visible{outline:3px solid #0B7A78;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:700px;background:#F5F6F8;display:flex;flex-direction:column">
+  <header style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:12px 48px;background:#FFFFFF;border-bottom:1px solid #E2E6EC">
+    <a href="Main.dc.html" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;color:#0F1726;text-decoration:none">Advisor</a>
+    <nav style="display:flex;gap:10px;flex-wrap:wrap">
+      <a href="Auth.dc.html" style="padding:12px 16px;color:#0F1726;text-decoration:none;font-weight:600">Log in</a>
+      <a href="Auth.dc.html" style="padding:12px 18px;background:#0B7A78;color:#FFFFFF;border-radius:12px;text-decoration:none;font-weight:600">Create account</a>
+    </nav>
+  </header>
+  <main style="width:100%;max-width:440px;box-sizing:border-box;margin:48px auto;padding:0 20px">
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:40px;line-height:1.1;margin:0 0 20px;letter-spacing:-0.01em">Create your account</h1>
+    <form style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:14px;padding:22px;box-shadow:0 18px 36px -24px rgba(15,23,38,.28)">
+      <div style="margin-bottom:14px">
+        <label for="n" style="display:block;font-weight:600;font-size:14px;margin-bottom:6px">Full name</label>
+        <input id="n" type="text" autocomplete="name" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid #C5CCD7;border-radius:10px;background:#FFFFFF;color:#0F1726">
+      </div>
+      <div style="margin-bottom:14px">
+        <label for="e" style="display:block;font-weight:600;font-size:14px;margin-bottom:6px">Email</label>
+        <input id="e" type="email" autocomplete="email" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid #C5CCD7;border-radius:10px;background:#FFFFFF;color:#0F1726">
+      </div>
+      <div style="margin-bottom:14px">
+        <label for="p" style="display:block;font-weight:600;font-size:14px;margin-bottom:6px">Password</label>
+        <input id="p" type="password" autocomplete="new-password" style="width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;border:1px solid #C5CCD7;border-radius:10px;background:#FFFFFF;color:#0F1726">
+        <div style="font-size:13px;color:#566074;margin-top:4px">Use a long, unique password. 12 or more characters is a good start.</div>
+      </div>
+      <a href="Dashboard.dc.html" style="display:flex;align-items:center;justify-content:center;min-height:44px;background:#0B7A78;color:#FFFFFF;border-radius:12px;font-weight:600;text-decoration:none">Create account</a>
+    </form>
+    <p style="margin:16px 0 0;font-size:15px"><a href="Auth.dc.html">Already have an account? Log in</a></p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":700}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
