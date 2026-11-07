@@ -146,9 +146,15 @@ def generation_comparison(db, owner, identity):
         return [{key: getattr(r, key) for key in ('ordinal', 'posting_date', 'amount_paise', 'description', 'reference', 'category')}
                 for r in db.query(StatementRow).filter_by(user_id=owner, import_id=import_id).order_by(StatementRow.ordinal)]
     old, new = rows(previous.id) if previous else [], rows(job.id)
+    def summary(value):
+        return {key: getattr(value, key) for key in ('start_date', 'end_date', 'opening_paise',
+            'closing_paise', 'difference_paise')} if value else None
+    old_summary, new_summary = summary(previous), summary(job)
+    extracted = job.state != 'queued' and bool(new)
     return {'import_id': job.id, 'revision': job.revision, 'previous_import_id': previous.id if previous else None,
         'parser_version': job.parser_version, 'previous_parser_version': previous.parser_version if previous else None,
-        'state': 'awaiting_extraction' if job.state == 'queued' else 'review_required' if previous else 'baseline',
-        'facts_changed': old != new if previous and job.state != 'queued' else None,
+        'state': 'awaiting_extraction' if job.state == 'queued' else 'extraction_unavailable' if not extracted else 'review_required' if previous else 'baseline',
+        'facts_changed': (old != new or old_summary != new_summary) if previous and extracted else None,
+        'previous_summary': old_summary, 'current_summary': new_summary,
         'previous_rows': old, 'current_rows': new,
         'authority': 'comparison_only; use_revision_checked_review_and_ledger_corrections'}

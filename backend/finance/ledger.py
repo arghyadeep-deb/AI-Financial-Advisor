@@ -164,6 +164,13 @@ def invalidate_links(db, owner, removed):
     for link in links:
         link.active = False
     if links:
+        # confirm_link/reverse_link advance both endpoints. Evidence reversal
+        # must also fence stale edits on surviving counterpart transactions.
+        # Removed endpoints already advanced in reverse; bump each survivor once.
+        survivors = {identity for link in links for identity in (link.left_id, link.right_id)} - set(removed)
+        for identity in sorted(survivors):
+            entry = owned(db, LedgerEntry, owner, identity)
+            entry.revision += 1
         bump_links(db, owner)
     # All owner revisions already advance under lock, including counterpart accounts.
 

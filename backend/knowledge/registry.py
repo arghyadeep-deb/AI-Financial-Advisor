@@ -54,13 +54,26 @@ class Registry:
             if len(owners) != 1:
                 raise ValueError("source ownership cannot change")
 
-    @traceable(name="knowledge.retrieve")
-    def retrieve(self, topic: str, *, owner_id: int, as_of: date) -> tuple[SourceVersion, ...]:
+    def _latest(self):
         latest = {}
         for v in self._versions:
             if v.source_id not in latest or v.version > latest[v.source_id].version:
                 latest[v.source_id] = v
-        return tuple(v for v in latest.values() if (
+        return latest.values()
+
+    def public_catalog(self, topic: str) -> tuple[SourceVersion, ...]:
+        """Public metadata boundary, including stale versions for explicit labels.
+
+        Private evidence is excluded even for its owner. A withdrawal on the
+        newest version never resurrects an older approved version.
+        """
+        return tuple(sorted((v for v in self._latest() if v.owner_id is None and
+            v.approved and v.url.scheme == 'https' and v.url.host in self._hosts and v.topic == topic),
+            key=lambda v: v.source_id))
+
+    @traceable(name="knowledge.retrieve")
+    def retrieve(self, topic: str, *, owner_id: int, as_of: date) -> tuple[SourceVersion, ...]:
+        return tuple(v for v in self._latest() if (
             v.approved and v.url.scheme == "https" and v.url.host in self._hosts
             and v.owner_id in (None, owner_id) and v.topic == topic
             and v.published <= as_of and v.fetched <= as_of
