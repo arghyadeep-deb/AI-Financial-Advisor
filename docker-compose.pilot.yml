@@ -1,0 +1,34 @@
+# UNTESTED sketch for a single-host free pilot (app + PostgreSQL). Put real values in a private env file that is never committed:
+#   docker compose -f docker-compose.pilot.yml --env-file pilot.env up --build
+# Required in pilot.env: SECRET_KEY, POSTGRES_PASSWORD, CORS_ORIGINS, FRONTEND_URL, STORAGE_KEYS_JSON, STORAGE_ACTIVE_KEY.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: advisor
+      POSTGRES_USER: advisor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes: ["dbdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U advisor -d advisor"]
+      interval: 5s
+      retries: 10
+  app:
+    build: .
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://advisor:${POSTGRES_PASSWORD}@db:5432/advisor
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY (32+ random characters)}
+      CORS_ORIGINS: ${CORS_ORIGINS:?set the exact site origin}
+      FRONTEND_URL: ${FRONTEND_URL:?set the public site URL}
+      PRIVATE_STORAGE_ROOT: /data/private
+      SUPPRESSION_JOURNAL: /data/journal/suppression.db
+      STORAGE_KEYS_JSON: ${STORAGE_KEYS_JSON:?set encryption keys}
+      STORAGE_ACTIVE_KEY: ${STORAGE_ACTIVE_KEY:?set the active key id}
+      BILLING_MODE: free_pilot
+      MAIL_LIVE_ENABLED: "false"
+    volumes: ["private:/data/private", "journal:/data/journal"]
+    ports: ["127.0.0.1:8000:8000"]      # put a TLS reverse proxy in front; never expose this port directly
+volumes: { dbdata: {}, private: {}, journal: {} }
