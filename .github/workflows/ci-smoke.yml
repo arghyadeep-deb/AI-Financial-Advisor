@@ -1,0 +1,11 @@
+name: ci-smoke
+on:
+  workflow_dispatch:
+  push:
+    branches: [integration]
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo ci smoke ok && ls
