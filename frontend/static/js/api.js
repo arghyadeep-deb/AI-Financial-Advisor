@@ -33,7 +33,8 @@ export function errorText(data, status) {
   return "Request failed.";
 }
 
-export async function api(path, { method = "GET", body, raw, contentType, auth = true, signal } = {}) {
+// reauth: true means a 401 is a WRONG PASSWORD for a sensitive action, not an ended session: keep the user signed in.
+export async function api(path, { method = "GET", body, raw, contentType, auth = true, signal, reauth = false } = {}) {
   const headers = { Accept: "application/json" };
   if (raw !== undefined) headers["Content-Type"] = contentType || "application/octet-stream";   // raw file bytes
   else if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -49,7 +50,7 @@ export async function api(path, { method = "GET", body, raw, contentType, auth =
   if (res.status !== 204) {
     try { data = await res.json(); } catch (e) { data = null; }
   }
-  if (res.status === 401 && auth && token) {
+  if (res.status === 401 && auth && token && !reauth) {
     session.clear();
     return { ok: false, status: 401, data, error: "Your session has ended. Please log in again." };
   }

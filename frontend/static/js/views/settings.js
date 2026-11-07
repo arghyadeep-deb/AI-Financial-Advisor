@@ -1,5 +1,5 @@
 import { h, clear } from "../dom.js";
-import { api, session } from "../api.js";
+import { api, session, fetchBlob } from "../api.js";
 import { banner, card, pageHead } from "../components.js";
 import { emptyState } from "../illustrations.js";
 
@@ -37,7 +37,7 @@ function passwordCard() {
     h("div", { class: "field" }, h("label", { for: "pw_new", text: "New password" }), nw, h("div", { class: "hint", text: "Changing it signs you out everywhere." })), go);
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); msg.replaceChildren(); go.disabled = true;
-    const r = await api("/auth/password-change", { method: "POST", body: { password: cur.value, new_password: nw.value } });
+    const r = await api("/auth/password-change", { method: "POST", reauth: true, body: { password: cur.value, new_password: nw.value } });
     go.disabled = false; cur.value = ""; nw.value = "";
     if (r.status === 204 || r.ok) { session.clear(); return; }               // every token was revoked: back to login
     msg.appendChild(banner("bad", r.error));
@@ -104,7 +104,6 @@ async function noticesCard() {
 
 export async function settings(c) {
   c.appendChild(pageHead("Settings", "Your sign-ins, password, privacy choices and notifications."));
-  c.appendChild(banner("info", "Downloading or deleting all your data is not available in the app yet."));
   const grid = h("div", { class: "grid c2" });
   c.appendChild(grid);
   grid.appendChild(await sessionsCard());
@@ -112,4 +111,93 @@ export async function settings(c) {
   grid.appendChild(consentCard());
   grid.appendChild(await preferencesCard());
   c.appendChild(await noticesCard());
+  c.appendChild(dataCard());
+  c.appendChild(await supportCard());
+}
+
+function dataCard() {
+  // ---- download everything we hold about you ----
+  const exMsg = h("div", { "aria-live": "polite" });
+  const exPw = h("input", { id: "ex_pw", type: "password", autocomplete: "current-password", maxlength: 128 });
+  const exGo = h("button", { class: "btn", type: "submit", text: "Prepare my download" });
+  const exForm = h("form", { novalidate: true },
+    h("div", { class: "field" }, h("label", { for: "ex_pw", text: "Your password" }), exPw,
+      h("div", { class: "hint", text: "We ask again because this contains all your data. The file is ready for a short time only." })), exGo);
+  exForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); exMsg.replaceChildren();
+    if (!exPw.value) { exMsg.appendChild(banner("bad", "Enter your password.")); return; }
+    exGo.disabled = true;
+    const r = await api("/privacy/exports", { method: "POST", reauth: true, body: { password: exPw.value } });
+    exGo.disabled = false; exPw.value = "";
+    if (!r.ok) { exMsg.appendChild(banner("bad", r.error)); return; }
+    const dl = h("button", { class: "btn primary", type: "button", text: "Download my data (JSON)" });
+    dl.addEventListener("click", async () => {
+      const blob = await fetchBlob(`/privacy/exports/${r.data.id}/download`);
+      if (!blob) { exMsg.appendChild(banner("bad", "The file is no longer available. Prepare it again.")); return; }
+      const url = URL.createObjectURL(blob);
+      const a = h("a", { href: url, download: "account-export.json" });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    });
+    exMsg.replaceChildren(banner("ok", "Your file is ready until " + when(r.data.expires_at) + "."), dl);
+  });
+
+  // ---- delete the account ----
+  const delMsg = h("div", { "aria-live": "polite" });
+  const delPw = h("input", { id: "del_pw", type: "password", autocomplete: "current-password", maxlength: 128 });
+  const delWord = h("input", { id: "del_word", type: "text", autocomplete: "off", maxlength: 10 });
+  const delGo = h("button", { class: "btn danger", type: "submit", text: "Delete my account" });
+  const delForm = h("form", { novalidate: true },
+    banner("warn", h("strong", { text: "This cannot be undone. " }),
+      "Your account and the data we hold are removed and you are signed out everywhere. Copies in backups may remain until their retention period ends; that period is not yet approved, so we cannot give a date."),
+    h("div", { class: "field" }, h("label", { for: "del_pw", text: "Your password" }), delPw),
+    h("div", { class: "field" }, h("label", { for: "del_word", text: "Type DELETE to confirm" }), delWord), delGo);
+  delForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); delMsg.replaceChildren();
+    if (delWord.value.trim() !== "DELETE") { delMsg.appendChild(banner("bad", "Type DELETE exactly to confirm.")); return; }
+    if (!delPw.value) { delMsg.appendChild(banner("bad", "Enter your password.")); return; }
+    delGo.disabled = true;
+    const r = await api("/privacy/deletion", { method: "POST", reauth: true, body: { password: delPw.value } });
+    delPw.value = "";
+    if (!r.ok) { delGo.disabled = false; delMsg.appendChild(banner("bad", r.error)); return; }
+    const token = h("input", { id: "del_receipt", type: "text", readonly: true, value: r.data.receipt_token || "", "aria-label": "Deletion receipt" });
+    const done = h("button", { class: "btn primary", type: "button", text: "I saved it - sign out" });
+    done.addEventListener("click", () => session.clear());
+    clear(delForm);
+    delForm.append(banner("ok", h("strong", { text: "Your account has been closed. " }),
+        r.data.status === "held" ? "Deletion is on hold and will finish when the hold ends." : "Your data was removed from the live system."),
+      h("p", { text: "Keep this receipt. It is the only proof of your request and cannot be shown again." }),
+      h("div", { class: "field" }, h("label", { for: "del_receipt", text: "Deletion receipt" }), token), done);
+  });
+  return h("div", { class: "grid c2" }, card("Download your data", exMsg, exForm), card("Delete your account", delMsg, delForm));
+}
+
+async function supportCard() {
+  const [imports, log] = await Promise.all([api("/statement-imports"), api("/support/access-log")]);
+  const msg = h("div", { "aria-live": "polite" });
+  const docs = imports.ok ? imports.data : [];
+  const logList = log.ok && log.data.length
+    ? h("ul", { class: "list" }, log.data.map((x) => h("li", {}, h("span", { class: "pill " + (x.outcome === "allowed" ? "warn" : "neutral"), text: x.outcome.replace(/_/g, " ") }),
+        " " + x.action.replace(/_/g, " ") + ": " + x.reason, h("div", { class: "muted small", text: when(x.at) }))))
+    : h("p", { class: "muted", text: "Support staff have not looked at anything of yours." });
+  if (!docs.length) return card("Support access", h("p", { class: "muted", text: "Support can see technical details of a failed request (no money amounts) when you give them the request ID. They cannot open your files unless you allow it here for one file." }), logList);
+  const pick = h("select", { id: "sg_doc" }, docs.map((j) => h("option", { value: j.document_id, text: (j.start_date || "?") + " to " + (j.end_date || "?") })));
+  const hours = h("select", { id: "sg_hours" }, [[1, "1 hour"], [24, "1 day"], [72, "3 days"]].map(([v, t]) => h("option", { value: v, text: t })));
+  const go = h("button", { class: "btn", type: "submit", text: "Allow support to open this file" });
+  const form = h("form", { novalidate: true }, h("div", { class: "grid c2" },
+    h("div", { class: "field" }, h("label", { for: "sg_doc", text: "File" }), pick),
+    h("div", { class: "field" }, h("label", { for: "sg_hours", text: "Allow for" }), hours)), go);
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault(); msg.replaceChildren(); go.disabled = true;
+    const r = await api("/support/grants", { method: "POST", body: { document_id: pick.value, hours: Number(hours.value) } });
+    go.disabled = false;
+    if (!r.ok) { msg.appendChild(banner("bad", r.error)); return; }
+    const undo = h("button", { class: "btn", type: "button", text: "Stop this access now" });
+    undo.addEventListener("click", async () => {
+      const v = await api(`/support/grants/${r.data.id}/revoke`, { method: "POST" });
+      msg.replaceChildren(v.ok ? banner("ok", "Access stopped.") : banner("bad", v.error));
+    });
+    msg.replaceChildren(banner("ok", "Support can open this one file until " + when(r.data.expires_at) + ". Each look is listed below."), undo);
+  });
+  return card("Support access", h("p", { class: "muted", text: "Support cannot open your files unless you allow it here, for one file and a short time. Every look is recorded below." }), form, msg, h("h3", { text: "Who looked" }), logList);
 }

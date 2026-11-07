@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Advisor landing</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F5F6F8;color:#0F1726;font-family:'Inter',system-ui,sans-serif}
+a{color:#0B7A78}a:hover{color:#075E5C}
+</style>
+</helmet>
+<div style="min-height:1000px;background:#F5F6F8;display:flex;flex-direction:column">
+  <header style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:20px 48px;max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#0F1726">Advisor</div>
+    <nav style="display:flex;gap:12px;flex-wrap:wrap">
+      <a href="Auth.dc.html" style="padding:12px 18px;min-height:20px;color:#0F1726;text-decoration:none;font-weight:500">Log in</a>
+      <a href="Auth.dc.html" style="padding:12px 20px;background:#0B7A78;color:#FFFFFF;border-radius:10px;text-decoration:none;font-weight:600">Create account</a>
+    </nav>
+  </header>
+
+  <section style="max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto;padding:72px 48px 40px;display:flex;flex-wrap:wrap;gap:56px;align-items:center">
+    <div style="flex:1 1 460px;min-width:0">
+      <div style="display:inline-block;padding:6px 12px;border-radius:999px;background:#E3F3F2;color:#075E5C;font-size:14px;font-weight:600">Personal finance, checked by rules</div>
+      <h1 style="font-family:'Space Grotesk',sans-serif;font-size:56px;line-height:1.05;margin:20px 0 20px;letter-spacing:-0.02em">Know what you can actually invest each month.</h1>
+      <p style="font-size:19px;line-height:1.55;color:#4A5568;margin:0 0 32px;max-width:540px">Enter your income, spending, savings and debts. The numbers come from fixed rules, not a chatbot's guess. The AI explains them and says plainly when it cannot.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <a href="Auth.dc.html" style="padding:16px 26px;background:#0B7A78;color:#FFFFFF;border-radius:12px;text-decoration:none;font-weight:600;font-size:17px">Start with your profile</a>
+        <a href="Dashboard.dc.html" style="padding:16px 26px;background:#FFFFFF;color:#0F1726;border:1px solid #CBD2DC;border-radius:12px;text-decoration:none;font-weight:600;font-size:17px">See a sample dashboard</a>
+      </div>
+    </div>
+    <div style="flex:1 1 380px;min-width:0;background:#FFFFFF;border:1px solid #E2E6EC;border-radius:20px;padding:28px;box-shadow:0 20px 40px -24px rgba(15,23,38,.25)">
+      <div style="font-size:14px;color:#5B6577;font-weight:500">Available to invest each month</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:48px;font-weight:700;margin:6px 0 4px">&#8377;54,000</div>
+      <div style="font-size:14px;color:#5B6577;margin-bottom:22px">Sample: &#8377;1,00,000 income, &#8377;40,000 expenses, no debt payments. We keep a 10% buffer.</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#F5F6F8;border-radius:10px"><span style="color:#4A5568">Surplus</span><strong>&#8377;60,000</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#F5F6F8;border-radius:10px"><span style="color:#4A5568">Credit score</span><strong>Not provided</strong></div>
+        <div style="display:flex;justify-content:space-between;padding:12px 14px;background:#FEF3E2;border-radius:10px;color:#7A3E00"><span>Result type</span><strong>Estimate, not advice</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto;padding:32px 48px 72px">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:30px;margin:0 0 24px">What it does</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:16px;padding:24px">
+        <h3 style="margin:0 0 8px;font-size:19px">Honest numbers</h3>
+        <p style="margin:0;color:#4A5568;line-height:1.55">Money is stored exactly, in paise. One calculation feeds the dashboard, every report and the chat, so they never disagree.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:16px;padding:24px">
+        <h3 style="margin:0 0 8px;font-size:19px">Unknown stays unknown</h3>
+        <p style="margin:0;color:#4A5568;line-height:1.55">No credit score? We say so. We never fill in 700 for you or pretend a missing debt payment is zero.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E2E6EC;border-radius:16px;padding:24px">
+        <h3 style="margin:0 0 8px;font-size:19px">What-if, not overwrite</h3>
+        <p style="margin:0;color:#4A5568;line-height:1.55">Try a different income or spend. Scenario results are labelled and never change your saved profile.</p>
+      </div>
+    </div>
+    <p style="margin:28px 0 0;color:#5B6577;font-size:14px">Educational estimates only. This is not licensed investment, tax or credit advice.</p>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
