@@ -2,7 +2,7 @@
 
 **Planning backlog only.** Build prerequisites and pilot subsets follow [implementation order](../implementation-order.md). Read [spec](spec.md) and [plan](plan.md). Use dependency stages, not numerical task order. A task may cover several requirements; the implementation handoff must complete the requirement-to-test matrix for all requirements.
 
-- [ ] **T1101** Implement assets/liabilities and ownership shares. Location: `backend/models/ and backend/finance/networth/`. Requirements: F011-FR01, F011-FR06.
+- [x] **T1101** Implement assets/liabilities and ownership shares. Location: `backend/models/ and backend/finance/networth/`. Requirements: F011-FR01, F011-FR06.
   - Done when: Duplicate asset and partial share fixtures produce correct consolidated totals.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
@@ -10,7 +10,7 @@
   - Done when: Expired/replayed invites fail; membership does not grant account access.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1103** Enforce revocation on every view/export. Location: `backend/controllers/ and tests/`. Requirements: F011-FR02, F011-FR03.
+- [x] **T1103** Enforce revocation on every view/export. Location: `backend/controllers/ and tests/`. Requirements: F011-FR02, F011-FR03.
   - Done when: Cached dashboard, chat and queued export deny access after revocation.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

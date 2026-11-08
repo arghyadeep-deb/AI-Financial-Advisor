@@ -2,19 +2,19 @@
 
 **Planning backlog only.** Build prerequisites and pilot subsets follow [implementation order](../implementation-order.md). Read [spec](spec.md) and [plan](plan.md). Use dependency stages, not numerical task order. A task may cover several requirements; the implementation handoff must complete the requirement-to-test matrix for all requirements.
 
-- [ ] **T0701** Implement suitability and contradictions. Location: `backend/finance/suitability/`. Requirements: F007-FR01.
+- [x] **T0701** Implement suitability and contradictions. Location: `backend/finance/suitability/`. Requirements: F007-FR01.
   - Done when: Missing horizon or a capacity conflict blocks personalized proposal with a useful explanation.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T0702** Define universe and assumption pack. Location: `knowledge_base/allocation/`. Requirements: F007-FR02.
+- [x] **T0702** Define universe and assumption pack. Location: `knowledge_base/allocation/`. Requirements: F007-FR02.
   - Done when: Each assumption has date, source, owner and expiry; stale or unavailable facts fail closed.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T0703** Implement feasible allocation solver. Location: `engines/allocation/`. Requirements: F007-FR03.
+- [x] **T0703** Implement feasible allocation solver. Location: `engines/allocation/`. Requirements: F007-FR03.
   - Done when: Weights/cash conserve exact amounts; deficit, exclusions and impossible bounds return no feasible plan.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T0704** Implement cost-aware comparisons. Location: `engines/allocation/costs/`. Requirements: F007-FR04.
+- [x] **T0704** Implement cost-aware comparisons. Location: `engines/allocation/costs/`. Requirements: F007-FR04.
   - Done when: Missing cost basis never yields a fabricated tax saving; contribution-first alternative is included.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

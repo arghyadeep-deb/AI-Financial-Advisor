@@ -10,7 +10,7 @@
   - Done when: Oversize, malicious, timeout and unavailable-scanner cases cannot reach publication.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1403** Implement manual cash and split API. Location: `backend/finance/ledger.py and backend/controllers/`. Requirements: F014-FR05.
+- [x] **T1403** Implement manual cash and split API. Location: `backend/finance/ledger.py and backend/controllers/`. Requirements: F014-FR05.
   - Done when: Paise conserved; later bank import match and cash withdrawal do not double count.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

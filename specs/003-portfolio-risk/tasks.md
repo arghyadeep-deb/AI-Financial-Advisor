@@ -1,15 +1,15 @@
 # Tasks — Portfolio tracking and risk
 
-- [ ] T301 [US1] Define owned holding, instrument, observation and dated valuation schemas in `backend/models/` and `migrations/`.
-- [ ] T302 [US1] Implement validated, repeat-safe CSV/manual ingestion and read APIs in `backend/finance/` and `backend/controllers/`.
+- [x] T301 [US1] Define owned holding, instrument, observation and dated valuation schemas in `backend/models/` and `migrations/`.
+- [x] T302 [US1] Implement validated, repeat-safe CSV/manual ingestion and read APIs in `backend/finance/` and `backend/controllers/`.
 - [ ] T303 [US1] Implement explicit current/partial/unavailable valuation and position drill-down under `backend/services/` and `frontend/`.
-- [ ] T304 [US2] Add scenario math and verified contribution constraints in `engines/`. Add shortfall and missing-input tests in `tests/`.
+- [x] T304 [US2] Add scenario math and verified contribution constraints in `engines/`. Add shortfall and missing-input tests in `tests/`.
 - [ ] T305 [US3] Add concentration, currency and coverage checks and explanations in `backend/services/` and `frontend/`.
 - [ ] T306 Test authorization, projection separation, price/source coverage and advice gating. Record Codex acceptance against the [review checklist](../review-checklist.md).
 
 ## Detailed implementation and verification
 
-- [ ] **T307** Implement observation identity and duplicate/source-conflict review. Location: `backend/finance/holdings/, migrations/`.
+- [x] **T307** Implement observation identity and duplicate/source-conflict review. Location: `backend/finance/holdings/, migrations/`.
   - Done when: Manual/import overlap, closed position and stale observation fixtures pass.
   - Evidence: pending implementation and independent verification.
 

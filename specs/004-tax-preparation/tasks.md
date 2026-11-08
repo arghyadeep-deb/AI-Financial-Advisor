@@ -1,7 +1,7 @@
 # Tasks — Tax preparation agent
 
 - [ ] T401 Define the exact supported period, regime, taxpayer scope, documents and official-reference examples under `engines/tax/` and `tests/fixtures/tax/`.
-- [ ] T402 [US1] Add case, period, source fields and revision storage in `backend/models/` and `migrations/`.
+- [x] T402 [US1] Add case, period, source fields and revision storage in `backend/models/` and `migrations/`.
 - [ ] T403 [US1] Add owned parser and field-evidence review under `backend/finance/tax/` and `frontend/`.
 - [ ] T404 [US2] Implement versioned computation and unsupported-case checks under `engines/tax/`.
 - [ ] T405 [US3] Add draft export, stale status and evidence drill-down under `backend/services/` and `frontend/`.

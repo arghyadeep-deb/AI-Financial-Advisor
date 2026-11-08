@@ -24,7 +24,7 @@ Prerequisites are the [spec](spec.md), [plan](plan.md), and [review checklist](.
 
 - [x] T110 [US3] Add one logical turn per client request, bound retries, and a safe fallback in `backend/services/chat_service.py`, `backend/controllers/chat_controller.py`, `utils/llm_brain.py`, and `frontend/app.py`.
 - [x] T111 [US3] Add metadata-only tracing and offline evaluations under `backend/core/`, `tests/`, and `evals/`. Assert no sensitive data leaves on parent, child, exception, or streaming paths.
-- [ ] T112 Run CI, representative migration and restore, browser verification, and Codex review. Attach results before 002 pilot launch.
+- [x] T112 Run CI, representative migration and restore, browser verification, and Codex review. Attach results before 002 pilot launch.
 
 ## Detailed implementation and verification
 
