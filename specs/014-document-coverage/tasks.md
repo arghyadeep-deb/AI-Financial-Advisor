@@ -22,7 +22,7 @@
   - Done when: No password persistence; low-confidence critical field pauses; external OCR disabled without appropriate data-sharing choice.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1406** Verify adapter regression/reprocess. Location: `evals/importers/ and tests/integration/`. Requirements: F014-FR06.
+- [x] **T1406** Verify adapter regression/reprocess. Location: `evals/importers/ and tests/integration/`. Requirements: F014-FR06.
   - Done when: Parser rollback, drift quarantine, restart and unchanged old snapshot tests pass.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

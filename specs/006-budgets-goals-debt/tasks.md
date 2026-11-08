@@ -22,7 +22,7 @@
   - Done when: Interest and payoff match independent schedules; negative amortization and missing rates are flagged.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T0606** Build planning UI and reminders. Location: `frontend/ and backend/services/notifications/`. Requirements: F006-FR06.
+- [x] **T0606** Build planning UI and reminders. Location: `frontend/ and backend/services/notifications/`. Requirements: F006-FR06.
   - Done when: User can edit, undo and explain a budget; no reminder before opt-in; outage does not duplicate delivery.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

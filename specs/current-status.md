@@ -2,13 +2,13 @@
 
 Written 2026-11-08 (overnight run). Supersedes the Stage A-only `implementation-handoff.md` for "where are we".
 
-## Verified results (integration at 4f279cc)
-- Full suite on the merged branch: **989 passed, 10 skipped** (about 11.5 minutes).
-- GitHub CI (`ci`, `ci-smoke`) green on that commit.
-- Browser tests (`tests/web`): 61 passed in the lane N run, including phone/tablet/desktop accessibility checks.
+## Verified results (integration at 77356a5)
+- Full suite on the merged branch: **1008 passed, 10 skipped** (about 12 minutes).
+- GitHub CI: `ci-smoke` green on 77356a5; the `ci` run was in progress when this was written (check `gh run list`). One earlier red run was caused by a wording change that broke an older UI test, fixed in the same push.
+- Browser tests (`tests/web`): 65 passed on the merged branch, including phone/tablet/desktop accessibility checks.
 
 ## Caveats
-- `tasks.md` checkboxes are **behind reality**: 43 of 122 are ticked after the 2026-11-08 audit below. Several features have working code and tests recorded in `specs/progress-lane-*.md` but are not ticked, because tick-off waits for independent review or real-data gates.
+- `tasks.md` checkboxes are **behind reality**: 51 of 122 are ticked after the 2026-11-08 audit below. Several features have working code and tests recorded in `specs/progress-lane-*.md` but are not ticked, because tick-off waits for independent review or real-data gates.
 - The new screens (monthly report, mapped CSV import, manual credit entry, settings data/support cards, demo, dashboard checklist, planning, reminders, household) are covered by automated browser tests. **They have not had a visual review by a person**: the Chrome screenshot tool timed out during the overnight check.
 - `Dockerfile`, `docker-compose.pilot.yml`: **tested locally** (builds, runs with PostgreSQL, migrations, health, signup; a missing migrate step was found and fixed). Not tested on a real host, behind TLS, with real mail, backups or load.
 - Production-like environments refuse the synthetic sandbox, so a production pilot has no statements, monthly report, tax or allocation until the real-data gates (T215, T220) pass.
@@ -35,3 +35,7 @@ Method: for each task a lane called "done", I read the task's "Done when" text a
 - 001: T114 (no profile-snapshot export compared yet).
 
 **Not started or blocked on the owner:** 002 T201 (needs a confirmed pilot bank layout), T208 (restart check), T215, T220 (real-data gates); 014 T1404, T1405 (second adapter, OCR deferred); 010 T1006 (real usability results).
+
+## Later ticks, 2026-11-08
+T208, T1003, T1005, T1401 (own tests added; mutation checks on the conflict and channel tests), then T0606, T1104, T1105 (lane N and O screens plus backend tests) and T1406 (drift quarantine, rollback, restart and unchanged-snapshot tests, synthetic adapter only). Total ticked: 51 of 122.
+Still partial on purpose: T303/T305 (API gives no per-position value or concentration threshold, so nothing honest to show), T0607 (needs an independent held-out evaluation), T1203, T1402.

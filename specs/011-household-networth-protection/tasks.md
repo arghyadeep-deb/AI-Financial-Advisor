@@ -14,11 +14,11 @@
   - Done when: Cached dashboard, chat and queued export deny access after revocation.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1104** Implement protection inventory and reminders. Location: `backend/services/protection/ and frontend/`. Requirements: F011-FR04, F011-FR05.
+- [x] **T1104** Implement protection inventory and reminders. Location: `backend/services/protection/ and frontend/`. Requirements: F011-FR04, F011-FR05.
   - Done when: Missing policy fields remain unknown; reminders require preferences.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1105** Build net-worth and household UI. Location: `frontend/`. Requirements: F011-FR01, F011-FR05, F011-FR06.
+- [x] **T1105** Build net-worth and household UI. Location: `frontend/`. Requirements: F011-FR01, F011-FR05, F011-FR06.
   - Done when: Each value shows date/source/share; personal versus shared context is clear.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
