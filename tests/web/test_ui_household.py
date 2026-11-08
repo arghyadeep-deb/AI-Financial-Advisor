@@ -129,3 +129,64 @@ def test_household_disabled_notice(page, live_url, monkeypatch):
     page.get_by_role('button', name='Start synthetic personal inventory').click()
     expect(page.get_by_text('Household is not available yet.', exact=True)).to_be_visible()
     assert page.get_by_role('button', name='Create household', exact=True).count() == 0
+
+# Protection inventory uses existing shared auth/API and household policy store.
+@pytest.mark.parametrize('status', [404, 503])
+def test_protection_feature_off_notice(page, live_url, status):
+    signup(page, live_url)
+    page.route('**/policies', lambda route: route.fulfill(status=status, json={'detail': 'Unavailable'}))
+    page.goto(f'{live_url}/app/#/protection')
+    expect(page.get_by_text('Protection inventory is not available yet, or no inventory has been created.', exact=True)).to_be_visible()
+    page.get_by_role('button', name='Start synthetic protection inventory').click()
+    expect(page.get_by_text('This feature is not available yet, or the resource is missing or not shared with you.', exact=True)).to_be_visible()
+    assert page.get_by_role('button', name='Add policy', exact=True).count() == 0
+
+
+def test_policy_unknown_edit_checklists_reminder_opt_in_and_isolation(page, live_url, tracker, households_enabled, db_engine):
+    from backend.models.models import WorkItem
+    signup(page, live_url)
+    page.goto(f'{live_url}/app/#/protection')
+    page.get_by_role('button', name='Start synthetic protection inventory').click()
+    expect(page.get_by_text('Protection revision 1', exact=True)).to_be_visible()
+    page.get_by_text('Add insurance policy', exact=True).click()
+    form = page.locator('main form').last
+    form.get_by_label('Policy reference', exact=True).fill('synthetic-policy')
+    form.get_by_label('Reason for policy change').fill('Synthetic initial inventory')
+    expect(form.get_by_label('Opt in to in-app renewal reminder')).not_to_be_checked()
+    form.get_by_role('button', name='Add policy', exact=True).click()
+    expect(page.get_by_text('Protection revision 2', exact=True)).to_be_visible()
+    with Session(db_engine) as db:
+        assert db.query(WorkItem).filter_by(kind='notification').count() == 0
+    page.get_by_text('Policy synthetic-policy', exact=True).click()
+    detail = page.locator('details').filter(has=page.get_by_text('Policy synthetic-policy', exact=True)).first
+    expect(detail.get_by_text('Coverage (paise): unknown • evidence: unknown', exact=True)).to_be_visible()
+    expect(detail.get_by_text('Insurer: unknown • evidence: unknown', exact=True)).to_be_visible()
+    detail.get_by_label('Coverage (paise) (blank means unknown)', exact=True).fill('123456')
+    detail.get_by_label('Reason for policy change').fill('Synthetic evidenced correction')
+    detail.get_by_role('button', name='Save policy').click()
+    expect(detail.get_by_role('alert')).to_be_visible()  # facts require evidence
+    expect(detail.get_by_label('Coverage (paise) (blank means unknown)', exact=True)).to_have_value('123456')
+    detail.get_by_label('Coverage (paise) evidence / declaration reference', exact=True).fill('Synthetic declaration section 1')
+    detail.get_by_label('Renewal date (blank means unknown)', exact=True).fill('2026-12-01')
+    detail.get_by_label('Renewal date evidence / declaration reference', exact=True).fill('Synthetic declaration section 2')
+    detail.get_by_label('Nominee checklist complete', exact=True).check()
+    detail.get_by_label('Emergency document location checklist complete', exact=True).check()
+    detail.get_by_label('Opt in to in-app renewal reminder', exact=True).check()
+    detail.get_by_role('button', name='Save policy').click()
+    expect(page.get_by_text('Protection revision 3', exact=True)).to_be_visible()
+    page.get_by_text('Policy synthetic-policy', exact=True).click()
+    expect(page.get_by_text('Coverage (paise): ₹1,234.56 • evidence: Synthetic declaration section 1', exact=True)).to_be_visible()
+    expect(page.get_by_label('Nominee checklist complete', exact=True).first).to_be_checked()
+    headers = {'Authorization': 'Bearer ' + tracker['token']}
+    saved = page.request.get(live_url + '/policies', headers=headers).json()
+    assert saved['data']['policies'][0]['reminder_opt_in'] is True
+    assert page.request.get(live_url + '/policies?revision=2', headers=headers).json()['data']['policies'][0]['coverage_paise'] is None
+    with Session(db_engine) as db:
+        assert db.query(WorkItem).filter_by(kind='notification').count() == 1
+    page.get_by_role('button', name='Log out', exact=True).click()
+    expect(page.get_by_role('heading', name='Welcome back')).to_be_visible()
+    signup(page, live_url)
+    page.goto(f'{live_url}/app/#/protection')
+    expect(page.get_by_role('button', name='Start synthetic protection inventory')).to_be_visible()
+    assert page.get_by_text('Policy synthetic-policy', exact=True).count() == 0
+    assert page.request.get(live_url + '/policies?revision=3', headers={'Authorization': 'Bearer ' + tracker['token']}).status == 404

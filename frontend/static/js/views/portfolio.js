@@ -1,4 +1,6 @@
-import { h, money, clear } from "../dom.js";
+import { h, money, clear, paise } from "../dom.js";
+import { api } from "../api.js";
+import { failure } from "./planning.js";
 import { loadProfile, loadLast, section, runAnalysis, state } from "../state.js";
 import { banner, card, pageHead, list, runStatus, nothingToInvest, nothingToInvestNote, busyButton, disclaimer } from "../components.js";
 import { donut } from "../charts.js";
@@ -42,6 +44,8 @@ export function renderPortfolio(inv, snapshot, target) {
 export async function portfolio(c) {
   const [p, last] = await Promise.all([loadProfile(true), loadLast(true)]);
   c.appendChild(pageHead("Portfolio planner", "How much you can invest each month, and a rules-based split."));
+  c.classList.add("finance-evidence");
+  await observedPortfolio(c);
   if (!p) { c.appendChild(banner("info", "Complete your profile first. ", h("a", { href: "#/profile", text: "Go to profile" }))); return; }
 
   const risk = h("select", { id: "pf_risk" }, [["low", "Low"], ["moderate", "Moderate"], ["high", "High"], ["very_high", "Very high"]]
@@ -76,4 +80,34 @@ export async function portfolio(c) {
   if (inv) { runStatus(last, last.section_status).forEach((b) => out.appendChild(b)); renderPortfolio(inv, last.snapshot || {}, out); }
   else out.appendChild(banner("info", "No saved plan yet. Run it on your saved profile above."));
   c.appendChild(disclaimer());
+}
+
+async function observedPortfolio(c) {
+  const area = card("Observed holdings", h("p", { text: "Declared observations, separate from projections. Named stock/fund picks and public advice are disabled." }));
+  c.append(area);
+  const r = await api("/portfolio/valuation");
+  if (!r.ok) { area.append(failure(r)); return; }
+  const v = r.data;
+  area.append(h("p", { text: "Valuation status: " + v.status + (v.status === "complete" && !v.stale ? " (current dated valuation)" : "") + " • as of: " + v.as_of + " • observation date: " + v.observation_date + " • holdings revision " + v.holdings_revision }),
+    h("p", { text: "Total value: " + paise(v.total_value_paise) + " • dated total: " + paise(v.dated_total_value_paise) + " • known subtotal (priced subset): " + paise(v.known_subtotal_paise) }),
+    h("p", { text: "Currency: " + (v.currency ?? "unknown") + " • verification: " + v.verification + " • stale: " + v.stale }),
+    h("p", { text: "Coverage: " + (v.coverage || []).join(", ") + " • priced positions: " + v.priced_positions + "/" + v.total_positions }),
+    h("p", { text: "Concentration scope: " + v.concentration_scope + ". No low-risk claim. " + v.concentration_method }),
+    h("p", { text: "Issuer HHI: " + (v.issuer_hhi ?? "unknown") + " • largest issuer share: " + (v.largest_issuer_share ?? "unknown") }),
+    h("p", { text: "Unclassified value: " + paise(v.unknown_class_paise) + " • unknown issuer value: " + paise(v.unknown_issuer_paise) }),
+    h("p", { text: v.performance_status }));
+  for (const [label, amounts] of [["Asset class", v.asset_class_paise], ["Issuer", v.issuer_paise]]) {
+    for (const [name, amount] of Object.entries(amounts || {})) area.append(h("p", { text: label + " " + name + ": " + paise(amount) }));
+  }
+  // Engine observation IDs enumerate open positions only. Never recompute finance in the browser.
+  let openIndex = 0;
+  for (const p of v.observations || []) {
+    const missing = !p.closed && (v.missing_price_observations || []).includes(String(openIndex));
+    if (!p.closed) openIndex++;
+    area.append(h("details", {}, h("summary", { text: p.instrument_id + " • " + p.account_ref }),
+      h("p", { text: "Holding: " + p.units + " units • currency: " + p.currency + " • observed: " + p.observation_date + " • closed: " + p.closed }),
+      h("p", { text: "Quote status: " + (p.closed ? "closed" : missing ? "unavailable" : "available at valuation date") + " • portfolio valuation status: " + v.status }),
+      h("p", { text: "Unit price: " + paise(p.price_paise) + " • price date: " + (p.price_date ?? "unknown") + " • source: " + (p.price_source ?? "unknown") + " • version: " + (p.price_version ?? "unknown") + " • expires: " + (p.price_expires ?? "unknown") }),
+      h("p", { text: "Cost basis: " + paise(p.cost_basis_paise) + " • issuer: " + (p.issuer_id ?? "unknown") + " • asset class: " + (p.asset_class ?? "unknown") })));
+  }
 }

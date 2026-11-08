@@ -137,3 +137,51 @@ def test_save_preserves_other_drafts_and_lost_response_retry_is_idempotent(page,
     rows = page.request.get(live_url + '/obligations', headers={'Authorization': 'Bearer ' + tracker['token']}).json()
     assert len(rows) == 1
 
+
+def test_budget_undo_explanation_and_owner_isolation(page, live_url, tracker, db_engine, synthetic):
+    from sqlalchemy.orm import Session
+    from backend.models.models import User
+    from backend.schemas import planning as p
+    from backend.schemas.statements import ReportCreate
+    from backend.services import planning_service as store, monthly_report_service as reports
+    from tests.test_stage_d import write
+    from tests.test_stage_c_security import seed_entry
+    from backend.models.models import StatementAccount
+    email = signup(page, live_url)
+    headers = {'Authorization': 'Bearer ' + tracker['token']}
+    with Session(db_engine) as db:
+        owner = db.query(User).filter_by(email=email).one()
+        account = StatementAccount(id='synthetic-budget-account', user_id=owner.id, label='Synthetic', token='SYNTH_UNDO', account_type='synthetic_debit')
+        db.add(account)
+        db.commit()
+        entry = seed_entry(db, owner, account, -550000, 'purchase')
+        from backend.finance import ledger
+        from backend.schemas.statements import Split
+        ledger.split(db, owner.id, entry.id, Split(expected_revision=entry.revision, idempotency_key='split-budget', reason='Synthetic grocery', components=[{'category': 'purchase', 'amount_paise': -550000, 'budget_category': 'grocery'}]))
+        row = store.write(db, owner.id, 'budget', write(p.BudgetWrite, {'month': '2026-01', 'lines': {'grocery': 500000}}))
+        report = reports.create(db, owner.id, ReportCreate(month='2026-01', account_ids=[account.id], expected_vector=reports.vector(db, owner.id)))
+    page.get_by_role('link', name='Plan', exact=True).click()
+    page.get_by_text('2026-01 — revision 1', exact=True).click()
+    detail = page.locator('details').filter(has=page.get_by_text('2026-01 — revision 1', exact=True)).first
+    detail.get_by_label('Monthly report ID for budget explanation').fill(report['id'])
+    detail.get_by_role('button', name='Explain budget').click()
+    expect(detail.get_by_text('grocery: allocated ₹5,000.00, actual ₹5,500.00, overspend ₹500.00.', exact=True)).to_be_visible()
+    detail.get_by_label('Allocation (paise)').fill('600000')
+    detail.get_by_label('Reason for change').fill('Synthetic edit')
+    detail.get_by_role('button', name='Save changes').click()
+    page.get_by_text('2026-01 — revision 2', exact=True).click()
+    page.get_by_label('Reason for undo').fill('Restore prior allocation')
+    page.get_by_role('button', name='Undo last budget edit').click()
+    page.get_by_text('2026-01 — revision 3', exact=True).click()
+    expect(page.get_by_label('Allocation (paise)').first).to_have_value('500000')
+    for revision, amount in [(1, 500000), (2, 600000), (3, 500000)]:
+        saved = page.request.get(live_url + '/budgets/' + row['id'] + '?revision=' + str(revision), headers=headers)
+        assert saved.status == 200 and saved.json()['data']['lines']['grocery'] == amount
+    page.get_by_role('button', name='Log out', exact=True).click()
+    expect(page.get_by_role('heading', name='Welcome back')).to_be_visible()
+    signup(page, live_url)
+    page.get_by_role('link', name='Plan', exact=True).click()
+    expect(page.get_by_text('No budgets yet.', exact=True)).to_be_visible()
+    other_headers = {'Authorization': 'Bearer ' + tracker['token']}
+    assert page.request.get(live_url + '/budgets/' + row['id'] + '?revision=1', headers=other_headers).status == 404
+    assert page.request.get(live_url + '/monthly-reports/' + report['id'], headers=other_headers).status == 404

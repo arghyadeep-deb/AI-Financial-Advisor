@@ -20,6 +20,7 @@ import { monthly } from "./views/monthly.js";
 import { household } from "./views/household.js";
 import { notifications } from "./views/notifications.js";
 import { planning } from "./views/planning.js";
+import { protection } from "./views/protection.js";
 import { demo } from "./views/demo.js";
 
 const ROUTES = {
@@ -37,6 +38,7 @@ const ROUTES = {
   chat: { view: chat, label: "Ask the advisor", icon: "chat" },
   statements: { view: statements, icon: "file", label: "Statements" },
   household: { view: household, icon: "user", label: "Household preview" },
+  protection: { view: protection, icon: "file", label: "Protection preview" },
   reminders: { view: notifications, icon: "file", label: "Reminders" },
   planning: { view: planning, icon: "bars", label: "Plan" },
   monthly: { view: monthly, icon: "bars", label: "Monthly report" },

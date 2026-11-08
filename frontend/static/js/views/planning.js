@@ -65,6 +65,46 @@ function editor(kind, row, refresh) {
   return form;
 }
 
+function budgetTools(row, replace) {
+  const area = h("div", { class: "stack" });
+  const msg = h("div", { "aria-live": "polite" });
+  if (row.revision > 1) {
+    const reason = field("undo-" + row.id, "Reason for undo");
+    const undo = h("button", { type: "button", class: "btn", text: "Undo last budget edit" });
+    let pending = null;
+    undo.addEventListener("click", async () => {
+      clear(msg);
+      if (!reason.input.value.trim()) { msg.append(banner("bad", "Enter a reason for undo.")); return; }
+      const signature = reason.input.value.trim();
+      if (!pending || pending.signature !== signature) pending = { signature, key: uid() };
+      undo.disabled = true;
+      const previous = await api("/budgets/" + encodeURIComponent(row.id) + "?revision=" + (row.revision - 1));
+      if (!previous.ok) { msg.append(failure(previous)); undo.disabled = false; return; }
+      const r = await api("/budgets/" + encodeURIComponent(row.id), { method: "PUT", body: {
+        data: previous.data.data, expected_revision: row.revision, idempotency_key: pending.key,
+        reason: reason.input.value.trim()
+      } });
+      undo.disabled = false;
+      if (r.ok) replace(r.data); else msg.append(failure(r));
+    });
+    area.append(reason.node, undo);
+  }
+  const report = field("explain-" + row.id, "Monthly report ID for budget explanation");
+  const explain = h("button", { type: "button", class: "btn", text: "Explain budget" });
+  explain.addEventListener("click", async () => {
+    clear(msg); explain.disabled = true;
+    const r = await api("/monthly-reports/" + encodeURIComponent(report.input.value.trim()));
+    explain.disabled = false;
+    if (!r.ok) { msg.append(failure(r)); return; }
+    const b = r.data.snapshot?.budget;
+    if (b?.budget?.id !== row.id || !b.lines) { msg.append(banner("info", "Budget explanation unavailable: this report does not include this budget.")); return; }
+    msg.append(h("p", { text: "Report month: " + r.data.month + " • budget revision " + b.budget.revision + " • stale: " + r.data.stale + " • selected scope complete: " + r.data.snapshot.selected_scope_complete + ". Frozen report numbers; budget allocation is not investment capacity." }));
+    for (const [category, values] of Object.entries(b.lines)) msg.append(h("p", { text: category + ": allocated " + paise(values.allocated_paise) + ", actual " + paise(values.actual_paise) + ", overspend " + paise(values.overspend_paise) + "." }));
+  });
+  area.append(report.node, explain, msg);
+  return area;
+}
+
 export async function planning(c) {
   c.classList.add("finance-evidence");
   async function render() {
@@ -83,6 +123,7 @@ export async function planning(c) {
         detail.append(editor(kind, row, saved => {
           detail.replaceWith(rowNode(saved));
         }));
+        if (kind === "budgets") detail.append(budgetTools(row, saved => detail.replaceWith(rowNode(saved))));
         return detail;
       }
       r.data.forEach(row => listing.append(rowNode(row)));
