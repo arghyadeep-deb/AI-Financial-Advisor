@@ -1,4 +1,4 @@
-# UNTESTED sketch for a single-host free pilot (app + PostgreSQL). Put real values in a private env file that is never committed:
+# Single-host free pilot (app + PostgreSQL). Put real values in a private env file that is never committed:
 #   docker compose -f docker-compose.pilot.yml --env-file pilot.env up --build
 # Required in pilot.env: SECRET_KEY, POSTGRES_PASSWORD, CORS_ORIGINS, FRONTEND_URL, STORAGE_KEYS_JSON, STORAGE_ACTIVE_KEY.
 services:
@@ -13,10 +13,20 @@ services:
       test: ["CMD-SHELL", "pg_isready -U advisor -d advisor"]
       interval: 5s
       retries: 10
+  migrate:
+    build: .
+    command: ["python", "-m", "backend.core.migrations_runner", "upgrade"]
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://advisor:${POSTGRES_PASSWORD}@db:5432/advisor
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY (32+ random characters)}
+    restart: "no"
   app:
     build: .
     depends_on:
-      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
     environment:
       APP_ENV: production
       DATABASE_URL: postgresql+psycopg://advisor:${POSTGRES_PASSWORD}@db:5432/advisor

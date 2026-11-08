@@ -18,7 +18,7 @@
   - Done when: Keyboard/screen-reader smoke and 360/768/1440px checks pass; charts have text summaries.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1005** Implement notification preferences and delivery. Location: `backend/services/notifications/ and frontend/`. Requirements: F010-FR05.
+- [x] **T1005** Implement notification preferences and delivery. Location: `backend/services/notifications/ and frontend/`. Requirements: F010-FR05.
   - Done when: Opt-out, quiet hours, duplicate event and invalid channel tests pass.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

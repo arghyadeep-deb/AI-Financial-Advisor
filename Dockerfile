@@ -1,4 +1,4 @@
-# UNTESTED: the Docker daemon was not available when this was written. Build it once locally before relying on it.
+# Built and run locally on 2026-11-08 (image 697MB, runs as non-root uid 10001, migrates and serves /health and /app). Not yet run on a real host.
 # Free-pilot container. No secrets are baked in; everything comes from environment variables at run time.
 FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1

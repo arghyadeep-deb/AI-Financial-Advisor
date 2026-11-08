@@ -10,7 +10,7 @@ Written 2026-11-08 (overnight run). Supersedes the Stage A-only `implementation-
 ## Caveats
 - `tasks.md` checkboxes are **behind reality**: 43 of 122 are ticked after the 2026-11-08 audit below. Several features have working code and tests recorded in `specs/progress-lane-*.md` but are not ticked, because tick-off waits for independent review or real-data gates.
 - The new screens (monthly report, mapped CSV import, manual credit entry, settings data/support cards, demo, dashboard checklist, planning, reminders, household) are covered by automated browser tests. **They have not had a visual review by a person**: the Chrome screenshot tool timed out during the overnight check.
-- `Dockerfile`, `docker-compose.pilot.yml`: **untested** (image never built or run).
+- `Dockerfile`, `docker-compose.pilot.yml`: **tested locally** (builds, runs with PostgreSQL, migrations, health, signup; a missing migrate step was found and fixed). Not tested on a real host, behind TLS, with real mail, backups or load.
 - Production-like environments refuse the synthetic sandbox, so a production pilot has no statements, monthly report, tax or allocation until the real-data gates (T215, T220) pass.
 
 ## Needs the owner (not guessed)

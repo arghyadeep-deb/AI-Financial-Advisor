@@ -1,6 +1,6 @@
 # Free-pilot deployment checklist
 
-Status: DRAFT, UNTESTED. Nothing here has been deployed. `Dockerfile` and `docker-compose.pilot.yml` could not be built or run when they were written (no Docker daemon). Build and smoke-test them locally first.
+Status: DRAFT. Tested locally on 2026-11-08 with throwaway values on one machine: the image builds, `docker compose -f docker-compose.pilot.yml up` runs PostgreSQL, a one-shot migrate step (schema 0231) and the app, `/health` and signup work, and production mode refuses to start without a real SECRET_KEY. NOT tested: a real host, TLS reverse proxy, real mail, backups and restore, load, or key rotation.
 
 ## What a production-like pilot can and cannot do today
 
