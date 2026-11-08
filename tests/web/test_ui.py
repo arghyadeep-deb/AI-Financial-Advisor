@@ -501,7 +501,7 @@ def test_first_run_checklist_and_privacy_notice_before_upload(page, live_url, tr
     page.goto(f"{live_url}/app/#/statements")
     expect(page.get_by_text("Before you upload")).to_be_visible()
     expect(page.get_by_text("never sent to an AI model")).to_be_visible()
-    expect(page.get_by_text("PDFs, photos and scanned pages")).to_be_visible()
+    expect(page.get_by_text("photos and scanned pages (nothing is read by OCR)")).to_be_visible()
     assert not tracker["errors"], tracker["errors"]
 
 
