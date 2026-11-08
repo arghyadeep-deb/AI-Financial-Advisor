@@ -17,7 +17,7 @@ Prerequisites are 001, [spec](spec.md), [plan](plan.md), [contract](contracts/im
 ## US2 Resolve ambiguity
 
 - [ ] T207 [US2] Implement exact reconciliation, overlap matching, revision-safe review and idempotent resume in `backend/finance/ledger.py` and `agents/monthly_finance_graph.py`.
-- [ ] T208 [US2] Implement import status and review UI under `frontend/`. Display balance differences and source references. Test restart and cross-user denial.
+- [x] T208 [US2] Implement import status and review UI under `frontend/`. Display balance differences and source references. Test restart and cross-user denial.
 - [ ] T209 [US2] Add verified transfer, card repayment, and refund links in `backend/finance/ledger.py`. Test distinct repeated amounts, one-sided coverage and ambiguous candidates.
 
 ## US3 Publish and inspect

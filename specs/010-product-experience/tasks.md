@@ -10,7 +10,7 @@
   - Done when: Demo cannot mix with real account; supported formats and privacy visible before upload.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
-- [ ] **T1003** Build report/transaction review interactions. Location: `frontend/`. Requirements: F010-FR02.
+- [x] **T1003** Build report/transaction review interactions. Location: `frontend/`. Requirements: F010-FR02.
   - Done when: Filters persist, source drill-down works, revision conflicts preserve user input.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 
