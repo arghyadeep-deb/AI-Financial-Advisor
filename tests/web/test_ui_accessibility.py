@@ -11,7 +11,7 @@ from tests.web.test_ui import live_url, signup, synthetic, tracker  # noqa: E402
 
 PUBLIC = ["", "login", "signup", "demo"]
 SIGNED_IN = ["dashboard", "health", "portfolio", "stocks", "credit", "reports", "profile", "chat",
-             "statements", "monthly", "settings", "planning", "reminders", "household"]
+             "statements", "monthly", "settings", "planning", "reminders", "household", "protection"]
 WIDTHS = [(360, 740), (768, 1024), (1440, 900)]
 
 NAMELESS = """() => [...document.querySelectorAll('input, select, textarea')].filter(e => {
@@ -66,6 +66,9 @@ def test_signed_in_screens(page, live_url, tracker, synthetic, monkeypatch, widt
         data={'expected_revision': 0, 'idempotency_key': 'accessibility-inventory', 'reason': 'Synthetic accessibility fixture',
               'data': {'observations': []}})
     assert response.status == 200
+    response = page.request.post(live_url + '/policies', headers={'Authorization': 'Bearer ' + tracker['token']},
+        data={'expected_revision': 0, 'idempotency_key': 'accessibility-policies', 'reason': 'Synthetic policy fixture', 'data': {'policies': []}})
+    assert response.status == 200
     for route in SIGNED_IN:
         page.goto(f"{live_url}/app/#/{route}")
         expect(page.locator("main h1").first).to_be_visible()
@@ -84,7 +87,13 @@ def test_new_screens_expanded_forms_and_long_evidence(page, live_url, tracker, m
               'data': {'observations': [{'reference': 'synthetic_' + 'a' * 60, 'kind': 'asset', 'value_paise': 10001,
                                         'share_percent': '33.333333333333333333', 'valued_on': '2020-01-01'}]}})
     assert response.status == 200
-    for route in ['planning', 'reminders', 'household']:
+    response = page.request.post(live_url + '/policies', headers={'Authorization': 'Bearer ' + tracker['token']},
+        data={'expected_revision': 0, 'idempotency_key': 'expanded-policies', 'reason': 'Synthetic policy fixture',
+              'data': {'policies': [{'reference': 'synthetic_' + 'b' * 60}]}})
+    assert response.status == 200
+    from tests.web.test_ui_portfolio import seed_holdings
+    seed_holdings(page, live_url, tracker['token'])
+    for route in ['planning', 'reminders', 'household', 'protection', 'portfolio']:
         page.goto(f'{live_url}/app/#/{route}')
         expect(page.locator('main h1')).to_be_visible()
         page.wait_for_timeout(400)

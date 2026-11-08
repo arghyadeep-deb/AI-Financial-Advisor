@@ -56,7 +56,7 @@ def tracker(page):
     seen = {"errors": [], "token": None}
     page.on("console", lambda m: seen["errors"].append(m.text) if m.type == "error" and "404" not in m.text else None)
     page.on("pageerror", lambda e: seen["errors"].append(str(e)))
-    page.on("response", lambda r: seen["errors"].append(f"HTTP {r.status} {r.request.method} {r.url}") if r.status >= 400 and "/auth/logout" not in r.url and not (r.status == 404 and r.url.endswith("/profile")) else None)
+    page.on("response", lambda r: seen["errors"].append(f"HTTP {r.status} {r.request.method} {r.url}") if r.status >= 400 and "/auth/logout" not in r.url and not (r.status == 404 and any(r.url.endswith(p) for p in ["/profile", "/portfolio/valuation", "/policies"])) else None)
 
     def on_req(r):
         auth = r.headers.get("authorization")
