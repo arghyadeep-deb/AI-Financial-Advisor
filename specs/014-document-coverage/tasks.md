@@ -2,7 +2,7 @@
 
 **Planning backlog only.** Build prerequisites and pilot subsets follow [implementation order](../implementation-order.md). Read [spec](spec.md) and [plan](plan.md). Use dependency stages, not numerical task order. A task may cover several requirements; the implementation handoff must complete the requirement-to-test matrix for all requirements.
 
-- [ ] **T1401** Create format registry and support UI. Location: `backend/finance/importers/ and frontend/`. Requirements: F014-FR01.
+- [x] **T1401** Create format registry and support UI. Location: `backend/finance/importers/ and frontend/`. Requirements: F014-FR01.
   - Done when: Supported versus unsupported/scanned/protected states are explicit.
   - Evidence: implementation revision, automated results and applicable browser/operational record; currently pending.
 

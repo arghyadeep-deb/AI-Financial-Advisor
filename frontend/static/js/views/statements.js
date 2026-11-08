@@ -129,7 +129,7 @@ export async function statements(c) {
     c.appendChild(banner("info", "Nothing is added to your records until you confirm it. This is a limited preview: sample format only, no PDF."));
     c.appendChild(card("Before you upload",
       h("ul", { class: "list" },
-        h("li", { text: "Accepted: CSV or plain-text files. Not accepted yet: PDFs, photos and scanned pages (nothing is read by OCR)." }),
+        h("li", { text: "Accepted: CSV or plain-text files. Not accepted yet: PDFs (including password-protected ones; no password is ever asked for or kept), photos and scanned pages (nothing is read by OCR)." }),
         h("li", { text: "Your file is stored encrypted and kept for " + (fmt.data.source_retention_days || "a limited number of") + " days, then removed." }),
         h("li", { text: "File contents are never sent to an AI model or any outside service." }),
         h("li", { text: "You can export or delete your data any time from Settings." }))));
